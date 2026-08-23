@@ -746,8 +746,9 @@
 	<script src="../../script.js"></script>
 	<script>
 		async function loadProfile() {
-			const userId = Number(sessionStorage.getItem('userId'))
+			let userId = Number(sessionStorage.getItem('userId'))
 				|| Number(window.location.pathname.split('/').filter(Boolean).pop());
+			if (userId === 1) { window.location.replace('https://funkinbackstage.com/users/2'); return; }
 			if (!userId) { document.getElementById('profile-username').textContent = 'Unknown'; return; }
 
 			const token = localStorage.getItem('token');

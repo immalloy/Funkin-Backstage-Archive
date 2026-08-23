@@ -175,15 +175,6 @@
 						<h1 style="font-size:2.5vh;color:#E1E1E1;margin-top:0.3vh;padding:0 1rem;">SIGN UP</h1>
 					</div>
 				`;
-			} else {
-				document.getElementById('upload-button').style.display = 'none';
-				fetch(`${API}/me`, {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${_token}` },
-					body: JSON.stringify({})
-				}).then(r => r.ok ? r.json() : null).then(me => {
-					if (me?.isAdmin) document.getElementById('upload-button').style.display = '';
-				}).catch(() => {});
 			}
 		</script>
 	</body>
