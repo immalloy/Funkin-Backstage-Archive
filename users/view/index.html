@@ -316,6 +316,49 @@
 		}
 		#socials-edit-btn:hover { color: #E1E1E1; border-color: #666; }
 
+		#logout-modal {
+			display: none;
+			position: fixed;
+			inset: 0;
+			background: rgba(0,0,0,0.7);
+			z-index: 100;
+			align-items: center;
+			justify-content: center;
+		}
+		#logout-modal.open { display: flex; }
+		#logout-modal-box {
+			background: #1a1828;
+			border: 1px solid #333;
+			border-radius: 0.6rem;
+			padding: 1.8rem 2.2rem;
+			display: flex;
+			flex-direction: column;
+			gap: 1.2rem;
+			align-items: center;
+			width: 280px;
+		}
+		#logout-modal-box p {
+			font-family: 'FunkinLingLong', sans-serif;
+			font-size: 3vh;
+			color: #E1E1E1;
+			margin: 0;
+			text-align: center;
+		}
+		#logout-modal-btns { display: flex; gap: 0.8rem; width: 100%; }
+		#logout-modal-btns button {
+			flex: 1;
+			font-family: 'FunkinLingLong', sans-serif;
+			font-size: 2.2vh;
+			border-radius: 0.4rem;
+			padding: 0.5rem;
+			cursor: pointer;
+			border: 1px solid #555;
+		}
+		#logout-confirm { background: #c94040; border-color: #c94040; color: #fff; }
+		#logout-confirm:hover { background: #a83030; }
+		#logout-cancel { background: #22223a; color: #E1E1E1; }
+		#logout-cancel:hover { background: #2e2c4a; }
+
 		#socials-edit-modal {
 			display: none;
 			position: fixed;
@@ -556,6 +599,16 @@
 			</div>
 		</div>
 	</div>
+	<div id="logout-modal">
+		<div id="logout-modal-box">
+			<p>Log out?</p>
+			<div id="logout-modal-btns">
+				<button id="logout-cancel" type="button">CANCEL</button>
+				<button id="logout-confirm" type="button">LOG OUT</button>
+			</div>
+		</div>
+	</div>
+
 	<div id="socials-edit-modal">
 		<div id="socials-edit-box">
 			<h3>Edit Socials</h3>
@@ -756,10 +809,14 @@
 
 				const logoutBtn = document.getElementById('btn-logout');
 				logoutBtn.style.display = 'flex';
-				logoutBtn.onclick = () => {
+				const logoutModal = document.getElementById('logout-modal');
+				logoutBtn.onclick = () => logoutModal.classList.add('open');
+				document.getElementById('logout-cancel').onclick = () => logoutModal.classList.remove('open');
+				document.getElementById('logout-confirm').onclick = () => {
 					localStorage.removeItem('token');
 					window.location.href = 'https://funkinbackstage.com/mods';
 				};
+				logoutModal.addEventListener('click', e => { if (e.target === logoutModal) logoutModal.classList.remove('open'); });
 
 				document.getElementById('profile-bio-save').onclick = async () => {
 					const newBio = input.value.trim();
