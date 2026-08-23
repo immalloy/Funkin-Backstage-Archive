@@ -158,6 +158,8 @@
     </div>
 </body>
 
+<img class="smooth-btn" src="../icon-profile-out.png" onclick="goToOwnProfile()" style="position:fixed;top:1rem;right:2rem;height:7vh;cursor:pointer;transition:transform 0.3s ease-out;z-index:101;" draggable="false"/>
+
 <p class="footer-left" style="position: fixed; bottom: 1rem; left: 1rem; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.25rem; color: #666; z-index: 101;"></p>
 <p class="footer-right" style="position: fixed; bottom: 1rem; right: 1rem; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.25rem; color: #666; z-index: 101; text-align: right;"></p>
 
@@ -365,6 +367,13 @@
     function goToUserProfile(userId) {
         sessionStorage.setItem('userId', userId);
         window.location.href = `https://funkinbackstage.com/users/${userId}`;
+    }
+
+    async function goToOwnProfile() {
+        const t = localStorage.getItem('token');
+        if (!t) { window.location.href = '../login'; return; }
+        const me = await fetch(`${API}/me`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${t}` }, body: JSON.stringify({}) }).then(r => r.ok ? r.json() : null).catch(() => null);
+        if (me?.id) goToUserProfile(me.id);
     }
 
     // ── Sticker / input helpers ────────────────────────────────────────────
