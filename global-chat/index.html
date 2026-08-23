@@ -265,9 +265,13 @@
             content = content.replaceAll(`:${sticker}:`, `<img src="${API}/stickers/${sticker}.png" style="height:${stickerOnly ? '13' : '5'}vh;${stickerOnly ? '' : 'margin:1vh;margin-top:0.5vh;'}"/>`);
         }
         const isMentioned = currentUser && new RegExp(`@${currentUser.username}`, 'i').test(message.contents);
-        const badgeHTML = user.id === 2
-            ? `<img src="https://files.funkinbackstage.com/badges/owner-badge.png" style="height:2.5vh;margin-top:1vh;" draggable="false">`
-            : (user.isAdmin ? `<img src="https://files.funkinbackstage.com/badges/mod-badge.png" style="height:2.5vh;margin-top:1vh;" draggable="false">` : '');
+        const badgeTip = user.id === 2 ? 'Site Owner' : (user.isAdmin ? 'Site Moderator' : '');
+        const badgeSrc = user.id === 2
+            ? 'https://files.funkinbackstage.com/badges/owner-badge.png'
+            : (user.isAdmin ? 'https://files.funkinbackstage.com/badges/mod-badge.png' : '');
+        const badgeHTML = badgeSrc
+            ? `<span class="badge-wrap" data-tip="${badgeTip}" style="margin-top:1vh;"><img src="${badgeSrc}" style="height:2.5vh;display:block;" draggable="false"></span>`
+            : '';
         return `<div style="display:flex;flex-direction:column;align-items:flex-start;gap:0rem;justify-content:start;${isMentioned ? 'background:rgba(80,130,255,0.15);border-left:3px solid #5082ff;border-radius:0.4rem;padding:0.3rem 0.6rem;margin:-0.3rem -0.6rem;' : ''}">
             <div style="display:flex;justify-content:flex-start;align-items:center;gap:0.5vw">
                 <div style="position:relative;height:4vh;width:4vh;flex-shrink:0;">

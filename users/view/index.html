@@ -769,11 +769,11 @@
 			const badgeEl = document.getElementById('profile-badge');
 			const badges = [];
 			if (user.isAdmin) badges.push(userId === 2
-				? 'https://files.funkinbackstage.com/badges/owner-badge.png'
-				: 'https://files.funkinbackstage.com/badges/mod-badge.png');
-			if (user.ogMember) badges.push('https://files.funkinbackstage.com/badges/og-badge.png');
+				? { src: 'https://files.funkinbackstage.com/badges/owner-badge.png', tip: 'Site Owner' }
+				: { src: 'https://files.funkinbackstage.com/badges/mod-badge.png',   tip: 'Site Moderator' });
+			if (user.ogMember) badges.push({ src: 'https://files.funkinbackstage.com/badges/og-badge.png', tip: 'Pre-Release Member' });
 			if (badges.length) {
-				const badgeHTML = badges.map(src => `<img src="${src}" draggable="false" alt="badge">`).join('');
+				const badgeHTML = badges.map(b => `<span class="badge-wrap" data-tip="${b.tip}"><img src="${b.src}" draggable="false" alt="${b.tip}" style="width:100%;display:block;"></span>`).join('');
 				badgeEl.innerHTML = badgeHTML;
 				badgeEl.style.display = 'flex';
 				document.getElementById('profile-badge-mobile').innerHTML = badgeHTML;

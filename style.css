@@ -48,6 +48,36 @@ body {
   text-align: center;
 }
 
+.badge-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+}
+.badge-wrap::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1828;
+  border: 1px solid #444;
+  color: #E1E1E1;
+  font-family: 'FunkinOptions', sans-serif;
+  font-size: 1.3vh;
+  line-height: normal;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 4px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 999;
+}
+.badge-wrap:hover::after {
+  opacity: 1;
+}
+
 h1 {
   font-size: 9rem;
   font-weight: 700;
