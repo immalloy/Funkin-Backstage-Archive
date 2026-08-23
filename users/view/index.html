@@ -118,7 +118,7 @@
 			<h1 id="profile-username">...</h1>
 			<p id="profile-bio"></p>
 			<div id="profile-bio-edit">
-				<input id="profile-bio-input" type="text" maxlength="150" placeholder="add a bio...">
+				<input id="profile-bio-input" type="text" maxlength="30" placeholder="add a bio...">
 				<button id="profile-bio-save" type="button">save</button>
 			</div>
 		</div>
@@ -158,7 +158,11 @@
 			avatarEl.onerror = () => { avatarEl.src = ''; avatarEl.style.background = '#444'; };
 
 			const bioEl = document.getElementById('profile-bio');
-			bioEl.textContent = `"${user.bio}"` || '';
+			if (user.bio) {
+				bioEl.textContent = `"${user.bio}"`;
+			} else {
+				bioEl.style.display = 'none';
+			}
 
 			if (me && me.id === userId) {
 				const editRow = document.getElementById('profile-bio-edit');
@@ -175,7 +179,8 @@
 						body: JSON.stringify({ bio: newBio })
 					});
 					if (res.ok) {
-						bioEl.textContent = `"${newBio}"`;
+						bioEl.textContent = newBio ? `"${newBio}"` : '';
+						bioEl.style.display = newBio ? '' : 'none';
 						input.value = newBio;
 					}
 				};
