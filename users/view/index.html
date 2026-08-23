@@ -28,14 +28,57 @@
 			box-sizing: border-box;
 		}
 
-		#profile-avatar {
+		#avatar-wrapper {
+			position: relative;
 			width: 30vh;
 			height: 30vh;
-			border-radius: 50%;
-			object-fit: cover;
 			flex-shrink: 0;
-			background: #333;
+			border-radius: 50%;
 			border: 2vh solid #E1E1E1;
+			overflow: hidden;
+		}
+
+		#profile-avatar {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			background: #333;
+			display: block;
+			transition: filter 0.2s ease;
+		}
+
+		#avatar-overlay {
+			position: absolute;
+			inset: 0;
+			border-radius: 50%;
+			background: rgba(0,0,0,0);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: background 0.2s ease;
+			pointer-events: none;
+		}
+
+		#avatar-upload-icon {
+			width: 35%;
+			opacity: 0;
+			transition: opacity 0.2s ease;
+		}
+
+		#avatar-wrapper.can-upload {
+			cursor: pointer;
+		}
+
+		#avatar-wrapper.can-upload:hover #profile-avatar {
+			filter: brightness(0.5);
+		}
+
+		#avatar-wrapper.can-upload:hover #avatar-overlay {
+			background: rgba(0,0,0,0.3);
+		}
+
+		#avatar-wrapper.can-upload:hover #avatar-upload-icon {
+			opacity: 1;
 		}
 
 		#profile-info {
@@ -117,7 +160,13 @@
 <body>
 	<input id="avatar-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none;">
 	<div id="profile-header">
-		<img id="profile-avatar" draggable="false" src="">
+		<div id="avatar-wrapper">
+			<img id="profile-avatar" draggable="false" src="">
+			<div id="avatar-overlay">
+				<img src="upload-button.png" draggable="false" id="avatar-upload-icon">
+			</div>
+		</div>
+		</div>
 		<div id="profile-info">
 			<h1 id="profile-username">...</h1>
 			<p id="profile-bio"></p>
@@ -171,10 +220,10 @@
 			}
 
 			if (me && me.id === userId) {
-				avatarEl.style.cursor = 'pointer';
-				avatarEl.title = 'Click to change avatar';
+				const avatarWrapper = document.getElementById('avatar-wrapper');
+				avatarWrapper.classList.add('can-upload');
 				const avatarInput = document.getElementById('avatar-input');
-				avatarEl.onclick = () => avatarInput.click();
+				avatarWrapper.onclick = () => avatarInput.click();
 				avatarInput.onchange = async () => {
 					const file = avatarInput.files[0];
 					if (!file) return;
