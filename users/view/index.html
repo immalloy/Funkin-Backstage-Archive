@@ -207,7 +207,8 @@
 			usernameEl.textContent = user.username;
 
 			const avatarEl = document.getElementById('profile-avatar');
-			avatarEl.src = `${API}/avatars/${userId}.png`;
+			const avatarTs = localStorage.getItem(`avatarTs_${userId}`) || Date.now();
+			avatarEl.src = `${API}/avatars/${userId}.png?t=${avatarTs}`;
 			avatarEl.onerror = () => { avatarEl.src = ''; avatarEl.style.background = '#444'; };
 
 			const bioEl = document.getElementById('profile-bio');
@@ -232,7 +233,9 @@
 						body: file
 					});
 					if (res.ok) {
-						avatarEl.src = `${API}/avatars/${userId}.png?t=${Date.now()}`;
+						const t = Date.now();
+						localStorage.setItem(`avatarTs_${userId}`, t);
+						avatarEl.src = `${API}/avatars/${userId}.png?t=${t}`;
 					}
 					avatarInput.value = '';
 				};
