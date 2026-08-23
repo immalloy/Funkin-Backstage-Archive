@@ -48,11 +48,13 @@
     }
 
     .sticker-in-bubble {
-        height: 8.5vh;
+        width: calc((40vh - 4vh - 2 * 1vh) / 3);
+        height: calc((40vh - 4vh - 2 * 1vh) / 3);
+        object-fit: contain;
+        flex-shrink: 0;
     }
     .sticker-in-bubble:hover {
-        height: 8.5vh;
-      cursor: pointer;
+        cursor: pointer;
     }
 
     @media (max-width: 768px) {
@@ -111,7 +113,8 @@
         font-size: 3.2vh !important;
       }
       .sticker-in-bubble {
-        height: 5vh !important;
+        width: calc((28vh - 4vh - 2 * 1vh) / 3) !important;
+        height: calc((28vh - 4vh - 2 * 1vh) / 3) !important;
       }
       .footer-left, .footer-right {
         font-size: 0.75rem !important;
@@ -134,10 +137,7 @@
     <div class="ui-box" style="width: 100rem; height: 1rem; gap: 3vh; position: relative;">
         <input type="text" id="chat-bar" placeholder="Type something to send..." style="background: transparent; border: none; outline: none; font-family: 'FunkinOptions', sans-serif; font-size: 4vh; color: #E1E1E1; width: 100%; caret-color: #E1E1E1; margin-top: 1vh;" onkeydown="if(event.key==='Enter')sendMessage()"/>
         <div style="position: relative; flex-shrink: 0;">
-            <div id="sticker-bubble" style="display: none; position: absolute; bottom: 0; right: 0; background-image: url('sticker-bubble.png'); background-size: contain; background-repeat: no-repeat; width: 40vh; height: 40vh; padding: 2vh; gap: 1vh;">
-                <img id="bfSticker1" class="sticker-in-bubble smooth-btn" src="https://api.funkinbackstage.com/stickers/bfSticker1.png" onclick="addSticker(this.id)"/>
-                <img id="picoSticker1" class="sticker-in-bubble smooth-btn" src="https://api.funkinbackstage.com/stickers/picoSticker1.png" onclick="addSticker(this.id)"/>
-                <img id="vampSticker1" class="sticker-in-bubble smooth-btn" src="https://api.funkinbackstage.com/stickers/vampSticker1.png" onclick="addSticker(this.id)"/>
+            <div id="sticker-bubble" style="display: none; position: absolute; bottom: 0; right: 0; background-image: url('sticker-bubble.png'); background-size: contain; background-repeat: no-repeat; width: 40vh; height: 40vh; padding: 2vh; gap: 1vh; flex-wrap: wrap; align-content: flex-start; overflow-y: auto;">
             </div>
             <img src="icon-sticker.png" class="smooth-btn" style="width: 3.5vh; height: 4vh; margin-left: auto; cursor: pointer;" onclick="toggleStickerBubble()"/>
         </div>
@@ -378,10 +378,22 @@
         }
     }
 
-    // ── Boot ────────────────────────────────────────────────────────────────
+    async function populateStickerBubble() {
+        const stickers = await getStickers();
+        const bubble = document.getElementById('sticker-bubble');
+        stickers.filter(name => name !== 'true').forEach(name => {
+            const img = document.createElement('img');
+            img.id = name;
+            img.className = 'sticker-in-bubble smooth-btn';
+            img.src = `${API}/stickers/${name}.png`;
+            img.onclick = () => addSticker(name);
+            bubble.insertBefore(img, bubble.firstChild);
+        });
+    }
+
     updateTheMessages(true);
     connectWS();
-    // 30s re-sync as a safety net in case a WS message is ever dropped
+    populateStickerBubble();
     setInterval(() => updateTheMessages(false), 30000);
 </script>
 
