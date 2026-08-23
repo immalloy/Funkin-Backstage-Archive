@@ -10,7 +10,7 @@
 	<style>
 		body {
 			display: block !important;
-			overflow-y: auto;
+			overflow-y: hidden;
 			min-height: 100vh;
 			height: auto;
 			padding: 0;
@@ -214,20 +214,199 @@
 		}
 		#profile-bio-save:hover { color: #E1E1E1; }
 
-		#profile-content {
-			padding: 2rem 3rem;
-			box-sizing: border-box;
+		#profile-body {
+			display: flex;
+			flex-direction: row;
+			align-items: flex-start;
 			width: 100%;
+			min-height: 70vh;
+			position: relative;
+			padding: 2rem 2.5rem;
+			box-sizing: border-box;
+			gap: 1.5rem;
+			overflow: hidden;
+		}
+
+		#profile-sidebar {
+			width: 24%;
+			flex-shrink: 0;
+			background: #1a1828;
+			border-radius: 0.5rem;
+			min-height: 40vh;
+			padding: 1.2rem 1rem;
+			box-sizing: border-box;
+			display: flex;
+			flex-direction: column;
+			gap: 0.2rem;
+		}
+
+		.social-row {
+			display: flex;
+			align-items: center;
+			gap: 1rem;
+			padding: 0.7rem 0.8rem;
+			border-radius: 0.4rem;
+			text-decoration: none;
+			transition: background 0.15s;
+			cursor: pointer;
+		}
+
+		.social-row:hover { background: rgba(255,255,255,0.06); }
+
+		.social-icon {
+			width: 3.8rem;
+			height: 3.8rem;
+			border-radius: 0.5rem;
+			flex-shrink: 0;
+			object-fit: cover;
+		}
+
+		.social-text { display: flex; flex-direction: column; min-width: 0; }
+
+		.social-name {
+			font-family: 'FunkinLingLong', sans-serif;
+			font-size: 2.8vh;
+			color: #E1E1E1;
+			line-height: 1.1;
+		}
+
+		.social-handle {
+			font-family: 'FunkinOptions', sans-serif;
+			font-size: 1.7vh;
+			color: #888;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			max-width: 16ch;
+		}
+
+		#socials-edit-btn {
+			margin-top: auto;
+			font-family: 'FunkinOptions', sans-serif;
+			font-size: 1.6vh;
+			color: #777;
+			background: none;
+			border: 1px solid #333;
+			border-radius: 0.4rem;
+			padding: 0.4rem 0.8rem;
+			cursor: pointer;
+			width: 100%;
+			display: none;
+		}
+		#socials-edit-btn:hover { color: #E1E1E1; border-color: #666; }
+
+		#socials-edit-modal {
+			display: none;
+			position: fixed;
+			inset: 0;
+			background: rgba(0,0,0,0.7);
+			z-index: 100;
+			align-items: center;
+			justify-content: center;
+		}
+		#socials-edit-modal.open { display: flex; }
+
+		#socials-edit-box {
+			background: #1a1828;
+			border: 1px solid #333;
+			border-radius: 0.6rem;
+			padding: 1.5rem 2rem;
+			width: 340px;
+			display: flex;
+			flex-direction: column;
+			gap: 0.8rem;
+		}
+
+		#socials-edit-box h3 {
+			font-family: 'FunkinLingLong', sans-serif;
+			font-size: 3vh;
+			color: #E1E1E1;
+			margin: 0 0 0.4rem;
+		}
+
+		.social-edit-row {
+			display: flex;
+			align-items: center;
+			gap: 0.6rem;
+		}
+
+		.social-edit-row img {
+			width: 2rem;
+			height: 2rem;
+			border-radius: 0.3rem;
+			flex-shrink: 0;
+		}
+
+		.social-edit-row input {
+			flex: 1;
+			background: #0d0d14;
+			border: 1px solid #333;
+			border-radius: 0.3rem;
+			padding: 0.35rem 0.6rem;
+			color: #E1E1E1;
+			font-family: 'FunkinOptions', sans-serif;
+			font-size: 1.5vh;
+			outline: none;
+		}
+		.social-edit-row input:focus { border-color: #555; }
+
+		#socials-save-btn {
+			font-family: 'FunkinLingLong', sans-serif;
+			font-size: 2.2vh;
+			color: #E1E1E1;
+			background: #2e2c4a;
+			border: 1px solid #555;
+			border-radius: 0.4rem;
+			padding: 0.5rem;
+			cursor: pointer;
+			margin-top: 0.4rem;
+		}
+		#socials-save-btn:hover { background: #3a3860; }
+
+		#profile-content {
+			flex: 0 0 auto;
+			width: 45%;
+			display: flex;
+			flex-direction: column;
+			min-width: 0;
+		}
+
+		#mods-box {
+			background: #1a1828;
+			border-radius: 0.5rem;
+			padding: 1.5rem 2rem;
+			min-height: 60vh;
+		}
+
+		#mods-box h2 {
+			font-family: 'FunkinLingLong', sans-serif;
+			font-size: 5vh;
+			color: #E1E1E1;
+			margin: 0 0 1rem 0;
+			text-align: center;
+			letter-spacing: 0.05em;
+		}
+
+		#mods-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+			gap: 1rem;
+		}
+
+		#profile-char {
+			position: absolute;
+			right: 4vw;
+			bottom: 0;
+			height: 92%;
+			pointer-events: none;
+			user-select: none;
 		}
 
 		@media (max-width: 768px) {
-			#profile-header {
-				padding: 1.5rem;
-				gap: 1.2rem;
-			}
-			#profile-content {
-				padding: 1.5rem;
-			}
+			#profile-header { padding: 1.5rem; gap: 1.2rem; }
+			#profile-body { flex-direction: column; padding: 1.5rem; }
+			#profile-sidebar { width: 100%; min-height: 20vh; }
+			#profile-char { display: none; }
 		}
 	</style>
 </head>
@@ -266,7 +445,50 @@
 			</div>
 		</div>
 	</div>
-	<div id="profile-content"></div>
+	<div id="socials-edit-modal">
+		<div id="socials-edit-box">
+			<h3>Edit Socials</h3>
+			<div class="social-edit-row"><img src="icon-youtube.png"><input id="edit-youtube" placeholder="youtube.com/@you"></div>
+			<div class="social-edit-row"><img src="icon-twitter.png"><input id="edit-twitter" placeholder="x.com/you"></div>
+			<div class="social-edit-row"><img src="icon-newgrounds.png"><input id="edit-newgrounds" placeholder="you.newgrounds.com"></div>
+			<div class="social-edit-row"><img src="icon-discord.png"><input id="edit-discord" placeholder="username"></div>
+			<div class="social-edit-row"><img src="icon-kofi.png"><input id="edit-kofi" placeholder="ko-fi.com/you"></div>
+			<button id="socials-save-btn" type="button">SAVE</button>
+		</div>
+	</div>
+
+	<div id="profile-body">
+		<div id="profile-sidebar">
+			<a class="social-row" id="social-youtube" href="#" target="_blank" rel="noopener">
+				<img class="social-icon" src="icon-youtube.png" draggable="false">
+				<div class="social-text"><span class="social-name">YOUTUBE</span><span class="social-handle" id="handle-youtube"></span></div>
+			</a>
+			<a class="social-row" id="social-twitter" href="#" target="_blank" rel="noopener">
+				<img class="social-icon" src="icon-twitter.png" draggable="false">
+				<div class="social-text"><span class="social-name">TWITTER</span><span class="social-handle" id="handle-twitter"></span></div>
+			</a>
+			<a class="social-row" id="social-newgrounds" href="#" target="_blank" rel="noopener">
+				<img class="social-icon" src="icon-newgrounds.png" draggable="false">
+				<div class="social-text"><span class="social-name">NEWGROUNDS</span><span class="social-handle" id="handle-newgrounds"></span></div>
+			</a>
+			<a class="social-row" id="social-discord" href="#" target="_blank" rel="noopener">
+				<img class="social-icon" src="icon-discord.png" draggable="false">
+				<div class="social-text"><span class="social-name">DISCORD</span><span class="social-handle" id="handle-discord"></span></div>
+			</a>
+			<a class="social-row" id="social-kofi" href="#" target="_blank" rel="noopener">
+				<img class="social-icon" src="icon-kofi.png" draggable="false">
+				<div class="social-text"><span class="social-name">KO-FI</span><span class="social-handle" id="handle-kofi"></span></div>
+			</a>
+			<button id="socials-edit-btn" type="button">edit socials</button>
+		</div>
+		<div id="profile-content">
+			<div id="mods-box">
+				<h2>SUBMITTED MODS</h2>
+				<div id="mods-grid"></div>
+			</div>
+		</div>
+		<img id="profile-char" src="bf-char.png" draggable="false" alt="">
+	</div>
 
 	<p class="footer-left" style="position:fixed;bottom:1rem;left:1rem;font-family:'Inconsolata ExtraBold',sans-serif;font-size:1.25rem;color:#666;"></p>
 	<p class="footer-right" style="position:fixed;bottom:1rem;right:1rem;font-family:'Inconsolata ExtraBold',sans-serif;font-size:1.25rem;color:#666;text-align:right;"></p>
@@ -329,6 +551,67 @@
 					document.getElementById('stat-followers').textContent = data.followers;
 					if (data.isFollowing) { followBtn.textContent = 'FOLLOWING'; followBtn.classList.add('following'); }
 					else { followBtn.textContent = 'FOLLOW'; followBtn.classList.remove('following'); }
+				};
+			}
+
+			// Socials
+			const SOCIALS = [
+				{ key: 'youtube',     label: 'YOUTUBE',     prefix: 'https://' },
+				{ key: 'twitter',     label: 'TWITTER',     prefix: 'https://' },
+				{ key: 'newgrounds',  label: 'NEWGROUNDS',  prefix: 'https://' },
+				{ key: 'discord',     label: 'DISCORD',     prefix: null },
+				{ key: 'kofi',        label: 'KO-FI',       prefix: 'https://' },
+			];
+			const socials = user.socials || {};
+			function applySocials(data) {
+				let anyVisible = false;
+				SOCIALS.forEach(({ key }) => {
+					const row = document.getElementById(`social-${key}`);
+					const handle = document.getElementById(`handle-${key}`);
+					const val = (data[key] || '').trim();
+					if (val) {
+						handle.textContent = val;
+						row.href = val.startsWith('http') ? val : `https://${val}`;
+						row.style.display = '';
+						anyVisible = true;
+					} else {
+						row.style.display = 'none';
+					}
+				});
+				document.getElementById('profile-sidebar').style.visibility = anyVisible || (me && me.id === userId) ? '' : 'hidden';
+			}
+			applySocials(socials);
+
+			if (me && me.id === userId) {
+				const editBtn = document.getElementById('socials-edit-btn');
+				editBtn.style.display = '';
+				editBtn.onclick = () => {
+					SOCIALS.forEach(({ key }) => {
+						document.getElementById(`edit-${key}`).value = socials[key] || '';
+					});
+					document.getElementById('socials-edit-modal').classList.add('open');
+				};
+				document.getElementById('socials-edit-modal').addEventListener('click', e => {
+					if (e.target === document.getElementById('socials-edit-modal'))
+						document.getElementById('socials-edit-modal').classList.remove('open');
+				});
+				document.getElementById('socials-save-btn').onclick = async () => {
+					const newSocials = {};
+					SOCIALS.forEach(({ key }) => {
+						const v = document.getElementById(`edit-${key}`).value.trim();
+						if (v) newSocials[key] = v;
+					});
+					const res = await fetch(`${API}/users/me`, {
+						method: 'PATCH',
+						headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+						body: JSON.stringify({ socials: newSocials })
+					});
+					if (res.ok) {
+						Object.assign(socials, newSocials);
+						SOCIALS.forEach(({ key }) => { if (!newSocials[key]) delete socials[key]; });
+						applySocials(socials);
+						document.getElementById('socials-edit-modal').classList.remove('open');
+					}
 				};
 			}
 
