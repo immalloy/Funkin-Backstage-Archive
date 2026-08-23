@@ -150,6 +150,7 @@
 			if (!user) { document.getElementById('profile-username').textContent = 'User not found'; return; }
 
 			document.title = `${user.username} — Funkin' Backstage`;
+			history.replaceState(null, '', '/users/' + userId);
 			document.getElementById('profile-username').textContent = user.username;
 
 			const avatarEl = document.getElementById('profile-avatar');
