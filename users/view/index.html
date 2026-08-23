@@ -745,7 +745,7 @@
 				input.placeholder = user.bio ? 'edit bio...' : 'add a bio...';
 
 				const logoutBtn = document.getElementById('btn-logout');
-				logoutBtn.style.display = '';
+				logoutBtn.style.display = 'block';
 				logoutBtn.onclick = () => {
 					localStorage.removeItem('token');
 					window.location.href = 'https://funkinbackstage.com/mods';
