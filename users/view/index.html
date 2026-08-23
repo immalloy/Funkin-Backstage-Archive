@@ -58,10 +58,12 @@
 
 		#profile-bio {
 			font-family: 'FunkinOptions', sans-serif;
-			font-size: 5vh;
+			font-size: 2vh;
 			color: #bbb;
 			margin: 0;
 			font-style: italic;
+			white-space: normal;
+			word-break: break-word;
 		}
 
 		#profile-bio-edit {
@@ -151,7 +153,8 @@
 
 			document.title = `${user.username} — Funkin' Backstage`;
 			history.replaceState(null, '', '/users/' + userId);
-			document.getElementById('profile-username').textContent = user.username;
+			const usernameEl = document.getElementById('profile-username');
+			usernameEl.textContent = user.username;
 
 			const avatarEl = document.getElementById('profile-avatar');
 			avatarEl.src = `${API}/avatars/${userId}.png`;
@@ -160,6 +163,7 @@
 			const bioEl = document.getElementById('profile-bio');
 			if (user.bio) {
 				bioEl.textContent = `"${user.bio}"`;
+				bioEl.style.maxWidth = usernameEl.offsetWidth + 'px';
 			} else {
 				bioEl.style.display = 'none';
 			}
