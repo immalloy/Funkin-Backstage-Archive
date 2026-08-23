@@ -415,6 +415,18 @@
 					}
 				}
 
+				if (me && (me.id === meta.submitter || me.isAdmin)) {
+						const titleBox = document.getElementById('title-box');
+						titleBox.style.display = 'flex';
+						titleBox.style.alignItems = 'center';
+						const editBtn = document.createElement('img');
+						editBtn.src = 'https://files.funkinbackstage.com/edit%20button.png';
+						editBtn.draggable = false;
+						editBtn.style.cssText = 'height:5vh;cursor:pointer;margin-left:auto;flex-shrink:0;';
+						editBtn.onclick = () => { sessionStorage.setItem('editModId', modId); window.location.href = '/mods/edit/'; };
+						titleBox.appendChild(editBtn);
+					}
+
 				const viewedKey = `viewed_${modId}`;
 				if (!sessionStorage.getItem(viewedKey)) {
 					const isOwner = me && me.id === meta.submitter;

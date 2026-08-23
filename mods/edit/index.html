@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Funkin' Backstage | Edit Mod</title>
+	<link rel="icon" type="image/png" href="../../favicon.png">
+	<link rel="stylesheet" href="../../style.css">
+	<link rel="stylesheet" href="../../mods/style.css">
+	<style>
+		html, body {
+			height: 100%;
+			margin: 0;
+		}
+
+		body {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			font-family: 'FunkinLingLong', sans-serif;
+		}
+
+		.upload-container {
+			display: flex;
+			flex-direction: column;
+			width: 75vw;
+		}
+
+		.tab-row {
+			display: flex;
+			flex-direction: row;
+			gap: 8px;
+			padding-left: 12px;
+		}
+
+		.tab-btn, .tab-panel {
+			border-image: url('../../global-chat/box-base.png') 18 / 10px stretch !important;
+			background-color: #767A93;
+			border-radius: 8px;
+		}
+
+		.tab-btn {
+			height: auto !important;
+			transition: opacity 0.2s !important;
+			padding: 1.2vh 4vh !important;
+			font-size: 3.5vh;
+			cursor: pointer;
+			opacity: 0.45;
+			user-select: none;
+		}
+
+		.tab-btn.active {
+			opacity: 1;
+		}
+
+		.tab-panel {
+			display: none;
+			height: auto !important;
+			transition: none !important;
+			padding: 5vh !important;
+			min-height: 70vh;
+			flex-direction: column;
+		}
+
+		.tab-panel.active {
+			display: flex;
+			gap: 1.5vh;
+		}
+
+		.field-row {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			gap: 1.5rem;
+			width: 100%;
+		}
+
+		.upload-label {
+			font-size: 3.5vh;
+			color: #E1E1E1;
+			margin: 0;
+			font-weight: normal;
+			white-space: nowrap;
+		}
+
+		.input-wrap {
+			flex: 1;
+			border-image: url('../../global-chat/box-base.png') 18 fill / 8px stretch;
+			border-radius: 6px;
+			padding: 0.6vh 1.5vh;
+			display: flex;
+			align-items: center;
+			cursor: text;
+		}
+
+		.input-wrap input,
+		.input-wrap textarea {
+			background: transparent;
+			border: none;
+			outline: none;
+			color: #E1E1E1;
+			font-family: 'FunkinLingLong', sans-serif;
+			font-size: 2.5vh;
+			width: 100%;
+			caret-color: #E1E1E1;
+		}
+
+		.input-wrap textarea {
+			resize: none;
+			height: 14vh;
+			align-self: stretch;
+		}
+
+		.upload-dd {
+			border-image: url('../../global-chat/box-base.png') 18 fill / 8px stretch !important;
+			border-radius: 6px;
+			min-width: 200px;
+		}
+
+		.upload-dd .mod-box-header h1 {
+			font-size: 2.5vh;
+		}
+
+		.upload-dd .mod-box-content h1 {
+			font-size: 2.5vh;
+		}
+
+		.png-fill {
+			border-image: url('../../global-chat/box-base.png') 18 fill / 10px stretch !important;
+			background-color: transparent !important;
+		}
+
+		#tab-ownership {
+			height: 70vh !important;
+			min-height: unset !important;
+		}
+
+		#ownership-rows .ownership-row:first-child .remove-owner-btn {
+			visibility: hidden;
+		}
+
+		.existing-label {
+			font-size: 2vh;
+			color: #888;
+			margin: 0;
+			font-weight: normal;
+			font-style: italic;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			max-width: 30vw;
+		}
+
+		@media (max-width: 768px) {
+			html, body { height: auto; min-height: 100%; overflow-y: auto; }
+			body { justify-content: flex-start; padding: 4rem 0 2rem; box-sizing: border-box; }
+			body > h1 { position: static !important; font-size: 4vh !important; padding: 1rem 0 0.5rem; }
+			.upload-container { width: calc(100% - 2rem); }
+			.tab-row { flex-wrap: wrap; padding-left: 0; }
+			.tab-btn { font-size: 2.5vh !important; padding: 1vh 2.5vh !important; }
+			.tab-panel { padding: 3vh !important; min-height: unset !important; }
+			#tab-ownership { height: 60vh !important; }
+			.field-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+			.field-row .upload-label { font-size: 2.5vh; }
+			.input-wrap { width: 100%; box-sizing: border-box; }
+			.upload-dd { width: 100%; min-width: unset; box-sizing: border-box; }
+			.ownership-row { flex-direction: column; align-items: stretch; gap: 0.5rem; padding-bottom: 1vh; border-bottom: 1px solid rgba(255,255,255,0.1); }
+			.ownership-row .upload-label { font-size: 2vh; }
+			.remove-owner-btn { align-self: flex-end; }
+			.input-wrap input { font-size: 3vh; padding: 0.8vh 0; }
+			.input-wrap textarea { font-size: 3vh; height: 20vh; }
+			.submit-btn-top { display: none !important; }
+			.submit-btn-bottom { display: flex !important; }
+		}
+	</style>
+</head>
+<body>
+	<h1 style="font-family: 'FunkinLingLong', sans-serif; font-size: 6vh; font-weight: normal; text-align: center; margin: 0; position: absolute; top: 1.5rem; left: 0; right: 0;">EDIT MOD</h1>
+	<div class="upload-container">
+		<div class="tab-row">
+			<div class="mod-box tab-btn png-fill active" onclick="switchTab('overview')">Overview</div>
+			<div class="mod-box tab-btn png-fill" onclick="switchTab('media')">Media</div>
+			<div class="mod-box tab-btn png-fill" onclick="switchTab('ownership')">Ownership</div>
+			<div style="flex: 1;"></div>
+			<div class="mod-box tab-btn png-fill active submit-btn-top" style="opacity: 1;" onclick="saveMod()">Save</div>
+		</div>
+		<div id="tab-overview" class="mod-box tab-panel active">
+			<div class="field-row">
+				<h1 class="upload-label">Mod Title:</h1>
+				<div class="input-wrap"><input type="text" id="mod-title" /></div>
+			</div>
+			<h1 class="upload-label">Description:</h1>
+			<div class="input-wrap" onclick="this.querySelector('textarea').focus()"><textarea id="mod-desc"></textarea></div>
+			<div class="field-row">
+				<h1 class="upload-label">Mod Blurb:</h1>
+				<div class="input-wrap"><input type="text" id="mod-blurb" /></div>
+			</div>
+			<div class="field-row" style="width: auto; align-items: flex-start;">
+				<h1 class="upload-label" style="padding-top: 1.5vh;">Engine:</h1>
+				<div class="mod-box upload-dd" id="engine-dd">
+					<div class="mod-box-header">
+						<h1 id="engine-label">ENGINE - BASE GAME</h1>
+						<div style="flex: 1;"></div>
+						<img draggable="false" src="../../mods/assets/drop down arrow.png" class="smooth-btn dropdown-arrow" style="height: 2vh; margin-left: 1rem; margin-right: 1rem; cursor: pointer;" onclick="toggleDD(this, 'engine-dd')">
+					</div>
+					<div class="mod-box-content" style="padding-left: 5%;">
+						<div style="height: 6px; width: 90%; background-color: #E1E1E1; border-radius: 10px; margin-bottom: 1vh;"></div>
+						<h1 class="sort-item" onclick="selectEngine('base-game', 'Base Game')">Base Game</h1>
+						<h1 class="sort-item" onclick="selectEngine('codename-engine', 'Codename Engine')">Codename Engine</h1>
+						<h1 class="sort-item" onclick="selectEngine('psych-engine', 'Psych Engine')">Psych Engine</h1>
+						<h1 class="sort-item" onclick="selectEngine('kade-engine', 'Kade Engine')">Kade Engine</h1>
+						<h1 class="sort-item" onclick="selectEngine('fps-plus', 'FPS Plus')">FPS Plus</h1>
+						<h1 class="sort-item" onclick="selectEngine('other', 'Other')">Other</h1>
+					</div>
+				</div>
+				<h1 class="upload-label" style="padding-top: 1.5vh;">Category:</h1>
+				<div class="mod-box upload-dd" id="category-dd">
+					<div class="mod-box-header">
+						<h1 id="category-label">CATEGORY - FULL MODS</h1>
+						<div style="flex: 1;"></div>
+						<img draggable="false" src="../../mods/assets/drop down arrow.png" class="smooth-btn dropdown-arrow" style="height: 2vh; margin-left: 1rem; margin-right: 1rem; cursor: pointer;" onclick="toggleDD(this, 'category-dd')">
+					</div>
+					<div class="mod-box-content" style="padding-left: 5%;">
+						<div style="height: 6px; width: 90%; background-color: #E1E1E1; border-radius: 10px; margin-bottom: 1vh;"></div>
+						<h1 class="sort-item" onclick="selectCategory('full-mods', 'Full Mods')">Full Mods</h1>
+						<h1 class="sort-item" onclick="selectCategory('ports', 'Ports')">Ports</h1>
+						<h1 class="sort-item" onclick="selectCategory('scripts', 'Scripts')">Scripts</h1>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="tab-media" class="mod-box tab-panel">
+			<div class="field-row">
+				<h1 class="upload-label">Screenshots:</h1>
+				<div class="mod-box tab-btn png-fill active" style="opacity:1; padding: 0.6vh 2vh !important; font-size: 2.5vh; cursor:pointer;" onclick="document.getElementById('screenshots-input').click()">UPLOAD NEW</div>
+				<input type="file" id="screenshots-input" accept="image/*,.mp4,video/mp4" multiple style="display:none;" onchange="updateFileLabel('screenshots-label', this, true)">
+				<h1 id="screenshots-label" class="existing-label">keeping existing</h1>
+			</div>
+			<div class="field-row">
+				<h1 class="upload-label">Front Page Portrait:</h1>
+				<div class="mod-box tab-btn png-fill active" style="opacity:1; padding: 0.6vh 2vh !important; font-size: 2.5vh; cursor:pointer;" onclick="document.getElementById('portrait-input').click()">UPLOAD NEW</div>
+				<input type="file" id="portrait-input" accept="image/*" style="display:none;" onchange="updateFileLabel('portrait-label', this, false)">
+				<h1 id="portrait-label" class="existing-label">keeping existing</h1>
+			</div>
+			<div class="field-row">
+				<h1 class="upload-label">Icon:</h1>
+				<div class="mod-box tab-btn png-fill active" style="opacity:1; padding: 0.6vh 2vh !important; font-size: 2.5vh; cursor:pointer;" onclick="document.getElementById('icon-input').click()">UPLOAD NEW</div>
+				<input type="file" id="icon-input" accept="image/png" style="display:none;" onchange="updateFileLabel('icon-label', this, false)">
+				<h1 id="icon-label" class="existing-label">keeping existing</h1>
+			</div>
+			<div style="height: 6px; width: 100%; background-color: #555; border-radius: 10px; margin: 0.5vh 0;"></div>
+			<h1 class="upload-label" style="font-size: 2.5vh; color: #999;">Add New Download Version</h1>
+			<div class="field-row">
+				<h1 class="upload-label">File:</h1>
+				<div class="mod-box tab-btn png-fill active" style="opacity:1; padding: 0.6vh 2vh !important; font-size: 2.5vh; cursor:pointer;" onclick="document.getElementById('download-input').click()">UPLOAD</div>
+				<input type="file" id="download-input" style="display:none;" onchange="updateFileLabel('download-label', this, false)">
+				<h1 id="download-label" class="existing-label">optional</h1>
+			</div>
+			<div class="field-row">
+				<h1 class="upload-label">Version:</h1>
+				<div class="input-wrap" style="max-width: 18rem;"><input type="text" id="mod-version" placeholder="e.g. 1.1.0" /></div>
+			</div>
+		</div>
+		<div id="tab-ownership" class="mod-box tab-panel" style="justify-content: space-between;">
+			<div id="ownership-rows" style="overflow-y: auto; display: flex; flex-direction: column; gap: 1.5vh; flex: 1; min-height: 0;">
+				<div class="field-row ownership-row">
+					<h1 class="upload-label">Username:</h1>
+					<div class="input-wrap" style="flex:1;"><input type="text" class="owner-username" /></div>
+					<h1 class="upload-label">Role:</h1>
+					<div class="input-wrap" style="flex:1;"><input type="text" class="owner-role" /></div>
+					<div class="mod-box tab-btn png-fill remove-owner-btn" style="width:5vh !important; height:5vh !important; padding:0 !important; font-size:1.8vh; cursor:pointer; line-height:1; flex-shrink:0; display:flex; align-items:center; justify-content:center;" onclick="removeOwnerRow(this)">✕</div>
+				</div>
+			</div>
+			<div style="display:flex; justify-content:center; padding-top:1.5vh; flex-shrink:0;">
+				<div class="mod-box tab-btn png-fill" style="padding:0.4vh 1.8vh !important; font-size:3vh; cursor:pointer; line-height:1;" onclick="addOwnerRow()">+</div>
+			</div>
+		</div>
+		<div class="mod-box tab-btn png-fill active submit-btn-bottom" style="display:none; opacity:1; margin-top:0.75rem; justify-content:center; font-size:3vh;" onclick="saveMod()">Save</div>
+	</div>
+	<p class="footer-left" style="position: fixed; bottom: 1rem; left: 1rem; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.25rem; color: #666;"></p>
+	<p class="footer-right" style="position: fixed; bottom: 1rem; right: 1rem; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.25rem; color: #666; text-align: right;"></p>
+	<script src="../../api.js"></script>
+	<script>
+		const TABS = ['overview', 'media', 'ownership'];
+		let engineValue = 'base-game';
+		let categoryValue = 'full-mods';
+		let currentMeta = null;
+
+		const modId = sessionStorage.getItem('editModId');
+		if (!modId) window.location.replace('/mods/');
+
+		async function loadMeta() {
+			const token = localStorage.getItem('token');
+			if (!token) { window.location.replace('/login'); return; }
+
+			const [meta, meRes] = await Promise.all([
+				fetch(`${API}/submissions/${modId}/meta.json`).then(r => r.json()),
+				fetch(`${API}/me`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({}) })
+			]);
+
+			if (!meRes.ok) { window.location.replace('/login'); return; }
+			const me = await meRes.json();
+
+			if (me.id !== meta.submitter && !me.isAdmin) {
+				window.location.replace('/mods/');
+				return;
+			}
+
+			currentMeta = meta;
+
+			document.getElementById('mod-title').value = meta.title || '';
+			document.getElementById('mod-desc').value = meta.description || '';
+			document.getElementById('mod-blurb').value = meta.blurb || '';
+
+			const engineMap = {
+				'base-game': 'Base Game',
+				'codename-engine': 'Codename Engine',
+				'psych-engine': 'Psych Engine',
+				'kade-engine': 'Kade Engine',
+				'fps-plus': 'FPS Plus',
+				'other': 'Other'
+			};
+			const categoryMap = {
+				'full-mods': 'Full Mods',
+				'ports': 'Ports',
+				'scripts': 'Scripts'
+			};
+			if (meta.parent) selectEngine(meta.parent, engineMap[meta.parent] || meta.parent);
+			if (meta.child) selectCategory(meta.child, categoryMap[meta.child] || meta.child);
+
+			if (meta.thumbnails && meta.thumbnails.length > 0) {
+				document.getElementById('screenshots-label').textContent = `${meta.thumbnails.length} existing`;
+			}
+			if (meta.portrait) {
+				document.getElementById('portrait-label').textContent = 'existing';
+			}
+			if (meta.icon) {
+				document.getElementById('icon-label').textContent = 'existing';
+			}
+
+			if (meta.dls && meta.dls.length > 0) {
+				document.getElementById('mod-version').placeholder = `current: ${meta.dls[meta.dls.length - 1].version}`;
+			}
+
+			const container = document.getElementById('ownership-rows');
+			container.innerHTML = '';
+			const contributors = meta.contributors && meta.contributors.length > 0 ? meta.contributors : [{ name: '', role: '' }];
+			for (let i = 0; i < contributors.length; i++) {
+				const c = contributors[i];
+				const row = document.createElement('div');
+				row.className = 'field-row ownership-row';
+				row.innerHTML = `
+					<h1 class="upload-label">Username:</h1>
+					<div class="input-wrap" style="flex:1;"><input type="text" class="owner-username" value="${escapeAttr(c.name || '')}" /></div>
+					<h1 class="upload-label">Role:</h1>
+					<div class="input-wrap" style="flex:1;"><input type="text" class="owner-role" value="${escapeAttr(c.role || '')}" /></div>
+					<div class="mod-box tab-btn png-fill remove-owner-btn" style="width:5vh !important; height:5vh !important; padding:0 !important; font-size:1.8vh; cursor:pointer; line-height:1; flex-shrink:0; display:flex; align-items:center; justify-content:center;" onclick="removeOwnerRow(this)">✕</div>
+				`;
+				container.appendChild(row);
+			}
+			const firstRemove = container.querySelector('.remove-owner-btn');
+			if (firstRemove) firstRemove.style.visibility = 'hidden';
+		}
+		loadMeta();
+
+		function escapeAttr(str) {
+			return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+		}
+
+		function switchTab(name) {
+			document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+				btn.classList.toggle('active', TABS[i] === name);
+			});
+			document.querySelectorAll('.tab-panel').forEach(panel => {
+				panel.classList.toggle('active', panel.id === 'tab-' + name);
+			});
+		}
+
+		function toggleDD(btn, boxId) {
+			const box = document.getElementById(boxId);
+			const isExpanding = !box.classList.contains('expanded');
+			document.querySelectorAll('.upload-dd.expanded').forEach(b => {
+				b.classList.remove('expanded');
+				b.style.height = '';
+				b.querySelector('.dropdown-arrow').classList.remove('flipped');
+			});
+			if (isExpanding) {
+				box.style.height = box.scrollHeight + 'px';
+				box.classList.add('expanded');
+				btn.classList.add('flipped');
+			}
+		}
+
+		function selectEngine(value, display) {
+			engineValue = value;
+			document.getElementById('engine-label').textContent = 'ENGINE - ' + display.toUpperCase();
+			const box = document.getElementById('engine-dd');
+			box.classList.remove('expanded');
+			box.style.height = '';
+			box.querySelector('.dropdown-arrow').classList.remove('flipped');
+		}
+
+		function selectCategory(value, display) {
+			categoryValue = value;
+			document.getElementById('category-label').textContent = 'CATEGORY - ' + display.toUpperCase();
+			const box = document.getElementById('category-dd');
+			box.classList.remove('expanded');
+			box.style.height = '';
+			box.querySelector('.dropdown-arrow').classList.remove('flipped');
+		}
+
+		async function presignAndUpload(file, purpose, index) {
+			const token = localStorage.getItem('token');
+			const body = { filename: file.name, contentType: file.type || 'application/octet-stream', purpose, submissionId: modId };
+			if (purpose === 'screenshot') body.index = index;
+
+			const presignRes = await fetch(`${API}/upload/presign`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+				body: JSON.stringify(body)
+			});
+			if (!presignRes.ok) {
+				const err = await presignRes.json().catch(() => ({}));
+				throw new Error(err.message || 'Failed to get upload URL');
+			}
+			const { url, publicUrl } = await presignRes.json();
+
+			const uploadRes = await fetch(url, {
+				method: 'PUT',
+				headers: { 'Content-Type': file.type || 'application/octet-stream' },
+				body: file
+			});
+			if (!uploadRes.ok) throw new Error('Upload to storage failed');
+			return publicUrl;
+		}
+
+		function removeOwnerRow(btn) {
+			const rows = document.querySelectorAll('.ownership-row');
+			if (rows.length <= 1) return;
+			btn.closest('.ownership-row').remove();
+		}
+
+		function addOwnerRow() {
+			const row = document.createElement('div');
+			row.className = 'field-row ownership-row';
+			row.innerHTML = `
+				<h1 class="upload-label">Username:</h1>
+				<div class="input-wrap" style="flex:1;"><input type="text" class="owner-username" /></div>
+				<h1 class="upload-label">Role:</h1>
+				<div class="input-wrap" style="flex:1;"><input type="text" class="owner-role" /></div>
+				<div class="mod-box tab-btn png-fill remove-owner-btn" style="width:5vh !important; height:5vh !important; padding:0 !important; font-size:1.8vh; cursor:pointer; line-height:1; flex-shrink:0; display:flex; align-items:center; justify-content:center;" onclick="removeOwnerRow(this)">✕</div>
+			`;
+			const container = document.getElementById('ownership-rows');
+			container.appendChild(row);
+			container.scrollTop = container.scrollHeight;
+		}
+
+		function updateFileLabel(labelId, input, isMultiple) {
+			const label = document.getElementById(labelId);
+			if (!input.files.length) return;
+			label.style.color = '#E1E1E1';
+			label.style.fontStyle = 'normal';
+			if (isMultiple) {
+				const n = input.files.length;
+				label.textContent = n === 1 ? input.files[0].name : `${n} files selected`;
+			} else {
+				label.textContent = input.files[0].name;
+			}
+		}
+
+		async function saveMod() {
+			if (!currentMeta) { alert('Still loading mod data.'); return; }
+			const token = localStorage.getItem('token');
+			if (!token) { window.location.replace('/login'); return; }
+
+			const title = document.getElementById('mod-title').value.trim();
+			const description = document.getElementById('mod-desc').value.trim();
+			const blurb = document.getElementById('mod-blurb').value.trim();
+			const screenshotFiles = document.getElementById('screenshots-input').files;
+			const portraitFile = document.getElementById('portrait-input').files[0] || null;
+			const iconFile = document.getElementById('icon-input').files[0] || null;
+			const downloadFile = document.getElementById('download-input').files[0] || null;
+			const version = document.getElementById('mod-version').value.trim();
+
+			const ownershipData = Array.from(document.querySelectorAll('#ownership-rows .ownership-row')).map(row => ({
+				name: row.querySelector('input.owner-username').value.trim(),
+				role: row.querySelector('input.owner-role').value.trim()
+			})).filter(o => o.name);
+
+			if (!title) { alert('Mod title is required.'); return; }
+
+			const saveBtn = document.querySelector('[onclick="saveMod()"]');
+			const saveLabel = saveBtn ? saveBtn.querySelector('h1') : null;
+			const originalText = saveLabel ? saveLabel.textContent : 'Save';
+			if (saveLabel) saveLabel.textContent = 'Saving...';
+			if (saveBtn) saveBtn.style.pointerEvents = 'none';
+
+			try {
+				let screenshotUrls = currentMeta.thumbnails || [];
+				let portraitUrl = currentMeta.portrait || null;
+				let iconUrl = currentMeta.icon || null;
+				let newDownloadUrl = null;
+
+				if (screenshotFiles.length > 0) {
+					screenshotUrls = [];
+					for (let i = 0; i < Math.min(screenshotFiles.length, 5); i++) {
+						screenshotUrls.push(await presignAndUpload(screenshotFiles[i], 'screenshot', i));
+					}
+				}
+
+				if (portraitFile) portraitUrl = await presignAndUpload(portraitFile, 'portrait');
+				if (iconFile) iconUrl = await presignAndUpload(iconFile, 'icon');
+				if (downloadFile) newDownloadUrl = await presignAndUpload(downloadFile, 'download');
+
+				const body = {
+					title, description, blurb,
+					engine: engineValue,
+					category: categoryValue,
+					screenshots: screenshotUrls,
+					portrait: portraitUrl,
+					icon: iconUrl,
+					ownership: ownershipData
+				};
+				if (newDownloadUrl) {
+					body.newDownload = newDownloadUrl;
+					body.newVersion = version || '?.?.?';
+				}
+
+				const res = await fetch(`${API}/submissions/${modId}`, {
+					method: 'PATCH',
+					headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+					body: JSON.stringify(body)
+				});
+
+				if (!res.ok) {
+					const data = await res.json().catch(() => ({}));
+					throw new Error(data.message || 'Save failed');
+				}
+
+				sessionStorage.setItem('modId', modId);
+				window.location.href = '/mods/view/';
+			} catch (e) {
+				alert('Save failed: ' + e.message);
+				if (saveLabel) saveLabel.textContent = originalText;
+				if (saveBtn) saveBtn.style.pointerEvents = '';
+			}
+		}
+	</script>
+</body>
+</html>
