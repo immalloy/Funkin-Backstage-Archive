@@ -481,7 +481,7 @@
 			const ownershipData = Array.from(document.querySelectorAll('#ownership-rows .ownership-row')).map(row => ({
 				name: row.querySelector('input.owner-username').value.trim(),
 				role: row.querySelector('input.owner-role').value.trim()
-			})).filter(o => o.username);
+			})).filter(o => o.name);
 
 			if (!title) { alert('Mod title is required.'); return; }
 			if (ownershipData.length === 0) { alert('At least one owner username is required.'); return; }
