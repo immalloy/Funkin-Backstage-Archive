@@ -95,6 +95,28 @@ async function toggleLike(id, pieceEl) {
     reloadModList();
 }
 
+function searchScore(query, text) {
+    const t = text.toLowerCase();
+    const words = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+    if (!words.length) return 1;
+    let hits = 0;
+    for (const word of words) {
+        if (t.includes(word)) { hits++; continue; }
+        for (const tw of t.split(/\s+/)) {
+            if (tw.startsWith(word) || word.startsWith(tw)) { hits++; break; }
+        }
+    }
+    return hits / words.length;
+}
+
+function applySearch(query) {
+    const cards = document.querySelectorAll('#mod-grid > div[data-search]');
+    cards.forEach(card => {
+        const score = searchScore(query, card.dataset.search);
+        card.style.display = score > 0 ? '' : 'none';
+    });
+}
+
 async function reloadModList() {
     const token = localStorage.getItem('token');
     let likedSubmissions = [];
@@ -199,7 +221,7 @@ async function reloadModList() {
         if (likedFilter && !isLiked) continue;
         const heartIcon = isLiked ? 'assets/icon-heart-filled.png' : 'assets/icon-heart.png';
         htmlOut += `
-            <div style="position:relative;">
+            <div style="position:relative;" data-search="${escapeHTML(meta.title)} ${escapeHTML(meta.blurb)}">
                 <a class="mod-card" onclick="sessionStorage.setItem('modId','${id}');window.location.href='/mods/view/';" tabindex="-1" onkeydown="return false;" style="cursor:pointer;display:block;text-decoration:none;color:#E1E1E1;">
                     <img draggable="false" src="${firstImageThumb(meta.thumbnails)}" class="mod-thumbnail" style="display:block;">
                     <img draggable="false" src="${API}/avatars/${meta.submitter}.png" class="mod-topleft">
@@ -245,6 +267,7 @@ async function reloadModList() {
         `;
     }
     parentElement.innerHTML = htmlOut;
+    applySearch(document.getElementById('search-input')?.value || '');
 }
 reloadModList();
 
