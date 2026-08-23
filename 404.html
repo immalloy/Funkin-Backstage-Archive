@@ -10,6 +10,11 @@
 			sessionStorage.setItem('modId', modsMatch[1]);
 			window.location.replace('/mods/view/');
 		}
+		var usersMatch = path.match(/^\/users\/([^/]+)\/?$/);
+		if (usersMatch) {
+			sessionStorage.setItem('userId', usersMatch[1]);
+			window.location.replace('/users/view/');
+		}
 	</script>
 </head>
 <body></body>
