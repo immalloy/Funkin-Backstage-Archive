@@ -247,6 +247,7 @@
                     ${hasAvatar ? `<img src="../icon-profile-in.png" style="position:absolute;top:0;left:0;height:4vh;width:4vh;"/>` : ''}
                 </div>
                 <h1 style="font-family:'FunkinOptions',sans-serif;font-size:3vh;margin-top:1.5vh;color:#BABABA">${escapeHTML(user.username)}</h1>
+                ${message.timestamp ? `<h1 style="font-family:'FunkinOptions',sans-serif;font-size:2vh;margin-top:1.5vh;color:#999;white-space:nowrap;">• ${new Date(message.timestamp).toLocaleTimeString([],{hour:'numeric',minute:'2-digit',hour12:true}).toLowerCase()}</h1>` : ''}
             </div>
             <h1 style="font-family:'FunkinOptions',sans-serif;font-size:4vh;margin:0;display:flex;align-items:center">${content}</h1>
         </div>`;
