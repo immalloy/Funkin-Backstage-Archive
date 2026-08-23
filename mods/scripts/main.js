@@ -99,6 +99,9 @@ async function reloadModList() {
             const me = await meRes.json();
             likedSubmissions = me.likedSubmissions ?? [];
             isAdmin = me.isAdmin ?? false;
+        } else if (meRes.status === 401) {
+            localStorage.removeItem('token');
+            window.location.reload();
         }
     }
 
@@ -218,7 +221,7 @@ async function reloadModList() {
                         </div>
                     </div>
                 </a>
-                ${isAdmin ? `<div class="mod-delete-btn" onclick="deleteSubmission('${id}',this.parentElement.querySelector('.mod-card'))">✕</div><div class="mod-star-btn" data-stars="${meta.stars ?? 0}" onclick="setStars('${id}',${meta.stars ?? 0},this)">★ ${meta.stars ?? 0}</div>` : ''}
+                ${isAdmin ? `<div class="mod-delete-btn" onclick="deleteSubmission('${id}',this.parentElement)">✕</div><div class="mod-star-btn" data-stars="${meta.stars ?? 0}" onclick="setStars('${id}',${meta.stars ?? 0},this)">★ ${meta.stars ?? 0}</div>` : ''}
             </div>
         `;
     }
@@ -256,10 +259,12 @@ function adminDialog({ title, inputDefault, confirmOnly, onConfirm }) {
     btnRow.style.cssText = 'display:flex;gap:0.75rem;justify-content:flex-end;';
 
     const cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
     cancelBtn.textContent = 'Cancel';
     cancelBtn.style.cssText = 'background:#4a2a4a;border:none;border-radius:6px;padding:0.4rem 1rem;color:#E1E1E1;cursor:pointer;font-family:inherit;font-size:1rem;';
 
     const okBtn = document.createElement('button');
+    okBtn.type = 'button';
     okBtn.textContent = confirmOnly ? 'Delete' : 'OK';
     okBtn.style.cssText = `background:${confirmOnly ? '#8b1a1a' : '#4a2a8b'};border:none;border-radius:6px;padding:0.4rem 1rem;color:#E1E1E1;cursor:pointer;font-family:inherit;font-size:1rem;`;
 
@@ -315,7 +320,7 @@ async function setStars(id, current, btn) {
     });
 }
 
-async function deleteSubmission(id, cardEl) {
+async function deleteSubmission(id, wrapperEl) {
     adminDialog({
         title: `Delete mod #${id}? This cannot be undone.`,
         confirmOnly: true,
@@ -326,7 +331,7 @@ async function deleteSubmission(id, cardEl) {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.ok) {
-                cardEl.remove();
+                wrapperEl.remove();
             } else {
                 const data = await res.json().catch(() => ({}));
                 adminDialog({ title: 'Delete failed: ' + (data.message || 'Unknown error'), confirmOnly: true, onConfirm: () => {} });
