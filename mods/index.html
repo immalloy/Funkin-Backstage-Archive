@@ -68,7 +68,7 @@
 	</head>
 
 	<body>
-		<h1 style="font-family: 'FunkinLingLong', sans-serif; position: fixed; left: 2rem; top: 1rem; font-size: 8vh;">Mods</h1>
+		<h1 style="font-family: 'FunkinLingLong', sans-serif; position: fixed; left: 2rem; top: 0rem; font-size: 8vh;">Mods</h1>
 		<div style="display: flex; flex-direction: column; row-gap: 15px; position: fixed; top: 9rem; left: 2rem;">
 			<div class="mod-box" id="mod-box-1" style="width: 25vw;">
 				<div class="mod-box-header">
@@ -117,6 +117,10 @@
 						<img draggable="false" class="check-box" src="assets/checkbox-empty.png" style="height: 2.5vh; cursor: pointer;" onclick="toggleTick(this); toggleLikedFilter()">
 						<h1 style="font-size: 3vh; line-height: 1; margin-top: 0.6rem;">Liked</h1>
 					</div>
+					<div style="display: flex; flex-direction: row; align-items: center; gap: 0.75rem; width: 100%">
+						<img draggable="false" class="check-box" src="assets/checkbox-empty.png" style="height: 2.5vh; cursor: pointer;" onclick="toggleTick(this); toggleUnapprovedFilter()">
+						<h1 style="font-size: 3vh; line-height: 1; margin-top: 0.6rem;">Unapproved</h1>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -141,10 +145,11 @@
 				<h1 style="font-size: 3vh;" class="sort-item" onclick="changeSort(this)">Likes</h1>
 				<h1 style="font-size: 3vh;" class="sort-item" onclick="changeSort(this)">Views</h1>
 				<h1 style="font-size: 3vh;" class="sort-item" onclick="changeSort(this)">Date Added</h1>
+				<h1 style="font-size: 3vh;" class="sort-item" onclick="changeSort(this)">Stars</h1>
 			</div>
 		</div>
 		<script src="../api.js?v=3"></script>
-		<script src="scripts/main.js?v=4"></script>
+		<script src="scripts/main.js"></script>
 		<p class="footer-left" style="position: fixed; bottom: 1rem; left: 1rem; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.25rem; color: #666;"></p>
 		<p class="footer-right" style="position: fixed; bottom: 1rem; right: 1rem; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.25rem; color: #666; text-align: right;"></p>
 		<div id="top-bar" style="position: fixed; top: 1rem; right: 2rem; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.25rem; color: #666; text-align: right; display: flex; align-items: center; gap: 2rem;">

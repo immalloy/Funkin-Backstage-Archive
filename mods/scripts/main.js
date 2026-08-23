@@ -4,6 +4,7 @@ var engineFilter = "any";
 var categoryFilter = "any";
 
 var featuredFilter = false;
+var unapprovedFilter = false;
 var likedFilter = false;
 var filterCount = 0;
 var sortBackwards = false;
@@ -21,6 +22,14 @@ function toggleFeaturedFilter() {
     featuredFilter = !featuredFilter;
     reloadModList();
     if (featuredFilter) filterCount ++;
+    else filterCount --;
+    document.getElementById("filter-text").textContent = 'FILTERS - ' + filterCount;
+}
+
+function toggleUnapprovedFilter() {
+    unapprovedFilter = !unapprovedFilter;
+    reloadModList();
+    if (unapprovedFilter) filterCount ++;
     else filterCount --;
     document.getElementById("filter-text").textContent = 'FILTERS - ' + filterCount;
 }
@@ -144,6 +153,9 @@ async function reloadModList() {
             case "date added":
                 modDatas.sort((a, b) => new Date(a.uploadDate) - new Date(b.uploadDate));
                 break;
+            case "stars":
+                modDatas.sort((a, b) => (a.stars ?? 0) - (b.stars ?? 0));
+                break;
         }
     } else {
         switch (sortMethod) {
@@ -166,6 +178,9 @@ async function reloadModList() {
             case "date added":
                 modDatas.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
                 break;
+            case "stars":
+                modDatas.sort((a, b) => (b.stars ?? 0) - (a.stars ?? 0));
+                break;
         }
     }
 
@@ -174,6 +189,11 @@ async function reloadModList() {
 
     for (const meta of modDatas) {
         if (featuredFilter && meta.stars == 0) continue;
+        if (unapprovedFilter) {
+            if (meta.approved) continue;
+        } else {
+            if (!meta.approved) continue;
+        }
         const id = meta.storageID;
         const isLiked = likedSubmissions.includes(id);
         if (likedFilter && !isLiked) continue;
@@ -205,9 +225,8 @@ async function reloadModList() {
                         </div>
                         <div class="mod-footer-right">
                             ${meta.stars > 0 ? `
-                            <div class="footer-piece">
-                                <img draggable="false" src="assets/icon-featured.png" style="height: 1.8vh;">
-                                <h1 style="font-size: 2vh;">FEATURED</h1>
+                            <div class="footer-piece" style="gap:0.15vw;margin-top:-0.1vh;margin-right:0.5vw;">
+                                ${'<img draggable="false" src="assets/icon-featured.png" style="height:1.8vh;">'.repeat(meta.stars)}
                             </div>` : ``}
                             ${meta.updateDate == "" ? `
                             <div class="footer-piece">
