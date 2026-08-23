@@ -254,7 +254,7 @@
             .replace(/@/g,'a').replace(/\$/g,'s').replace(/[^a-z]/g,'');
     }
 
-    async function buildMessageHTML(message) {
+    async function buildMessageHTML(message, grouped = false) {
         const stickerList = await getStickers();
         const user = await getUser(message.poster);
         const hasAvatar = avatarCache.get(user.id);
@@ -265,6 +265,14 @@
             content = content.replaceAll(`:${sticker}:`, `<img src="${API}/stickers/${sticker}.png" style="height:${stickerOnly ? '13' : '5'}vh;${stickerOnly ? '' : 'margin:1vh;margin-top:0.5vh;'}"/>`);
         }
         const isMentioned = currentUser && new RegExp(`@${currentUser.username}`, 'i').test(message.contents);
+        const highlightStyle = isMentioned ? 'background:rgba(80,130,255,0.15);border-left:3px solid #5082ff;border-radius:0.4rem;padding:0.3rem 0.6rem;margin:-0.3rem -0.6rem;' : '';
+
+        if (grouped) {
+            return `<div data-poster="${message.poster}" style="display:flex;flex-direction:column;align-items:flex-start;justify-content:start;margin-top:calc(-2vh + 0.2vh);${highlightStyle}">
+                <h1 style="font-family:'FunkinOptions',sans-serif;font-size:4vh;margin:0;display:flex;align-items:center;font-weight:normal">${content}</h1>
+            </div>`;
+        }
+
         const badgeTip = user.id === 2 ? 'Site Owner' : (user.isAdmin ? 'Site Moderator' : '');
         const badgeSrc = user.id === 2
             ? 'https://files.funkinbackstage.com/badges/owner-badge.png'
@@ -272,7 +280,7 @@
         const badgeHTML = badgeSrc
             ? `<span class="badge-wrap" data-tip="${badgeTip}" style="margin-top:1vh;"><img src="${badgeSrc}" style="height:2.5vh;display:block;" draggable="false"></span>`
             : '';
-        return `<div style="display:flex;flex-direction:column;align-items:flex-start;gap:0rem;justify-content:start;${isMentioned ? 'background:rgba(80,130,255,0.15);border-left:3px solid #5082ff;border-radius:0.4rem;padding:0.3rem 0.6rem;margin:-0.3rem -0.6rem;' : ''}">
+        return `<div data-poster="${message.poster}" style="display:flex;flex-direction:column;align-items:flex-start;gap:0rem;justify-content:start;${highlightStyle}">
             <div style="display:flex;justify-content:flex-start;align-items:center;gap:0.5vw">
                 <div style="position:relative;height:4vh;width:4vh;flex-shrink:0;">
                     <img src="${avatarSrc}" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:${hasAvatar ? '3.5' : '4'}vh;width:${hasAvatar ? '3.5' : '4'}vh;border-radius:50%;object-fit:cover;"/>
@@ -305,7 +313,11 @@
             const all = await fetch(`${API}/chat/read`).then(r => r.json());
             const messages = all.slice(-25);
             let out = '';
-            for (const msg of messages) out += await buildMessageHTML(msg);
+            let prevPoster = null;
+            for (const msg of messages) {
+                out += await buildMessageHTML(msg, msg.poster === prevPoster);
+                prevPoster = msg.poster;
+            }
             const box = document.getElementById('chat-scroll');
             box.innerHTML = out;
             if (doScroll) scrollToBottom(box, true); else updateThumb();
@@ -316,7 +328,8 @@
     async function appendMessage(message) {
         const box = document.getElementById('chat-scroll');
         const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
-        const html = await buildMessageHTML(message);
+        const lastPoster = box.lastElementChild ? Number(box.lastElementChild.dataset.poster) : null;
+        const html = await buildMessageHTML(message, lastPoster === message.poster);
         const div = document.createElement('div');
         div.innerHTML = html;
         const node = div.firstElementChild;
@@ -369,8 +382,7 @@
 
     // ── Profile navigation ─────────────────────────────────────────────────
     function goToUserProfile(userId) {
-        sessionStorage.setItem('userId', userId);
-        window.location.href = `https://funkinbackstage.com/users/${userId}`;
+        window.open(`https://funkinbackstage.com/users/${userId}`, '_blank');
     }
 
     async function goToOwnProfile() {

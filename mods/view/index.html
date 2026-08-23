@@ -492,8 +492,7 @@
 				}
 
 				function goToCredit(userId) {
-					sessionStorage.setItem('userId', userId);
-					window.location.href = `https://funkinbackstage.com/users/${userId}`;
+					window.open(`https://funkinbackstage.com/users/${userId}`, '_blank');
 				}
 			}
 			populateData();
