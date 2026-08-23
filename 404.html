@@ -2,7 +2,32 @@
 <html lang="en" style="background:black">
 <head>
 	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Funkin' Backstage</title>
+	<link rel="icon" type="image/png" href="/favicon.png">
 	<link rel="stylesheet" href="/style.css">
+	<style>
+		#profile-header {
+			display: flex;
+			align-items: center;
+			gap: 2rem;
+		}
+		#profile-avatar {
+			width: 10vh;
+			height: 10vh;
+			border-radius: 50%;
+			object-fit: cover;
+			flex-shrink: 0;
+			background: #333;
+		}
+		#profile-username {
+			font-family: 'FunkinLingLong', sans-serif;
+			font-size: 6vh;
+			color: #E1E1E1;
+			margin: 0;
+			line-height: 1;
+		}
+	</style>
 	<script>
 		var path = window.location.pathname;
 		var modsMatch = path.match(/^\/mods\/([^/]+)\/?$/);
@@ -10,12 +35,50 @@
 			sessionStorage.setItem('modId', modsMatch[1]);
 			window.location.replace('/mods/view/');
 		}
-		var usersMatch = path.match(/^\/users\/([^/]+)\/?$/);
-		if (usersMatch) {
-			sessionStorage.setItem('userId', usersMatch[1]);
-			window.location.replace('/users/view/');
-		}
 	</script>
 </head>
-<body></body>
+<body>
+	<script>
+		(function () {
+			var path = window.location.pathname;
+			var usersMatch = path.match(/^\/users\/([^/]+)\/?$/);
+			if (!usersMatch) return;
+
+			var userId = Number(usersMatch[1]);
+			document.title = 'Profile — Funkin\' Backstage';
+
+			document.body.style.cssText = 'display:flex;align-items:center;justify-content:center;';
+
+			var header = document.createElement('div');
+			header.id = 'profile-header';
+
+			var avatar = document.createElement('img');
+			avatar.id = 'profile-avatar';
+			avatar.draggable = false;
+
+			var username = document.createElement('h1');
+			username.id = 'profile-username';
+			username.textContent = '...';
+
+			header.appendChild(avatar);
+			header.appendChild(username);
+			document.body.appendChild(header);
+
+			var apiScript = document.createElement('script');
+			apiScript.src = '/api.js';
+			apiScript.onload = function () {
+				fetch(API + '/users/' + userId)
+					.then(function (r) { return r.ok ? r.json() : null; })
+					.then(function (user) {
+						if (!user) { username.textContent = 'User not found'; return; }
+						document.title = user.username + ' — Funkin\' Backstage';
+						username.textContent = user.username;
+						avatar.src = API + '/avatars/' + userId + '.png';
+						avatar.onerror = function () { avatar.src = ''; avatar.style.background = '#444'; };
+					});
+			};
+			document.head.appendChild(apiScript);
+		})();
+	</script>
+</body>
 </html>
