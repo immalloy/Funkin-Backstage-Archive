@@ -240,7 +240,7 @@ async function reloadModList() {
                         </div>
                     </div>
                 </a>
-                ${isAdmin ? `<div class="mod-delete-btn" onclick="deleteSubmission('${id}',this.parentElement)">✕</div><div class="mod-star-btn" data-stars="${meta.stars ?? 0}" onclick="setStars('${id}',${meta.stars ?? 0},this)">★ ${meta.stars ?? 0}</div>` : ''}
+                ${isAdmin ? `<div class="mod-admin-btns"><div class="mod-star-btn" data-stars="${meta.stars ?? 0}" onclick="setStars('${id}',${meta.stars ?? 0},this)"><img draggable="false" src="assets/feature-button.png" style="width:100%;height:100%;object-fit:contain;"></div><div class="mod-delete-btn" onclick="deleteSubmission('${id}',this.parentElement.parentElement)"><img draggable="false" src="assets/trash-button.png" style="width:100%;height:100%;object-fit:contain;"></div></div>` : ''}
             </div>
         `;
     }
