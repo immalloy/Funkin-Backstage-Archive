@@ -428,8 +428,6 @@
 		#socials-save-btn:hover { background: #3a3860; }
 
 		#profile-content {
-			flex: 0 0 auto;
-			width: 45%;
 			display: flex;
 			flex-direction: column;
 			min-width: 0;
@@ -449,6 +447,27 @@
 			margin: 0 0 1rem 0;
 			text-align: center;
 			letter-spacing: 0.05em;
+		}
+
+		#profile-content-col {
+			flex: 0 0 auto;
+			width: 45%;
+			position: relative;
+		}
+
+		#profile-badge {
+			display: none;
+			position: absolute;
+			top: 0.5rem;
+			right: -10rem;
+			width: 9rem;
+			flex-direction: column;
+			gap: 0.5rem;
+		}
+
+		#profile-badge img {
+			width: 100%;
+			display: block;
 		}
 
 		#mods-box {
@@ -645,12 +664,15 @@
 			</a>
 			<button id="socials-edit-btn" type="button">edit socials</button>
 		</div>
-		<div id="profile-content">
-			<div id="mods-box">
-				<h2>SUBMITTED MODS</h2>
-				<div id="mods-grid"></div>
-				<div id="mods-scroll-track"><div id="mods-scroll-knob"></div></div>
+		<div id="profile-content-col">
+			<div id="profile-content">
+				<div id="mods-box">
+					<h2>SUBMITTED MODS</h2>
+					<div id="mods-grid"></div>
+					<div id="mods-scroll-track"><div id="mods-scroll-knob"></div></div>
+				</div>
 			</div>
+			<div id="profile-badge"></div>
 		</div>
 		<img id="profile-char" src="bf-char.png" draggable="false" alt="">
 	</div>
@@ -682,6 +704,17 @@
 			document.title = `${user.username} — Funkin' Backstage`;
 			try { history.replaceState(null, '', '/users/' + userId); } catch (e) {}
 			loadMods(userId);
+
+			const badgeEl = document.getElementById('profile-badge');
+			const badges = [];
+			if (user.isAdmin) badges.push(userId === 2
+				? 'https://files.funkinbackstage.com/badges/owner-badge.png'
+				: 'https://files.funkinbackstage.com/badges/mod-badge.png');
+			if (user.ogMember) badges.push('https://files.funkinbackstage.com/badges/og-badge.png');
+			if (badges.length) {
+				badgeEl.innerHTML = badges.map(src => `<img src="${src}" draggable="false" alt="badge">`).join('');
+				badgeEl.style.display = 'flex';
+			}
 			const usernameEl = document.getElementById('profile-username');
 			usernameEl.textContent = user.username;
 
