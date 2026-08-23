@@ -176,48 +176,50 @@ async function reloadModList() {
         if (likedFilter && !isLiked) continue;
         const heartIcon = isLiked ? 'assets/icon-heart-filled.png' : 'assets/icon-heart.png';
         htmlOut += `
-            <a class="mod-card" onclick="if(!event.target.closest('.mod-delete-btn,.mod-star-btn')){sessionStorage.setItem('modId','${id}');window.location.href='/mods/view/';}" tabindex="-1" onkeydown="return false;" style="cursor:pointer;display:block;text-decoration:none;color:#E1E1E1;">
-                <img draggable="false" src="${firstImageThumb(meta.thumbnails)}" class="mod-thumbnail" style="display:block;">
-                <img draggable="false" src="${API}/avatars/${meta.submitter}.png" class="mod-topleft">
-                ${isAdmin ? `<div class="mod-delete-btn" onclick="deleteSubmission('${id}',this.closest('.mod-card'))">✕</div><div class="mod-star-btn" data-stars="${meta.stars ?? 0}" onclick="setStars('${id}',${meta.stars ?? 0},this)">★ ${meta.stars ?? 0}</div>` : ''}
-                <img draggable="false" src="assets/mod capsule.png" class="mod-capsule">
-                <div class="mod-label" style="margin-top:0;padding-top:0.3rem;">
-                    <h1 style="font-size: 3vh; margin:0; line-height:1.1; color:#E1E1E1;">${escapeHTML(meta.title)}</h1>
-                    <h1 style="font-size: 2vh; color: #C7C7C7; margin:0; line-height:1.1;">${escapeHTML(meta.blurb)}</h1>
-                </div>
-                <div class="mod-footer">
-                    <div class="mod-footer-left">
-                        <div class="footer-piece">
-                            <img draggable="false" src="assets/icon-download.png" style="height: 1.8vh;">
-                            <h1 style="font-size: 2vh;">${fmtNum(meta.downloads ?? 0)}</h1>
+            <div style="position:relative;">
+                <a class="mod-card" onclick="sessionStorage.setItem('modId','${id}');window.location.href='/mods/view/';" tabindex="-1" onkeydown="return false;" style="cursor:pointer;display:block;text-decoration:none;color:#E1E1E1;">
+                    <img draggable="false" src="${firstImageThumb(meta.thumbnails)}" class="mod-thumbnail" style="display:block;">
+                    <img draggable="false" src="${API}/avatars/${meta.submitter}.png" class="mod-topleft">
+                    <img draggable="false" src="assets/mod capsule.png" class="mod-capsule">
+                    <div class="mod-label" style="margin-top:0;padding-top:0.3rem;">
+                        <h1 style="font-size: 3vh; margin:0; line-height:1.1; color:#E1E1E1;">${escapeHTML(meta.title)}</h1>
+                        <h1 style="font-size: 2vh; color: #C7C7C7; margin:0; line-height:1.1;">${escapeHTML(meta.blurb)}</h1>
+                    </div>
+                    <div class="mod-footer">
+                        <div class="mod-footer-left">
+                            <div class="footer-piece">
+                                <img draggable="false" src="assets/icon-download.png" style="height: 1.8vh;">
+                                <h1 style="font-size: 2vh;">${fmtNum(meta.downloads ?? 0)}</h1>
+                            </div>
+                            <div class="footer-piece" style="cursor: ${token ? 'pointer' : 'default'};" onclick="event.stopPropagation();toggleLike('${id}', this)">
+                                <img draggable="false" src="${heartIcon}" style="height: 1.8vh;">
+                                <h1 style="font-size: 2vh;">${fmtNum(meta.likes ?? 0)}</h1>
+                            </div>
+                            <div class="footer-piece">
+                                <img draggable="false" src="assets/icon-views.png" style="height: 1.8vh;">
+                                <h1 style="font-size: 2vh;">${fmtNum(meta.views ?? 0)}</h1>
+                            </div>
                         </div>
-                        <div class="footer-piece" style="cursor: ${token ? 'pointer' : 'default'};" onclick="event.stopPropagation();toggleLike('${id}', this)">
-                            <img draggable="false" src="${heartIcon}" style="height: 1.8vh;">
-                            <h1 style="font-size: 2vh;">${fmtNum(meta.likes ?? 0)}</h1>
-                        </div>
-                        <div class="footer-piece">
-                            <img draggable="false" src="assets/icon-views.png" style="height: 1.8vh;">
-                            <h1 style="font-size: 2vh;">${fmtNum(meta.views ?? 0)}</h1>
+                        <div class="mod-footer-right">
+                            ${meta.stars > 0 ? `
+                            <div class="footer-piece">
+                                <img draggable="false" src="assets/icon-featured.png" style="height: 1.8vh;">
+                                <h1 style="font-size: 2vh;">FEATURED</h1>
+                            </div>` : ``}
+                            ${meta.updateDate == "" ? `
+                            <div class="footer-piece">
+                                <img draggable="false" src="assets/icon-plus.png" style="height: 1.8vh;">
+                                <h1 style="font-size: 2vh;">${relTime(meta.uploadDate)}</h1>
+                            </div>` : `
+                            <div class="footer-piece">
+                                <img draggable="false" src="assets/icon-updated.png" style="height: 1.8vh;">
+                                <h1 style="font-size: 2vh;">${relTime(meta.updateDate)}</h1>
+                            </div>`}
                         </div>
                     </div>
-                    <div class="mod-footer-right">
-                        ${meta.stars > 0 ? `
-                        <div class="footer-piece">
-                            <img draggable="false" src="assets/icon-featured.png" style="height: 1.8vh;">
-                            <h1 style="font-size: 2vh;">FEATURED</h1>
-                        </div>` : ``}
-                        ${meta.updateDate == "" ? `
-                        <div class="footer-piece">
-                            <img draggable="false" src="assets/icon-plus.png" style="height: 1.8vh;">
-                            <h1 style="font-size: 2vh;">${relTime(meta.uploadDate)}</h1>
-                        </div>` : `
-                        <div class="footer-piece">
-                            <img draggable="false" src="assets/icon-updated.png" style="height: 1.8vh;">
-                            <h1 style="font-size: 2vh;">${relTime(meta.updateDate)}</h1>
-                        </div>`}
-                    </div>
-                </div>
-            </a>
+                </a>
+                ${isAdmin ? `<div class="mod-delete-btn" onclick="deleteSubmission('${id}',this.parentElement.querySelector('.mod-card'))">✕</div><div class="mod-star-btn" data-stars="${meta.stars ?? 0}" onclick="setStars('${id}',${meta.stars ?? 0},this)">★ ${meta.stars ?? 0}</div>` : ''}
+            </div>
         `;
     }
     parentElement.innerHTML = htmlOut;
