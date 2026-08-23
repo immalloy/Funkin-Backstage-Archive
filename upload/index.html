@@ -336,6 +336,10 @@
 				<input type="file" id="download-input" style="display:none;" onchange="updateFileLabel('download-label', this, false)">
 				<h1 id="download-label" style="font-size: 2vh; color: #C7C7C7; margin: 0; font-weight: normal;">* Required</h1>
 			</div>
+			<div class="field-row">
+				<h1 class="upload-label">Version:</h1>
+				<div class="input-wrap" style="max-width: 18rem;"><input type="text" id="mod-version" placeholder="e.g. 1.0.0" /></div>
+			</div>
 		</div>
 		<div id="tab-ownership" class="mod-box tab-panel" style="justify-content: space-between;">
 			<div id="ownership-rows" style="overflow-y: auto; display: flex; flex-direction: column; gap: 1.5vh; flex: 1; min-height: 0;">
@@ -472,9 +476,10 @@
 			const portraitFile = document.getElementById('portrait-input').files[0] || null;
 			const iconFile = document.getElementById('icon-input').files[0] || null;
 			const downloadFile = document.getElementById('download-input').files[0] || null;
+			const version = document.getElementById('mod-version').value.trim() || '?.?.?';
 
 			const ownershipData = Array.from(document.querySelectorAll('#ownership-rows .ownership-row')).map(row => ({
-				username: row.querySelector('input.owner-username').value.trim(),
+				name: row.querySelector('input.owner-username').value.trim(),
 				role: row.querySelector('input.owner-role').value.trim()
 			})).filter(o => o.username);
 
@@ -518,7 +523,7 @@
 				const res = await fetch(`${API}/submissions/create`, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-					body: JSON.stringify({ id: submissionId, title, description, blurb, engine: engineValue, category: categoryValue, screenshots: screenshotUrls, portrait: portraitUrl, icon: iconUrl, download: downloadUrl, ownership: ownershipData })
+					body: JSON.stringify({ id: submissionId, title, description, blurb, engine: engineValue, category: categoryValue, screenshots: screenshotUrls, portrait: portraitUrl, icon: iconUrl, download: downloadUrl, version, ownership: ownershipData })
 				});
 
 				if (!res.ok) {
