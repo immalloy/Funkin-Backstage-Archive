@@ -228,35 +228,109 @@ const modUpdateStream = new EventSource(`${API}/mods/update-stream`);
 modUpdateStream.onmessage = () => reloadModList();
 
 
+function adminDialog({ title, inputDefault, confirmOnly, onConfirm }) {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99999;display:flex;align-items:center;justify-content:center;';
+
+    const box = document.createElement('div');
+    box.style.cssText = 'background:#2a1a2e;border:2px solid #6a3a6a;border-radius:12px;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;min-width:280px;font-family:FunkinOptions,sans-serif;color:#E1E1E1;';
+
+    const label = document.createElement('p');
+    label.style.cssText = 'margin:0;font-size:1.1rem;';
+    label.textContent = title;
+    box.appendChild(label);
+
+    let inputEl = null;
+    if (!confirmOnly) {
+        inputEl = document.createElement('input');
+        inputEl.type = 'number';
+        inputEl.min = 0; inputEl.max = 5;
+        inputEl.value = inputDefault ?? '';
+        inputEl.style.cssText = 'background:#1a0d1e;border:1px solid #6a3a6a;border-radius:6px;padding:0.4rem 0.6rem;color:#E1E1E1;font-size:1.1rem;font-family:inherit;width:100%;box-sizing:border-box;';
+        box.appendChild(inputEl);
+    }
+
+    const btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:0.75rem;justify-content:flex-end;';
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.style.cssText = 'background:#4a2a4a;border:none;border-radius:6px;padding:0.4rem 1rem;color:#E1E1E1;cursor:pointer;font-family:inherit;font-size:1rem;';
+
+    const okBtn = document.createElement('button');
+    okBtn.textContent = confirmOnly ? 'Delete' : 'OK';
+    okBtn.style.cssText = `background:${confirmOnly ? '#8b1a1a' : '#4a2a8b'};border:none;border-radius:6px;padding:0.4rem 1rem;color:#E1E1E1;cursor:pointer;font-family:inherit;font-size:1rem;`;
+
+    btnRow.appendChild(cancelBtn);
+    btnRow.appendChild(okBtn);
+    box.appendChild(btnRow);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+
+    if (inputEl) setTimeout(() => { inputEl.focus(); inputEl.select(); }, 0);
+
+    const close = () => overlay.remove();
+
+    cancelBtn.onclick = close;
+    overlay.onclick = e => { if (e.target === overlay) close(); };
+
+    okBtn.onclick = () => {
+        close();
+        onConfirm(inputEl ? inputEl.value : true);
+    };
+
+    if (inputEl) {
+        inputEl.onkeydown = e => {
+            if (e.key === 'Enter') { close(); onConfirm(inputEl.value); }
+            if (e.key === 'Escape') close();
+        };
+    }
+}
+
 async function setStars(id, current, btn) {
-    document.activeElement?.blur();
-    const input = prompt(`Stars for mod #${id} (0-5):`, btn.dataset.stars ?? current);
-    if (input === null) return;
-    const stars = parseInt(input, 10);
-    if (isNaN(stars) || stars < 0 || stars > 5) { alert('Enter a number 0-5'); return; }
-    const token = localStorage.getItem('token');
-    const res = await fetch(`${API}/submissions/${id}/stars`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stars })
+    adminDialog({
+        title: `Stars for mod #${id} (0–5):`,
+        inputDefault: btn.dataset.stars ?? current,
+        confirmOnly: false,
+        onConfirm: async value => {
+            const stars = parseInt(value, 10);
+            if (isNaN(stars) || stars < 0 || stars > 5) {
+                adminDialog({ title: 'Enter a number 0–5', confirmOnly: true, onConfirm: () => {} });
+                return;
+            }
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API}/submissions/${id}/stars`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ stars })
+            });
+            if (res.ok) { btn.dataset.stars = stars; btn.textContent = `★ ${stars}`; }
+            else {
+                const d = await res.json().catch(() => ({}));
+                adminDialog({ title: 'Failed: ' + (d.message || 'Unknown error'), confirmOnly: true, onConfirm: () => {} });
+            }
+        }
     });
-    if (res.ok) { btn.dataset.stars = stars; btn.textContent = `★ ${stars}`; }
-    else { const d = await res.json().catch(() => ({})); alert('Failed: ' + (d.message || 'Unknown error')); }
 }
 
 async function deleteSubmission(id, cardEl) {
-    if (!confirm(`Delete mod #${id}? This cannot be undone.`)) return;
-    const token = localStorage.getItem('token');
-    const res = await fetch(`${API}/submissions/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+    adminDialog({
+        title: `Delete mod #${id}? This cannot be undone.`,
+        confirmOnly: true,
+        onConfirm: async () => {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API}/submissions/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                cardEl.remove();
+            } else {
+                const data = await res.json().catch(() => ({}));
+                adminDialog({ title: 'Delete failed: ' + (data.message || 'Unknown error'), confirmOnly: true, onConfirm: () => {} });
+            }
+        }
     });
-    if (res.ok) {
-        cardEl.remove();
-    } else {
-        const data = await res.json().catch(() => ({}));
-        alert('Delete failed: ' + (data.message || 'Unknown error'));
-    }
 }
 
 function toggleTick(img) {
