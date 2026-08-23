@@ -157,9 +157,16 @@
 				<h1 style="font-size: 2.5vh; color: #E1E1E1; margin-top: 0.3vh">UPLOAD</h1>
 				<img src="../icon-upload.png" style="height: 2.5vh; width: 2.5vh; margin-top: -0.4rem; margin-right: 0.6rem"/>
 			</div>
-			<img class="smooth-btn" src="../icon-profile-out.png" style="transition: transform 0.3s ease-out, height 0.3s ease; height: 7vh; cursor: pointer;"/>
+			<img class="smooth-btn" id="profile-icon-btn" src="../icon-profile-out.png" style="transition: transform 0.3s ease-out, height 0.3s ease; height: 7vh; cursor: pointer;" onclick="goToProfile()"/>
 		</div>
 		<script>
+			async function goToProfile() {
+				const t = localStorage.getItem('token');
+				if (!t) { window.location.href = '../login'; return; }
+				const me = await fetch(`${API}/me`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${t}` }, body: JSON.stringify({}) }).then(r => r.ok ? r.json() : null).catch(() => null);
+				if (me?.id) window.location.href = `https://funkinbackstage.com/users/${me.id}`;
+			}
+
 			const _token = localStorage.getItem('token');
 			if (!_token) {
 				const bar = document.getElementById('top-bar');

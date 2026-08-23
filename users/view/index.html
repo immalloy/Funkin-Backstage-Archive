@@ -214,6 +214,19 @@
 		}
 		#profile-bio-save:hover { color: #E1E1E1; }
 
+		#btn-logout {
+			background: none;
+			border: none;
+			padding: 0;
+			cursor: pointer;
+			display: none;
+			margin-top: 0.4rem;
+			opacity: 0.6;
+			transition: opacity 0.15s;
+		}
+		#btn-logout:hover { opacity: 1; }
+		#btn-logout img { height: 3vh; display: block; }
+
 		#profile-body {
 			display: flex;
 			flex-direction: row;
@@ -513,6 +526,7 @@
 				<input id="profile-bio-input" type="text" maxlength="30" placeholder="add a bio...">
 				<button id="profile-bio-save" type="button">save</button>
 			</div>
+			<button id="btn-logout" type="button"><img src="icon-logout.png" draggable="false" alt="Log out"></button>
 		</div>
 		<div id="profile-stats">
 			<div class="profile-stat">
@@ -729,6 +743,13 @@
 				const input = document.getElementById('profile-bio-input');
 				input.value = user.bio || '';
 				input.placeholder = user.bio ? 'edit bio...' : 'add a bio...';
+
+				const logoutBtn = document.getElementById('btn-logout');
+				logoutBtn.style.display = '';
+				logoutBtn.onclick = () => {
+					localStorage.removeItem('token');
+					window.location.href = 'https://funkinbackstage.com/mods';
+				};
 
 				document.getElementById('profile-bio-save').onclick = async () => {
 					const newBio = input.value.trim();
