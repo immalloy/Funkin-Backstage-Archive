@@ -58,12 +58,13 @@
 
 		#profile-bio {
 			font-family: 'FunkinOptions', sans-serif;
-			font-size: 2vh;
+			font-size: 4vh;
 			color: #bbb;
 			margin: 0;
 			font-style: italic;
 			white-space: normal;
 			word-break: break-word;
+			text-align: center;
 		}
 
 		#profile-bio-edit {
@@ -152,7 +153,7 @@
 			if (!user) { document.getElementById('profile-username').textContent = 'User not found'; return; }
 
 			document.title = `${user.username} — Funkin' Backstage`;
-			history.replaceState(null, '', '/users/' + userId);
+			try { history.replaceState(null, '', '/users/' + userId); } catch (e) {}
 			const usernameEl = document.getElementById('profile-username');
 			usernameEl.textContent = user.username;
 
