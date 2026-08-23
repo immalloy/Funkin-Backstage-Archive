@@ -574,6 +574,10 @@
 			user-select: none;
 		}
 
+		#profile-badge-mobile {
+			display: none;
+		}
+
 		@media (max-width: 768px) {
 			body { overflow-y: auto; }
 
@@ -589,8 +593,20 @@
 				border-width: 1vw;
 			}
 
-			#profile-username { font-size: 7vw; }
+			#profile-info { align-items: center; }
+			#profile-username { font-size: 7vw; text-align: center; }
 			#profile-bio { font-size: 3.5vw; }
+
+			#profile-badge-mobile {
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+				gap: 0.5rem;
+				padding-bottom: 0.4rem;
+			}
+			#profile-badge-mobile img { width: 4.5rem; }
+
+			#profile-badge { display: none !important; }
 
 			#profile-stats {
 				gap: 1.2rem;
@@ -611,30 +627,10 @@
 				overflow: visible;
 			}
 
-			#profile-sidebar {
-				width: 100%;
-			}
+			#profile-sidebar { width: 100%; }
+			#profile-content-col { width: 100%; }
 
-			#profile-content-col {
-				width: 100%;
-			}
-
-			#profile-badge {
-				position: static;
-				width: 100%;
-				flex-direction: row;
-				flex-wrap: wrap;
-				gap: 0.5rem;
-				margin-top: 0.5rem;
-			}
-
-			#profile-badge img {
-				width: 5rem;
-			}
-
-			#mods-grid {
-				grid-template-columns: 1fr;
-			}
+			#mods-grid { grid-template-columns: 1fr; }
 
 			#mods-box { min-height: unset; }
 
@@ -663,6 +659,7 @@
 				<button id="profile-bio-save" type="button">save</button>
 			</div>
 			<button id="btn-logout" type="button"><img src="icon-logout.png" draggable="false" alt=""><span>Log Out</span></button>
+			<div id="profile-badge-mobile"></div>
 		</div>
 		<div id="profile-stats">
 			<div class="profile-stat">
@@ -776,8 +773,10 @@
 				: 'https://files.funkinbackstage.com/badges/mod-badge.png');
 			if (user.ogMember) badges.push('https://files.funkinbackstage.com/badges/og-badge.png');
 			if (badges.length) {
-				badgeEl.innerHTML = badges.map(src => `<img src="${src}" draggable="false" alt="badge">`).join('');
+				const badgeHTML = badges.map(src => `<img src="${src}" draggable="false" alt="badge">`).join('');
+				badgeEl.innerHTML = badgeHTML;
 				badgeEl.style.display = 'flex';
+				document.getElementById('profile-badge-mobile').innerHTML = badgeHTML;
 			}
 			const usernameEl = document.getElementById('profile-username');
 			usernameEl.textContent = user.username;
