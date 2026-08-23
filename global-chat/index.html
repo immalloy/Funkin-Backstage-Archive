@@ -57,6 +57,19 @@
         cursor: pointer;
     }
 
+    .chat-username {
+        font-family: 'FunkinOptions', sans-serif;
+        font-size: 3vh;
+        margin-top: 1.5vh;
+        color: #BABABA;
+        text-decoration: none;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0;
+    }
+    .chat-username:hover { text-decoration: underline; }
+
     @media (max-width: 768px) {
       html, body {
         overflow-x: hidden;
@@ -240,13 +253,17 @@
         for (const sticker of stickerList) {
             content = content.replaceAll(`:${sticker}:`, `<img src="${API}/stickers/${sticker}.png" style="height:${stickerOnly ? '13' : '5'}vh;${stickerOnly ? '' : 'margin:1vh;margin-top:0.5vh;'}"/>`);
         }
+        const badgeHTML = user.id === 2
+            ? `<img src="https://files.funkinbackstage.com/badges/owner-badge.png" style="height:2.5vh;margin-top:1vh;" draggable="false">`
+            : (user.isAdmin ? `<img src="https://files.funkinbackstage.com/badges/mod-badge.png" style="height:2.5vh;margin-top:1vh;" draggable="false">` : '');
         return `<div style="display:flex;flex-direction:column;align-items:flex-start;gap:0rem;justify-content:start;">
             <div style="display:flex;justify-content:flex-start;align-items:center;gap:0.5vw">
                 <div style="position:relative;height:4vh;width:4vh;flex-shrink:0;">
                     <img src="${avatarSrc}" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:${hasAvatar ? '3.5' : '4'}vh;width:${hasAvatar ? '3.5' : '4'}vh;border-radius:50%;object-fit:cover;"/>
                     ${hasAvatar ? `<img src="../icon-profile-in.png" style="position:absolute;top:0;left:0;height:4vh;width:4vh;"/>` : ''}
                 </div>
-                <h1 style="font-family:'FunkinOptions',sans-serif;font-size:3vh;margin-top:1.5vh;color:#BABABA">${escapeHTML(user.username)}</h1>
+                <button class="chat-username" onclick="goToUserProfile(${user.id})">${escapeHTML(user.username)}</button>
+                ${badgeHTML}
                 ${message.timestamp ? `<h1 style="font-family:'FunkinOptions',sans-serif;font-size:2vh;margin-top:1.5vh;color:#999;white-space:nowrap;">• ${new Date(message.timestamp).toLocaleTimeString([],{hour:'numeric',minute:'2-digit',hour12:true}).toLowerCase()}</h1>` : ''}
             </div>
             <h1 style="font-family:'FunkinOptions',sans-serif;font-size:4vh;margin:0;display:flex;align-items:center;font-weight:normal">${content}</h1>
@@ -332,6 +349,12 @@
                 if (msg.type === 'message') appendMessage(msg.data);
             } catch {}
         });
+    }
+
+    // ── Profile navigation ─────────────────────────────────────────────────
+    function goToUserProfile(userId) {
+        sessionStorage.setItem('userId', userId);
+        window.location.href = `https://funkinbackstage.com/users/${userId}`;
     }
 
     // ── Sticker / input helpers ────────────────────────────────────────────
