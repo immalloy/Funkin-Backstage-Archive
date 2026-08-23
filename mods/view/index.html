@@ -481,7 +481,7 @@
 					let nameEl;
 					const matchedUser = await fetch(`${API}/users/by-username/${encodeURIComponent(contributor.name)}`).then(r => r.ok ? r.json() : null).catch(() => null);
 					if (matchedUser) {
-						nameEl = `<a href="javascript:void(0)" onclick="goToCredit(${matchedUser.id})" style="font-size:3vh;${isDirector ? 'color:#fff596;' : ''}cursor:pointer;text-decoration:underline;text-underline-offset:2px;">${contributor.name}</a>`;
+						nameEl = `<a href="https://funkinbackstage.com/users/${matchedUser.id}" target="_blank" rel="noopener" style="font-size:3vh;color:${isDirector ? '#fff596' : '#E1E1E1'};text-decoration:underline;text-underline-offset:2px;text-decoration-color:rgba(255,255,255,0.3);">${contributor.name}</a>`;
 					} else {
 						nameEl = `<a style="font-size:3vh;${isDirector ? 'color:#fff596;' : ''}">${contributor.name}</a>`;
 					}
@@ -491,10 +491,7 @@
 					</div>`;
 				}
 
-				function goToCredit(userId) {
-					window.open(`https://funkinbackstage.com/users/${userId}`, '_blank');
 				}
-			}
 			populateData();
 
 			function toggleSidebar() {
