@@ -584,7 +584,7 @@
 
 			if (me && me.id === userId) {
 				const editBtn = document.getElementById('socials-edit-btn');
-				editBtn.style.display = '';
+				editBtn.style.display = 'block';
 				editBtn.onclick = () => {
 					SOCIALS.forEach(({ key }) => {
 						document.getElementById(`edit-${key}`).value = socials[key] || '';
