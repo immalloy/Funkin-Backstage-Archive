@@ -6,41 +6,124 @@
 	<title>Funkin' Backstage | Profile</title>
 	<link rel="icon" type="image/png" href="../../favicon.png">
 	<link rel="stylesheet" href="../../style.css" type="text/css">
+	<link rel="stylesheet" href="../../mods/style.css" type="text/css">
 	<style>
 		body {
-			align-items: center;
-			justify-content: center;
+			display: block !important;
+			overflow-y: auto;
+			min-height: 100vh;
+			height: auto;
+			padding: 0;
 		}
 
 		#profile-header {
+			width: 100%;
+			/* height: ; */
+			background: #484660;
+			border-bottom: 2px solid #E1E1E1;
 			display: flex;
 			align-items: center;
 			gap: 2rem;
+			padding: 2rem 3rem;
+			box-sizing: border-box;
 		}
 
 		#profile-avatar {
-			width: 10vh;
-			height: 10vh;
+			width: 30vh;
+			height: 30vh;
 			border-radius: 50%;
 			object-fit: cover;
 			flex-shrink: 0;
 			background: #333;
+			border: 2vh solid #E1E1E1;
+		}
+
+		#profile-info {
+			display: flex;
+			flex-direction: column;
+			gap: 0.3rem;
+			min-width: 0;
 		}
 
 		#profile-username {
 			font-family: 'FunkinLingLong', sans-serif;
-			font-size: 6vh;
+			font-size: 12vh;
 			color: #E1E1E1;
 			margin: 0;
 			line-height: 1;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		#profile-bio {
+			font-family: 'FunkinOptions', sans-serif;
+			font-size: 5vh;
+			color: #bbb;
+			margin: 0;
+			font-style: italic;
+		}
+
+		#profile-bio-edit {
+			display: none;
+			gap: 0.5rem;
+			align-items: center;
+		}
+
+		#profile-bio-input {
+			background: transparent;
+			border: none;
+			border-bottom: 1px solid #777;
+			outline: none;
+			font-family: 'FunkinOptions', sans-serif;
+			font-size: 1.8vh;
+			color: #E1E1E1;
+			font-style: italic;
+			width: 30ch;
+			caret-color: #E1E1E1;
+		}
+
+		#profile-bio-save {
+			font-family: 'FunkinOptions', sans-serif;
+			font-size: 1.6vh;
+			color: #999;
+			cursor: pointer;
+			background: none;
+			border: none;
+			padding: 0;
+		}
+		#profile-bio-save:hover { color: #E1E1E1; }
+
+		#profile-content {
+			padding: 2rem 3rem;
+			box-sizing: border-box;
+			width: 100%;
+		}
+
+		@media (max-width: 768px) {
+			#profile-header {
+				padding: 1.5rem;
+				gap: 1.2rem;
+			}
+			#profile-content {
+				padding: 1.5rem;
+			}
 		}
 	</style>
 </head>
 <body>
 	<div id="profile-header">
 		<img id="profile-avatar" draggable="false" src="">
-		<h1 id="profile-username">...</h1>
+		<div id="profile-info">
+			<h1 id="profile-username">...</h1>
+			<p id="profile-bio"></p>
+			<div id="profile-bio-edit">
+				<input id="profile-bio-input" type="text" maxlength="150" placeholder="add a bio...">
+				<button id="profile-bio-save" type="button">save</button>
+			</div>
+		</div>
 	</div>
+	<div id="profile-content"></div>
 
 	<p class="footer-left" style="position:fixed;bottom:1rem;left:1rem;font-family:'Inconsolata ExtraBold',sans-serif;font-size:1.25rem;color:#666;"></p>
 	<p class="footer-right" style="position:fixed;bottom:1rem;right:1rem;font-family:'Inconsolata ExtraBold',sans-serif;font-size:1.25rem;color:#666;text-align:right;"></p>
@@ -52,14 +135,50 @@
 			const userId = Number(sessionStorage.getItem('userId'));
 			if (!userId) { document.getElementById('profile-username').textContent = 'Unknown'; return; }
 
+			const token = localStorage.getItem('token');
+			let me = null;
+			if (token) {
+				const meRes = await fetch(`${API}/me`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+					body: JSON.stringify({})
+				});
+				if (meRes.ok) me = await meRes.json();
+			}
+
 			const user = await fetch(`${API}/users/${userId}`).then(r => r.ok ? r.json() : null);
 			if (!user) { document.getElementById('profile-username').textContent = 'User not found'; return; }
 
 			document.title = `${user.username} — Funkin' Backstage`;
 			document.getElementById('profile-username').textContent = user.username;
+
 			const avatarEl = document.getElementById('profile-avatar');
 			avatarEl.src = `${API}/avatars/${userId}.png`;
 			avatarEl.onerror = () => { avatarEl.src = ''; avatarEl.style.background = '#444'; };
+
+			const bioEl = document.getElementById('profile-bio');
+			bioEl.textContent = `"${user.bio}"` || '';
+
+			if (me && me.id === userId) {
+				const editRow = document.getElementById('profile-bio-edit');
+				editRow.style.display = 'flex';
+				const input = document.getElementById('profile-bio-input');
+				input.value = user.bio || '';
+				input.placeholder = user.bio ? 'edit bio...' : 'add a bio...';
+
+				document.getElementById('profile-bio-save').onclick = async () => {
+					const newBio = input.value.trim();
+					const res = await fetch(`${API}/users/me`, {
+						method: 'PATCH',
+						headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+						body: JSON.stringify({ bio: newBio })
+					});
+					if (res.ok) {
+						bioEl.textContent = newBio;
+						input.value = newBio;
+					}
+				};
+			}
 		}
 
 		loadProfile();
