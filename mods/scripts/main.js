@@ -176,10 +176,10 @@ async function reloadModList() {
         if (likedFilter && !isLiked) continue;
         const heartIcon = isLiked ? 'assets/icon-heart-filled.png' : 'assets/icon-heart.png';
         htmlOut += `
-            <a class="mod-card" href="/mods/view/" onclick="sessionStorage.setItem('modId','${id}')" tabindex="-1" onkeydown="return false;" style="cursor:pointer;display:block;text-decoration:none;color:#E1E1E1;">
+            <a class="mod-card" href="/mods/view/" onclick="if(event.target.closest('.mod-delete-btn,.mod-star-btn')){event.preventDefault();return;}sessionStorage.setItem('modId','${id}')" tabindex="-1" onkeydown="return false;" style="cursor:pointer;display:block;text-decoration:none;color:#E1E1E1;">
                 <img draggable="false" src="${firstImageThumb(meta.thumbnails)}" class="mod-thumbnail" style="display:block;">
                 <img draggable="false" src="${API}/avatars/${meta.submitter}.png" class="mod-topleft">
-                ${isAdmin ? `<div class="mod-delete-btn" onclick="event.stopPropagation();deleteSubmission('${id}',this.closest('.mod-card'))">✕</div><div class="mod-star-btn" data-stars="${meta.stars ?? 0}" onclick="event.stopPropagation();setStars('${id}',${meta.stars ?? 0},this)">★ ${meta.stars ?? 0}</div>` : ''}
+                ${isAdmin ? `<div class="mod-delete-btn" onclick="deleteSubmission('${id}',this.closest('.mod-card'))">✕</div><div class="mod-star-btn" data-stars="${meta.stars ?? 0}" onclick="setStars('${id}',${meta.stars ?? 0},this)">★ ${meta.stars ?? 0}</div>` : ''}
                 <img draggable="false" src="assets/mod capsule.png" class="mod-capsule">
                 <div class="mod-label" style="margin-top:0;padding-top:0.3rem;">
                     <h1 style="font-size: 3vh; margin:0; line-height:1.1; color:#E1E1E1;">${escapeHTML(meta.title)}</h1>
