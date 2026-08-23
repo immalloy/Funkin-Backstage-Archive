@@ -110,6 +110,35 @@
 			text-align: center;
 		}
 
+		#profile-stats {
+			display: flex;
+			gap: 2.5rem;
+			align-items: flex-end;
+			margin-left: 2rem;
+		}
+
+		.profile-stat {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			line-height: 1;
+		}
+
+		.profile-stat-count {
+			font-family: 'FunkinLingLong', sans-serif;
+			font-size: 6vh;
+			color: #E1E1E1;
+			margin: 0;
+		}
+
+		.profile-stat-label {
+			font-family: 'FunkinOptions', sans-serif;
+			font-size: 1.8vh;
+			color: #aaa;
+			margin: 0;
+			letter-spacing: 0.05em;
+		}
+
 		#profile-bio-edit {
 			display: none;
 			gap: 0.5rem;
@@ -174,6 +203,16 @@
 				<button id="profile-bio-save" type="button">save</button>
 			</div>
 		</div>
+		<div id="profile-stats">
+			<div class="profile-stat">
+				<h1 class="profile-stat-count" id="stat-followers">0</h1>
+				<p class="profile-stat-label">FOLLOWERS</p>
+			</div>
+			<div class="profile-stat">
+				<h1 class="profile-stat-count" id="stat-following">0</h1>
+				<p class="profile-stat-label">FOLLOWING</p>
+			</div>
+		</div>
 	</div>
 	<div id="profile-content"></div>
 
@@ -207,6 +246,9 @@
 			usernameEl.textContent = user.username;
 
 			const avatarEl = document.getElementById('profile-avatar');
+			document.getElementById('stat-followers').textContent = (user.followers ?? []).length;
+			document.getElementById('stat-following').textContent = (user.following ?? []).length;
+
 			const avatarTs = localStorage.getItem(`avatarTs_${userId}`) || Date.now();
 			avatarEl.src = `${API}/avatars/${userId}.png?t=${avatarTs}`;
 			avatarEl.onerror = () => { avatarEl.src = ''; avatarEl.style.background = '#444'; };
