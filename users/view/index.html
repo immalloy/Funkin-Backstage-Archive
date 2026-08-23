@@ -385,10 +385,97 @@
 			letter-spacing: 0.05em;
 		}
 
+		#mods-box {
+			overflow-y: auto;
+			scrollbar-width: none;
+			position: relative;
+		}
+		#mods-box::-webkit-scrollbar { display: none; }
+
+		#mods-scroll-track {
+			position: absolute;
+			right: 0.5rem;
+			top: 1rem;
+			bottom: 1rem;
+			width: 1.4rem;
+			background: url('scroll-bar.png') center/contain repeat-y;
+			display: none;
+			cursor: pointer;
+		}
+
+		#mods-scroll-knob {
+			position: absolute;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 1.4rem;
+			height: 2.5rem;
+			background: url('scroll-knob.png') center/contain no-repeat;
+			cursor: grab;
+		}
+
 		#mods-grid {
 			display: grid;
-			grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-			gap: 1rem;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 1.2rem;
+			padding-right: 0.5rem;
+		}
+
+		.mod-card {
+			border-radius: 0.5rem;
+			overflow: hidden;
+			cursor: pointer;
+			transition: transform 0.15s;
+			text-decoration: none;
+		}
+		.mod-card:hover { transform: scale(1.02); }
+
+		.mod-thumb-wrap {
+			position: relative;
+			width: 100%;
+			aspect-ratio: 16/9;
+			background: #111;
+			overflow: hidden;
+		}
+
+		.mod-thumb {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			display: block;
+		}
+
+		.mod-thumb-outline {
+			position: absolute;
+			inset: 0;
+			width: 100%;
+			height: 100%;
+			pointer-events: none;
+		}
+
+		.mod-card-info {
+			padding: 0.7rem 1rem 0.9rem;
+			background: #111120;
+		}
+
+		.mod-card-title {
+			font-family: 'FunkinLingLong', sans-serif;
+			font-size: 2.8vh;
+			color: #E1E1E1;
+			margin: 0;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.mod-card-blurb {
+			font-family: 'FunkinOptions', sans-serif;
+			font-size: 1.8vh;
+			color: #888;
+			margin: 0.2rem 0 0;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			font-weight: normal;
 		}
 
 		#profile-char {
@@ -483,6 +570,7 @@
 			<div id="mods-box">
 				<h2>SUBMITTED MODS</h2>
 				<div id="mods-grid"></div>
+				<div id="mods-scroll-track"><div id="mods-scroll-knob"></div></div>
 			</div>
 		</div>
 		<img id="profile-char" src="bf-char.png" draggable="false" alt="">
@@ -514,6 +602,7 @@
 
 			document.title = `${user.username} — Funkin' Backstage`;
 			try { history.replaceState(null, '', '/users/' + userId); } catch (e) {}
+			loadMods(userId);
 			const usernameEl = document.getElementById('profile-username');
 			usernameEl.textContent = user.username;
 
@@ -653,6 +742,78 @@
 					}
 				};
 			}
+		}
+
+		async function loadMods(userId) {
+			const grid = document.getElementById('mods-grid');
+			const box = document.getElementById('mods-box');
+			const track = document.getElementById('mods-scroll-track');
+			const knob = document.getElementById('mods-scroll-knob');
+
+			let ids;
+			try { ids = await fetch(`${API}/submissions`).then(r => r.json()); }
+			catch { return; }
+
+			const metas = (await Promise.all(ids.map(id =>
+				fetch(`${API}/submissions/${id}/meta.json`).then(r => r.ok ? r.json().then(m => ({ ...m, _folderId: id })) : null).catch(() => null)
+			))).filter(m => m && m.submitter === userId && m.live !== false);
+
+			if (!metas.length) {
+				grid.innerHTML = '<p style="font-family:\'FunkinOptions\',sans-serif;color:#555;font-size:2vh;text-align:center;margin-top:2rem;">No mods yet.</p>';
+				return;
+			}
+
+			metas.sort((a, b) => (b.activity || 0) - (a.activity || 0));
+
+			grid.innerHTML = metas.map(m => {
+				const thumb = (m.thumbnails || []).find(t => !/\.(mp4|webm|mov|ogg)(\?.*)?$/i.test(t)) || '';
+				const blurb = m.blurb || '';
+				return `<a class="mod-card" href="https://funkinbackstage.com/mods/${m._folderId}">
+					<div class="mod-thumb-wrap">
+						${thumb ? `<img class="mod-thumb" src="${thumb}" loading="lazy" draggable="false">` : ''}
+						<img class="mod-thumb-outline" src="thumbnail-outline.png" draggable="false">
+					</div>
+					<div class="mod-card-info">
+						<p class="mod-card-title">${escapeHTML(m.title)}</p>
+						${blurb ? `<p class="mod-card-blurb">${escapeHTML(blurb)}</p>` : ''}
+					</div>
+				</a>`;
+			}).join('');
+
+			function updateScroll() {
+				const scrollable = box.scrollHeight > box.clientHeight + 2;
+				track.style.display = scrollable ? '' : 'none';
+				if (!scrollable) return;
+				const ratio = box.scrollTop / (box.scrollHeight - box.clientHeight);
+				const trackH = track.clientHeight - knob.clientHeight;
+				knob.style.top = (ratio * trackH) + 'px';
+			}
+
+			box.addEventListener('scroll', updateScroll);
+			window.addEventListener('resize', updateScroll);
+			setTimeout(updateScroll, 100);
+
+			let dragging = false, startY = 0, startScroll = 0;
+			knob.addEventListener('mousedown', e => {
+				dragging = true; startY = e.clientY; startScroll = box.scrollTop; e.preventDefault();
+			});
+			document.addEventListener('mousemove', e => {
+				if (!dragging) return;
+				const trackH = track.clientHeight - knob.clientHeight;
+				const delta = (e.clientY - startY) / trackH * (box.scrollHeight - box.clientHeight);
+				box.scrollTop = Math.max(0, startScroll + delta);
+			});
+			document.addEventListener('mouseup', () => { dragging = false; });
+			track.addEventListener('click', e => {
+				if (e.target === knob) return;
+				const rect = track.getBoundingClientRect();
+				const ratio = (e.clientY - rect.top) / rect.height;
+				box.scrollTop = ratio * (box.scrollHeight - box.clientHeight);
+			});
+		}
+
+		function escapeHTML(s) {
+			return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 		}
 
 		loadProfile();
