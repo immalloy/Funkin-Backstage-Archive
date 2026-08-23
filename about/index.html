@@ -103,6 +103,27 @@
 			margin: 0.3rem 0;
 			font-weight: normal;
 		}
+
+		@media (max-width: 768px) {
+			body { padding: 1.5rem 1rem; align-items: flex-start; }
+
+			#about-grid {
+				grid-template-columns: 1fr;
+				gap: 1.2rem;
+			}
+
+			#about-grid > .ui-box {
+				height: auto;
+				width: 100%;
+			}
+
+			.panel-title { font-size: 5vw; }
+			.crew-name   { font-size: 4.5vw; }
+			.crew-role   { font-size: 3vw; }
+			.about-section-title { font-size: 4.5vw; }
+			.about-text  { font-size: 3.5vw; }
+			.supporter-name { font-size: 3.5vw; }
+		}
 	</style>
 </head>
 <body>

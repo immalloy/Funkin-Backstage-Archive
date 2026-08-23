@@ -575,9 +575,73 @@
 		}
 
 		@media (max-width: 768px) {
-			#profile-header { padding: 1.5rem; gap: 1.2rem; }
-			#profile-body { flex-direction: column; padding: 1.5rem; }
-			#profile-sidebar { width: 100%; min-height: 20vh; }
+			body { overflow-y: auto; }
+
+			#profile-header {
+				padding: 1.2rem;
+				gap: 1rem;
+				flex-wrap: wrap;
+			}
+
+			#avatar-wrapper {
+				width: 18vw;
+				height: 18vw;
+				border-width: 1vw;
+			}
+
+			#profile-username { font-size: 7vw; }
+			#profile-bio { font-size: 3.5vw; }
+
+			#profile-stats {
+				gap: 1.2rem;
+				margin-left: 0;
+				order: 3;
+				width: 100%;
+				justify-content: center;
+			}
+
+			.profile-stat-count { font-size: 6vw; }
+			.profile-stat-label { font-size: 2.5vw; }
+
+			#profile-actions { margin-left: 0; }
+
+			#profile-body {
+				flex-direction: column;
+				padding: 1rem;
+				overflow: visible;
+			}
+
+			#profile-sidebar {
+				width: 100%;
+			}
+
+			#profile-content-col {
+				width: 100%;
+			}
+
+			#profile-badge {
+				position: static;
+				width: 100%;
+				flex-direction: row;
+				flex-wrap: wrap;
+				gap: 0.5rem;
+				margin-top: 0.5rem;
+			}
+
+			#profile-badge img {
+				width: 5rem;
+			}
+
+			#mods-grid {
+				grid-template-columns: 1fr;
+			}
+
+			#mods-box { min-height: unset; }
+
+			#mods-box h2 { font-size: 6vw; }
+			.mod-card-title { font-size: 4vw; }
+			.mod-card-blurb { font-size: 3vw; }
+
 			#profile-char { display: none; }
 		}
 	</style>
