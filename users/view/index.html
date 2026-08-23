@@ -115,6 +115,7 @@
 	</style>
 </head>
 <body>
+	<input id="avatar-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none;">
 	<div id="profile-header">
 		<img id="profile-avatar" draggable="false" src="">
 		<div id="profile-info">
@@ -170,6 +171,24 @@
 			}
 
 			if (me && me.id === userId) {
+				avatarEl.style.cursor = 'pointer';
+				avatarEl.title = 'Click to change avatar';
+				const avatarInput = document.getElementById('avatar-input');
+				avatarEl.onclick = () => avatarInput.click();
+				avatarInput.onchange = async () => {
+					const file = avatarInput.files[0];
+					if (!file) return;
+					const res = await fetch(`${API}/avatars/me`, {
+						method: 'POST',
+						headers: { 'Content-Type': file.type, 'Authorization': `Bearer ${token}` },
+						body: file
+					});
+					if (res.ok) {
+						avatarEl.src = `${API}/avatars/${userId}.png?t=${Date.now()}`;
+					}
+					avatarInput.value = '';
+				};
+
 				const editRow = document.getElementById('profile-bio-edit');
 				editRow.style.display = 'flex';
 				const input = document.getElementById('profile-bio-input');
