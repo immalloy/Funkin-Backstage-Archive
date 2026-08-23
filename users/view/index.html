@@ -174,7 +174,7 @@
 						body: JSON.stringify({ bio: newBio })
 					});
 					if (res.ok) {
-						bioEl.textContent = newBio;
+						bioEl.textContent = `"${newBio}"`;
 						input.value = newBio;
 					}
 				};
