@@ -217,18 +217,19 @@
 		#btn-logout {
 			display: none;
 			margin-top: 0.6rem;
-			width: 100%;
+			width: fit-content;
 			background: #111120;
 			border: 1px solid #333;
 			border-radius: 0.4rem;
-			padding: 0.6rem 1rem;
+			padding: 0.5rem 0.9rem;
 			cursor: pointer;
 			align-items: center;
-			gap: 0.6rem;
+			gap: 0.5rem;
 			transition: border-color 0.15s, background 0.15s;
 		}
 		#btn-logout:hover { border-color: #f88; background: #1a0f0f; }
-		#btn-logout img { height: 2.4vh; flex-shrink: 0; }
+		#btn-logout img { height: 2.2vh; flex-shrink: 0; transition: filter 0.15s; }
+		#btn-logout:hover img { filter: brightness(0) saturate(100%) invert(60%) sepia(80%) saturate(500%) hue-rotate(300deg); }
 		#btn-logout span {
 			font-family: 'FunkinOptions', sans-serif;
 			font-size: 1.7vh;
