@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Funkin' Backstage | About</title>
+	<link rel="icon" type="image/png" href="../favicon.png">
+	<link rel="stylesheet" href="../style.css" type="text/css">
+	<link rel="stylesheet" href="../mods/style.css" type="text/css">
+	<style>
+		body {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 100vh;
+			padding: 3rem 1.5rem;
+			box-sizing: border-box;
+		}
+
+		.ui-box {
+			padding: 4vh 3vh;
+			border-image: url('../global-chat/box-base.png') 18 fill / 10px stretch;
+			border-image-outset: 0;
+			font-family: 'FunkinLingLong', sans-serif;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		#about-grid {
+			display: grid;
+			grid-template-columns: 1fr 2fr 1fr;
+			gap: 1.5rem;
+			width: 100%;
+			max-width: 1500px;
+			align-items: start;
+		}
+
+		#about-grid > .ui-box {
+			height: 75vh;
+			box-sizing: border-box;
+			overflow-y: auto;
+		}
+
+		.panel-title {
+			font-family: 'FunkinLingLong', sans-serif;
+			font-size: 3.5vh;
+			color: #E1E1E1;
+			margin: 0 0 1rem 0;
+			text-align: center;
+			border-bottom: 2px solid rgba(255,255,255,0.25);
+			padding-bottom: 0.6rem;
+			width: 100%;
+		}
+
+		/* Crew panel */
+		.crew-member {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			margin-bottom: 0.8rem;
+		}
+
+		.crew-name {
+			font-family: 'FunkinLingLong', sans-serif;
+			font-size: 2.8vh;
+			color: #E1E1E1;
+			margin: 0;
+		}
+
+		.crew-role {
+			font-family: 'FunkinOptions', sans-serif;
+			font-size: 1.6vh;
+			color: #aaa;
+			margin: 0;
+			font-weight: normal;
+		}
+
+		/* Middle panel */
+		.about-section-title {
+			font-family: 'FunkinLingLong', sans-serif;
+			font-size: 3vh;
+			color: #E1E1E1;
+			margin: 0 0 0.8rem 0;
+			align-self: flex-start;
+		}
+
+		.about-text {
+			font-family: 'FunkinOptions', sans-serif;
+			font-size: 2.2vh;
+			color: #ccc;
+			margin: 0 0 1.2rem 0;
+			line-height: 1.5;
+			font-weight: normal;
+			align-self: flex-start;
+		}
+
+		/* Supporters panel */
+		.supporter-name {
+			font-family: 'FunkinOptions', sans-serif;
+			font-size: 2vh;
+			color: #ccc;
+			margin: 0.3rem 0;
+			font-weight: normal;
+		}
+	</style>
+</head>
+<body>
+	<div id="about-grid">
+		<!-- Left: Crew -->
+		<div class="ui-box">
+			<h2 class="panel-title">BACKSTAGE CREW</h2>
+
+			<div class="crew-member">
+				<p class="crew-name">NEBULASTELLANOVA</p>
+				<p class="crew-role">Site Owner / Programmer</p>
+			</div>
+			<div class="crew-member">
+				<p class="crew-name">ST4RCANNON</p>
+				<p class="crew-role">Site Artist</p>
+			</div>
+			<div class="crew-member">
+				<p class="crew-name">ADA_FUNNI</p>
+				<p class="crew-role">Secondary Programmer</p>
+			</div>
+			<div class="crew-member">
+				<p class="crew-name">STRINGDOTJAR</p>
+				<p class="crew-role">Secondary Programmer</p>
+			</div>
+			<div class="crew-member">
+				<p class="crew-name">GENZU</p>
+				<p class="crew-role">Site Tester</p>
+			</div>
+		</div>
+
+		<!-- Middle: Why does this exist -->
+		<div class="ui-box" style="align-items: flex-start;">
+			<h2 class="about-section-title">WHY DOES THIS EXIST?</h2>
+			<p class="about-text">Our goal is to make modding more enjoyable by making getting and sharing mods easier.</p>
+			<p class="about-text">Please enjoy the website.</p>
+		</div>
+
+		<!-- Right: Supporters -->
+		<div class="ui-box">
+			<h2 class="panel-title">SUPPORTERS</h2>
+			<p class="supporter-name">Nightsk8r</p>
+		</div>
+	</div>
+
+	<p class="footer-left" style="position:fixed;bottom:1rem;left:1rem;font-family:'Inconsolata ExtraBold',sans-serif;font-size:1.25rem;color:#666;"></p>
+	<p class="footer-right" style="position:fixed;bottom:1rem;right:1rem;font-family:'Inconsolata ExtraBold',sans-serif;font-size:1.25rem;color:#666;text-align:right;"></p>
+
+	<script src="../api.js"></script>
+	<script src="../script.js"></script>
+</body>
+</html>
