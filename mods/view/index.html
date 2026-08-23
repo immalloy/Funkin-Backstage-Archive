@@ -380,7 +380,9 @@
 				document.title = "Funkin' Backstage | " + meta.title;
 				document.getElementById('title-text').textContent = meta.title;
 				document.getElementById('author-text').textContent = `• ${user.username}`;
-				document.getElementById('mod-description').innerHTML = meta.description.replace(/\n/g, "<br>");
+				document.getElementById('mod-description').innerHTML = meta.description
+					.replace(/https?:\/\/[^\s<>"']+[^\s<>"'.,:!?;)]/g, url => `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#a0c4ff;text-decoration:underline;">${url}</a>`)
+					.replace(/\n/g, "<br>");
 				setSlot('thumbnail-a', meta.thumbnails[0]);
 
 				if (meta.icon != "") {
