@@ -215,17 +215,26 @@
 		#profile-bio-save:hover { color: #E1E1E1; }
 
 		#btn-logout {
-			background: none;
-			border: none;
-			padding: 0;
-			cursor: pointer;
 			display: none;
-			margin-top: 0.4rem;
-			opacity: 0.6;
-			transition: opacity 0.15s;
+			margin-top: 0.6rem;
+			width: 100%;
+			background: #111120;
+			border: 1px solid #333;
+			border-radius: 0.4rem;
+			padding: 0.6rem 1rem;
+			cursor: pointer;
+			align-items: center;
+			gap: 0.6rem;
+			transition: border-color 0.15s, background 0.15s;
 		}
-		#btn-logout:hover { opacity: 1; }
-		#btn-logout img { height: 3vh; display: block; }
+		#btn-logout:hover { border-color: #f88; background: #1a0f0f; }
+		#btn-logout img { height: 2.4vh; flex-shrink: 0; }
+		#btn-logout span {
+			font-family: 'FunkinOptions', sans-serif;
+			font-size: 1.7vh;
+			color: #999;
+		}
+		#btn-logout:hover span { color: #f88; }
 
 		#profile-body {
 			display: flex;
@@ -526,7 +535,7 @@
 				<input id="profile-bio-input" type="text" maxlength="30" placeholder="add a bio...">
 				<button id="profile-bio-save" type="button">save</button>
 			</div>
-			<button id="btn-logout" type="button"><img src="icon-logout.png" draggable="false" alt="Log out"></button>
+			<button id="btn-logout" type="button"><img src="icon-logout.png" draggable="false" alt=""><span>Log Out</span></button>
 		</div>
 		<div id="profile-stats">
 			<div class="profile-stat">
@@ -745,7 +754,7 @@
 				input.placeholder = user.bio ? 'edit bio...' : 'add a bio...';
 
 				const logoutBtn = document.getElementById('btn-logout');
-				logoutBtn.style.display = 'block';
+				logoutBtn.style.display = 'flex';
 				logoutBtn.onclick = () => {
 					localStorage.removeItem('token');
 					window.location.href = 'https://funkinbackstage.com/mods';
