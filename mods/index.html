@@ -111,15 +111,15 @@
 				<div class="mod-box-content" style="padding-left: 5%">
 					<div style="height: 6px; width: 90%; background-color: #E1E1E1; border-radius: 10px; margin-bottom: 1vh;"></div>
 					<div style="display: flex; flex-direction: row; align-items: center; gap: 0.75rem; width: 100%">
-						<img draggable="false" class="check-box" src="assets/checkbox-empty.png" style="height: 2.5vh; cursor: pointer;" onclick="toggleTick(this); toggleFeaturedFilter()">
+						<img id="featured-filter" draggable="false" class="check-box" src="assets/checkbox-empty.png" style="height: 2.5vh; cursor: pointer;" onclick="toggleTick(this); toggleFeaturedFilter()">
 						<h1 style="font-size: 3vh; line-height: 1; margin-top: 0.6rem;">Featured</h1>
 					</div>
 					<div style="display: flex; flex-direction: row; align-items: center; gap: 0.75rem; width: 100%">
-						<img draggable="false" class="check-box" src="assets/checkbox-empty.png" style="height: 2.5vh; cursor: pointer;" onclick="toggleTick(this); toggleLikedFilter()">
+						<img id="liked-filter" draggable="false" class="check-box" src="assets/checkbox-empty.png" style="height: 2.5vh; cursor: pointer;" onclick="toggleTick(this); toggleLikedFilter()">
 						<h1 style="font-size: 3vh; line-height: 1; margin-top: 0.6rem;">Liked</h1>
 					</div>
 					<div style="display: flex; flex-direction: row; align-items: center; gap: 0.75rem; width: 100%">
-						<img draggable="false" class="check-box" src="assets/checkbox-empty.png" style="height: 2.5vh; cursor: pointer;" onclick="toggleTick(this); toggleUnapprovedFilter()">
+						<img id="unapproved-filter" draggable="false" class="check-box" src="assets/checkbox-empty.png" style="height: 2.5vh; cursor: pointer;" onclick="toggleTick(this); toggleUnapprovedFilter()">
 						<h1 style="font-size: 3vh; line-height: 1; margin-top: 0.6rem;">Unapproved</h1>
 					</div>
 				</div>
