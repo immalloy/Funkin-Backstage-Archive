@@ -26,6 +26,8 @@ function toggleFeaturedFilter() {
     document.getElementById("filter-text").textContent = 'FILTERS - ' + filterCount;
 }
 
+toggleFeaturedFilter();
+
 function toggleUnapprovedFilter() {
     unapprovedFilter = !unapprovedFilter;
     reloadModList();
