@@ -973,7 +973,7 @@
 				const blurb = m.blurb || '';
 				return `<a class="mod-card" href="https://funkinbackstage.com/mods/${m._folderId}">
 					<div class="mod-thumb-wrap">
-						${thumb ? `<img class="mod-thumb" src="${thumb}" loading="lazy" draggable="false">` : ''}
+						${thumb ? `<img class="mod-thumb" src="${escapeHTML(thumb)}" loading="lazy" draggable="false">` : ''}
 						<img class="mod-thumb-outline" src="/users/view/thumbnail-outline.png" draggable="false">
 					</div>
 					<div class="mod-card-info">

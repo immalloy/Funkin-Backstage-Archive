@@ -225,7 +225,7 @@ async function reloadModList() {
         htmlOut += `
             <div style="position:relative;" data-search="${escapeHTML(meta.title)} ${escapeHTML(meta.blurb)}">
                 <a class="mod-card" onclick="sessionStorage.setItem('modId','${id}');window.location.href='/mods/view/';" tabindex="-1" onkeydown="return false;" style="cursor:pointer;display:block;text-decoration:none;color:#E1E1E1;">
-                    <img draggable="false" loading="lazy" decoding="async" src="${firstImageThumb(meta.thumbnails)}" class="mod-thumbnail" style="display:block;">
+                    <img draggable="false" loading="lazy" decoding="async" src="${escapeHTML(firstImageThumb(meta.thumbnails))}" class="mod-thumbnail" style="display:block;">
                     <img draggable="false" loading="lazy" decoding="async" src="${API}/avatars/${meta.submitter}.png" class="mod-topleft">
                     <img draggable="false" src="assets/mod capsule.png" class="mod-capsule">
                     <div class="mod-label" style="margin-top:0;padding-top:0.3rem;">
