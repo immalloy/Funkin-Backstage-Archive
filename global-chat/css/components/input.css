@@ -1,4 +1,4 @@
-﻿.chat-input-box {
+.chat-input-box {
     width: 90vw; max-width: 100rem; height: auto; min-height: 6vh; padding: 2vh 3vh; display: flex; align-items: center; gap: 3vh; position: relative; flex-shrink: 0;
 }
 #chat-bar {
@@ -8,7 +8,7 @@
     position: relative; flex-shrink: 0; display: flex; align-items: center;
 }
 #sticker-bubble {
-    display: none; position: absolute; bottom: 100%; right: 0; background-image: url('../assets/sticker-bubble.png'); background-size: contain; background-repeat: no-repeat; width: 45vh; max-width: 90vw; aspect-ratio: 1 / 1; padding: 3vh; gap: 1vh; grid-template-columns: repeat(4, 1fr); grid-auto-rows: max-content; align-content: flex-start; overflow-y: auto; margin-bottom: -7.5vh;
+    display: none; position: absolute; bottom: 100%; right: 0; background-image: url('../../assets/sticker-bubble.png'); background-size: contain; background-repeat: no-repeat; width: 45vh; max-width: 90vw; aspect-ratio: 1 / 1; padding: 3vh; gap: 1vh; grid-template-columns: repeat(4, 1fr); grid-auto-rows: max-content; align-content: flex-start; overflow-y: auto; margin-bottom: -7.5vh;
 }
 .sticker-in-bubble {
     width: 100%;
@@ -38,7 +38,7 @@
     padding: 0.5rem;
     flex-direction: column;
     gap: 0.2rem;
-    border-image: url('../assets/box-base.png') 18 fill / 10px stretch;
+    border-image: url('../../assets/box-base.png') 18 fill / 10px stretch;
     border-image-outset: 0;
     font-family: 'FunkinLingLong', sans-serif;
 }

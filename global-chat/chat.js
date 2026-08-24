@@ -274,12 +274,13 @@
 
     function toggleStickerBubble() {
         const bubble = document.getElementById('sticker-bubble');
-        bubble.style.display = bubble.style.display === 'none' ? 'grid' : 'none';
+        const isHidden = window.getComputedStyle(bubble).display === 'none';
+        bubble.style.display = isHidden ? 'grid' : 'none';
     }
 
     document.addEventListener('click', e => {
         const bubble = document.getElementById('sticker-bubble');
-        if (bubble.style.display === 'none') return;
+        if (window.getComputedStyle(bubble).display === 'none') return;
         if (!bubble.contains(e.target) && !e.target.closest('[onclick="toggleStickerBubble()"]')) {
             bubble.style.display = 'none';
         }

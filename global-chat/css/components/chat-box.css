@@ -1,4 +1,4 @@
-﻿#chat-box {
+#chat-box {
     width: 90vw; max-width: 100rem; flex: 1; min-height: 0; padding-top: 0.9rem; padding-bottom: 0.8rem; display: flex; flex-direction: row; align-items: flex-start; gap: 0;
 }
 #chat-scroll {
@@ -9,7 +9,7 @@
     height: 100%;
     flex-shrink: 0;
     position: relative;
-    background-image: url('../assets/scroll-bar-bg.png');
+    background-image: url('../../assets/scroll-bar-bg.png');
     background-repeat: no-repeat;
     background-size: auto 100%;
     background-position: center;
@@ -21,7 +21,7 @@
     height: 80px;
     left: 50%;
     transform: translateX(-50%);
-    background-image: url('../assets/scroll-bar-track.png');
+    background-image: url('../../assets/scroll-bar-track.png');
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
