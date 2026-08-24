@@ -101,18 +101,20 @@
     @media (max-width: 768px) {
       html, body {
         overflow-x: hidden;
-        overflow-y: auto;
+        overflow-y: hidden;
       }
       body {
         align-items: stretch !important;
         justify-content: flex-start !important;
         padding: 2vh 4vw !important;
         gap: 1.5vh !important;
-        min-height: 100vh;
+        height: 100vh !important;
+        height: 100dvh !important;
       }
       body > div:first-child {
         gap: 1.5vw;
         flex-wrap: wrap;
+        width: 100% !important;
       }
       body > div:first-child h1 {
         font-size: 6vh !important;
@@ -123,21 +125,21 @@
       }
       #chat-box {
         width: 100% !important;
-        height: 55vh !important;
       }
       #scroll-track {
-        display: none !important;
+        display: block !important;
+        width: 15px !important;
+        margin-left: 2vw;
+      }
+      #scroll-thumb {
+        width: 30px !important;
+        height: 30px !important;
       }
       #chat-scroll {
-        scrollbar-width: thin !important;
+        scrollbar-width: none !important;
       }
       #chat-scroll::-webkit-scrollbar {
-        display: block !important;
-        width: 4px;
-      }
-      #chat-scroll::-webkit-scrollbar-thumb {
-        background: rgba(255,255,255,0.3);
-        border-radius: 2px;
+        display: none !important;
       }
       body > .ui-box:last-of-type {
         width: 100% !important;
@@ -161,29 +163,34 @@
         font-size: 0.75rem !important;
       }
     }
+    #chat-scroll h1 {
+      word-break: break-word;
+      white-space: pre-wrap;
+      max-width: 100%;
+    }
   </style>
 </head>
-<body style="display: flex; flex-direction: column; gap: 3vh; justify-content: center; background-image: url('bg.png'); background-size: cover; background-position: center; background-attachment: fixed;">
-    <div style="display: flex; align-items: center; gap: 2vh;">
+<body style="display: flex; flex-direction: column; align-items: center; gap: 3vh; justify-content: center; padding: 4vh 0; box-sizing: border-box; height: 100vh; height: 100dvh; overflow: hidden; background-image: url('bg.png'); background-size: cover; background-position: center; background-attachment: fixed; margin: 0;">
+    <div style="display: flex; align-items: center; gap: 2vh; width: 90vw; max-width: 100rem; flex-shrink: 0;">
         <h1 style="font-family: 'FunkinLingLong', sans-serif; font-size: 10vh;">Global Chat</h1>
         <span id="active-count" style="font-family: 'FunkinOptions', sans-serif; font-size: 2.5vh; align-self: center; margin-bottom: 0.5rem; color: #BABABA">• 0 active</span>
     </div>
-    <div class="ui-box" id="chat-box" style="width: 100rem; height: 65vh; padding-top: 0.9rem; padding-bottom: 0.8rem; display: flex; flex-direction: row; align-items: flex-start; gap: 0;">
+    <div class="ui-box" id="chat-box" style="width: 90vw; max-width: 100rem; flex: 1; min-height: 0; padding-top: 0.9rem; padding-bottom: 0.8rem; display: flex; flex-direction: row; align-items: flex-start; gap: 0;">
         <div id="chat-scroll" style="flex: 1; height: 100%; overflow-y: scroll; display: flex; flex-direction: column; gap: 2vh; padding: 1vh;">
         </div>
         <div id="scroll-track">
             <div id="scroll-thumb"></div>
         </div>
     </div>
-    <div class="ui-box" style="width: 100rem; height: 1rem; gap: 3vh; position: relative;">
+    <div class="ui-box" style="width: 90vw; max-width: 100rem; height: auto; min-height: 4vh; padding: 1vh 2vh; display: flex; align-items: center; gap: 3vh; position: relative;">
         <div id="mention-suggestions" role="listbox"></div>
-        <input type="text" id="chat-bar" placeholder="Type something to send..." autocomplete="off" aria-autocomplete="list" style="background: transparent; border: none; outline: none; font-family: 'FunkinOptions', sans-serif; font-size: 4vh; color: #E1E1E1; width: 100%; caret-color: #E1E1E1; margin-top: 1vh;" oninput="filterChatInput(this); updateMentionSuggestions()" onkeydown="handleChatKeydown(event)"/>
-        <div style="position: relative; flex-shrink: 0;">
-            <div id="sticker-bubble" style="display: none; position: absolute; bottom: 0; right: 0; background-image: url('sticker-bubble.png'); background-size: contain; background-repeat: no-repeat; width: 40vh; height: 40vh; padding: 2vh; gap: 1vh; flex-wrap: wrap; align-content: flex-start; overflow-y: auto;">
+        <input type="text" id="chat-bar" placeholder="Type something to send..." autocomplete="off" aria-autocomplete="list" style="background: transparent; border: none; outline: none; font-family: 'FunkinOptions', sans-serif; font-size: 4vh; color: #E1E1E1; width: 100%; caret-color: #E1E1E1;" oninput="filterChatInput(this); updateMentionSuggestions()" onkeydown="handleChatKeydown(event)"/>
+        <div style="position: relative; flex-shrink: 0; display: flex; align-items: center;">
+            <div id="sticker-bubble" style="display: none; position: absolute; bottom: 100%; right: 0; background-image: url('sticker-bubble.png'); background-size: contain; background-repeat: no-repeat; width: 40vh; height: 40vh; padding: 2vh; gap: 1vh; flex-wrap: wrap; align-content: flex-start; overflow-y: auto;">
             </div>
             <img src="icon-sticker.png" class="smooth-btn" style="width: 3.5vh; height: 4vh; margin-left: auto; cursor: pointer;" onclick="toggleStickerBubble()"/>
         </div>
-        <img src="icon-send.png" class="smooth-btn" style="width: 4vh; height: 4vh; margin-left: auto; flex-shrink: 0; cursor: pointer;" onclick="sendMessage()"/>
+        <img src="icon-send.png" class="smooth-btn" style="width: 4vh; height: 4vh; flex-shrink: 0; cursor: pointer;" onclick="sendMessage()"/>
     </div>
 </body>
 
@@ -254,31 +261,45 @@
     const track = document.getElementById('scroll-track');
     const thumb = document.getElementById('scroll-thumb');
 
-    const THUMB_H = 85;
     function updateThumb() {
         const trackH = track.clientHeight;
+        const thumbH = thumb.offsetHeight;
         const scrollRange = scrollEl.scrollHeight - scrollEl.clientHeight;
-        const thumbTop = scrollRange > 0 ? (scrollEl.scrollTop / scrollRange) * (trackH - THUMB_H) : 0;
+        const thumbTop = scrollRange > 0 ? (scrollEl.scrollTop / scrollRange) * (trackH - thumbH) : 0;
         thumb.style.top = thumbTop + 'px';
     }
 
     scrollEl.addEventListener('scroll', updateThumb);
 
     let dragging = false, startY = 0, startScrollTop = 0;
-    thumb.addEventListener('mousedown', e => {
+    
+    function startDrag(e) {
         dragging = true;
-        startY = e.clientY;
+        startY = e.touches ? e.touches[0].clientY : e.clientY;
         startScrollTop = scrollEl.scrollTop;
-        e.preventDefault();
-    });
-    document.addEventListener('mousemove', e => {
+        if (!e.touches) e.preventDefault();
+    }
+    
+    function moveDrag(e) {
         if (!dragging) return;
-        const dy = e.clientY - startY;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const dy = clientY - startY;
         const trackH = track.clientHeight;
+        const thumbH = thumb.offsetHeight;
         const scrollRange = scrollEl.scrollHeight - scrollEl.clientHeight;
-        scrollEl.scrollTop = startScrollTop + (dy / (trackH - THUMB_H)) * scrollRange;
-    });
-    document.addEventListener('mouseup', () => { dragging = false; });
+        scrollEl.scrollTop = startScrollTop + (dy / (trackH - thumbH)) * scrollRange;
+    }
+    
+    function endDrag() { dragging = false; }
+
+    thumb.addEventListener('mousedown', startDrag);
+    thumb.addEventListener('touchstart', startDrag, { passive: true });
+    
+    document.addEventListener('mousemove', moveDrag);
+    document.addEventListener('touchmove', moveDrag, { passive: true });
+    
+    document.addEventListener('mouseup', endDrag);
+    document.addEventListener('touchend', endDrag);
 
     track.addEventListener('click', e => {
         if (e.target === thumb) return;
