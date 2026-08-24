@@ -48,6 +48,8 @@
 
   <img id="portrait" draggable="false" style="position: fixed; bottom: 0; right: 0; height: 55vh; z-index: 100; pointer-events: none; user-select: none;">
 
+  <img id="profile-icon-btn" src="icon-profile-out.png" style="display:none;position:fixed;top:1rem;right:2rem;height:7vh;cursor:pointer;z-index:5001;" onclick="goToProfile()" draggable="false">
+
   <div class="irisEffect" style="z-index: 5000;"></div>
   <script src="script.js"></script>
   <script src="api.js"></script>
@@ -60,6 +62,13 @@
     })();
   </script>
   <script>
+    async function goToProfile() {
+      const t = localStorage.getItem('token');
+      if (!t) { window.location.href = 'login'; return; }
+      const me = await fetch(`${API}/me`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${t}` }, body: JSON.stringify({}) }).then(r => r.ok ? r.json() : null).catch(() => null);
+      if (me?.id) window.location.href = `https://funkinbackstage.com/users/${me.id}`;
+    }
+
     (async function() {
       const token = localStorage.getItem('token');
       if (!token) return;
@@ -68,10 +77,24 @@
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({})
       });
-      if (res.ok) {
-        const signUpBtn = document.querySelector('img[src="sign-up.png"]');
-        if (signUpBtn) signUpBtn.closest('a').remove();
-      }
+      if (!res.ok) return;
+      const me = await res.json();
+
+      const signUpBtn = document.querySelector('img[src="sign-up.png"]');
+      if (signUpBtn) signUpBtn.closest('a').remove();
+
+      const btn = document.getElementById('profile-icon-btn');
+      btn.style.display = '';
+      const avatarUrl = `${API}/avatars/${me.id}.png`;
+      const test = new Image();
+      test.onload = () => {
+        btn.src = avatarUrl;
+        btn.style.borderRadius = '50%';
+        btn.style.objectFit = 'cover';
+        btn.style.width = '7vh';
+        btn.style.border = '0.5vh solid #E1E1E1';
+      };
+      test.src = avatarUrl;
     })();
   </script>
 </body>
