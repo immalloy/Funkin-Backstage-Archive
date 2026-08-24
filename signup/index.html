@@ -140,7 +140,7 @@
 			<h1 class="page-subtitle">Create an account here</h1>
 			<a href="../login" class="login-link">Already have one?</a>
 			<div class="mod-box field" id="username-box">
-				<input type="text" placeholder="USERNAME" />
+				<input type="text" placeholder="USERNAME" autocomplete="username" oninput="filterUsernameInput(this)" />
 			</div>
 			<div class="mod-box field" id="password-box">
 				<input id="password-input" type="password" placeholder="PASSWORD" />
@@ -165,11 +165,27 @@
 				document.getElementById('password-input').type = showing ? 'text' : 'password';
 			}
 
+			function filterUsername(value) {
+				return String(value).replace(/[^A-Za-z0-9_]/g, '');
+			}
+
+			function filterUsernameInput(input) {
+				const filtered = filterUsername(input.value);
+				if (filtered !== input.value) input.value = filtered;
+			}
+
 			async function signUp() {
 				const errorMsg = document.getElementById('error-msg');
 				errorMsg.style.display = 'none';
-				const username = document.querySelector('#username-box input').value.trim();
+				const usernameInput = document.querySelector('#username-box input');
+				filterUsernameInput(usernameInput);
+				const username = usernameInput.value;
 				const password = document.querySelector('#password-box input').value;
+				if (!username) {
+					errorMsg.textContent = 'Username can only use letters, numbers, and underscores.';
+					errorMsg.style.display = 'block';
+					return;
+				}
 				try {
 					const res = await fetch(`${API}/register`, {
 						method: 'POST',
