@@ -629,7 +629,7 @@
     async function populateStickerBubble() {
         const stickers = await getStickers();
         const bubble = document.getElementById('sticker-bubble');
-        stickers.filter(name => name !== 'true' && name !== 'trey').forEach(name => {
+        stickers.filter(name => name !== 'true' && name !== 'trey' && name !== 'krue').forEach(name => {
             const img = document.createElement('img');
             img.id = name;
             img.className = 'sticker-in-bubble smooth-btn';
