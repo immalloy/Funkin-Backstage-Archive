@@ -775,6 +775,7 @@
 				? { src: 'https://files.funkinbackstage.com/badges/owner-badge.png', tip: 'Site Owner' }
 				: { src: 'https://files.funkinbackstage.com/badges/mod-badge.png',   tip: 'Site Moderator' });
 			if (user.ogMember) badges.push({ src: 'https://files.funkinbackstage.com/badges/og-badge.png', tip: 'Pre-Release Member' });
+			if (user.verified) badges.push({ src: 'https://files.funkinbackstage.com/badges/verified-badge.png', tip: 'Verified' });
 			if (badges.length) {
 				const badgeHTML = badges.map(b => `<span class="badge-wrap" data-tip="${b.tip}"><img src="${b.src}" draggable="false" alt="${b.tip}" style="width:100%;display:block;"></span>`).join('');
 				badgeEl.innerHTML = badgeHTML;
