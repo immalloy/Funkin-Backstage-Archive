@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
     img.draggable = false;
     img.src = `https://files.funkinbackstage.com/home_button.png`;
     img.alt = 'Home';
-    img.draggable = false;
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
     img.style.cssText = `height:${isMobile ? '3.5rem' : '10rem'};display:block;`;
     btn.appendChild(img);
