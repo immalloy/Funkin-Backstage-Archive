@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Funkin' Backstage | Upload Rules</title>
+	<link rel="icon" type="image/png" href="../favicon.png">
+	<link rel="stylesheet" href="../style.css" type="text/css">
+	<link rel="stylesheet" href="../mods/style.css" type="text/css">
+	<style>
+		body {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: flex-start;
+			min-height: 100vh;
+			padding: 3rem 1.5rem;
+			box-sizing: border-box;
+		}
+
+		#rules-wrap {
+			width: 100%;
+			max-width: 860px;
+			display: flex;
+			flex-direction: column;
+			gap: 1.5rem;
+		}
+
+		.page-title {
+			font-family: 'FunkinLingLong', sans-serif;
+			font-size: 5vh;
+			color: #E1E1E1;
+			margin: 0 0 0.5rem 0;
+			text-align: center;
+		}
+
+		.page-subtitle {
+			font-family: 'FunkinOptions', sans-serif;
+			font-size: 2.2vh;
+			color: #888;
+			margin: 0;
+			text-align: center;
+			font-weight: normal;
+		}
+
+		.ui-box {
+			padding: 3vh 3.5vh;
+			border-image: url('../global-chat/box-base.png') 18 fill / 10px stretch;
+			border-image-outset: 0;
+			display: flex;
+			flex-direction: column;
+			gap: 0.8rem;
+		}
+
+		.rule-section-title {
+			font-family: 'FunkinLingLong', sans-serif;
+			font-size: 3vh;
+			color: #E1E1E1;
+			margin: 0;
+			padding-bottom: 0.5rem;
+			border-bottom: 2px solid rgba(255,255,255,0.15);
+		}
+
+		.rule-item {
+			display: flex;
+			gap: 1rem;
+			align-items: flex-start;
+		}
+
+		.rule-number {
+			font-family: 'FunkinLingLong', sans-serif;
+			font-size: 2.4vh;
+			color: #00e1ff;
+			flex-shrink: 0;
+			min-width: 2.5ch;
+		}
+
+		.rule-text {
+			font-family: 'FunkinOptions', sans-serif;
+			font-size: 2.2vh;
+			color: #fcfcfc;
+			margin: 0;
+			line-height: 1.5;
+			font-weight: 300;
+		}
+
+		.rule-text strong {
+			color: #ffffff;
+			font-weight: bold;
+		}
+
+		.back-link {
+			font-family: 'FunkinOptions', sans-serif;
+			font-size: 2vh;
+			color: #666;
+			text-decoration: none;
+			text-align: center;
+		}
+		.back-link:hover { color: #aaa; }
+
+		@media (max-width: 768px) {
+			body { padding: 1.5rem 1rem; }
+			.page-title { font-size: 7vw; }
+			.page-subtitle { font-size: 3.5vw; }
+			.rule-section-title { font-size: 5vw; }
+			.rule-number { font-size: 4vw; }
+			.rule-text { font-size: 3.5vw; }
+		}
+	</style>
+</head>
+<body>
+	<div id="rules-wrap">
+		<div style="text-align:center;">
+			<h1 class="page-title">MOD UPLOAD RULES</h1>
+			<p class="page-subtitle">Read before submitting. Violations may result in removal or a ban.</p>
+		</div>
+
+		<div class="ui-box">
+			<h2 class="rule-section-title">SECTION 1 — GENERAL</h2>
+			<div class="rule-item">
+				<span class="rule-number">1.</span>
+				<p class="rule-text">No NSFW.</p>
+			</div>
+			<div class="rule-item">
+				<span class="rule-number">2.</span>
+				<p class="rule-text">No submitting on behalf of others, only upload your mods.</p>
+			</div>
+			<div class="rule-item">
+				<span class="rule-number">3.</span>
+				<p class="rule-text">Please properly categorize your mods.</p>
+			</div>
+			<div class="rule-item">
+				<span class="rule-number">3.</span>
+				<p class="rule-text">No hate speech.</p>
+			</div>
+		</div>
+
+		<div class="ui-box">
+			<h2 class="rule-section-title">SECTION 2 — CONTENT</h2>
+			<div class="rule-item">
+				<span class="rule-number">1.</span>
+				<p class="rule-text">You must provide at lease ONE screenshot of your mod ingame. <u>Or it will not get approved.</u></p>
+			</div>
+			<div class="rule-item">
+				<span class="rule-number">2.</span>
+				<p class="rule-text">Uploads must be of the mod's CONTENTS, no exe unless 100% needed. (EX: .zip/_polymod_meta.json) </p>
+			</div>
+			<div class="rule-item">
+				<span class="rule-number">3.</span>
+				<p class="rule-text">If your mod has assets you didn't explicitly ask for permission to use, your mod will be taken down. (This excludes Funkin' Crew's assets) </p>
+			</div>
+		</div>
+
+		<div class="ui-box">
+			<h2 class="rule-section-title">SECTION 3 — CREDITS</h2>
+			<div class="rule-item">
+				<span class="rule-number">1.</span>
+				<p class="rule-text">You must properly credit each user.</p>
+			</div>
+		</div>
+
+		<a class="back-link" href="../mods">← Back to Mods</a>
+	</div>
+
+	<p class="footer-left" style="position:fixed;bottom:1rem;left:1rem;font-family:'Inconsolata ExtraBold',sans-serif;font-size:1.25rem;color:#666;"></p>
+	<p class="footer-right" style="position:fixed;bottom:1rem;right:1rem;font-family:'Inconsolata ExtraBold',sans-serif;font-size:1.25rem;color:#666;text-align:right;"></p>
+
+	<script src="../api.js"></script>
+	<script src="../script.js"></script>
+</body>
+</html>
