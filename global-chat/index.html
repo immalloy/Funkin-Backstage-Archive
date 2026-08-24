@@ -148,7 +148,7 @@
         </div>
     </div>
     <div class="ui-box" style="width: 100rem; height: 1rem; gap: 3vh; position: relative;">
-        <input type="text" id="chat-bar" placeholder="Type something to send..." style="background: transparent; border: none; outline: none; font-family: 'FunkinOptions', sans-serif; font-size: 4vh; color: #E1E1E1; width: 100%; caret-color: #E1E1E1; margin-top: 1vh;" onkeydown="if(event.key==='Enter')sendMessage()"/>
+        <input type="text" id="chat-bar" placeholder="Type something to send..." style="background: transparent; border: none; outline: none; font-family: 'FunkinOptions', sans-serif; font-size: 4vh; color: #E1E1E1; width: 100%; caret-color: #E1E1E1; margin-top: 1vh;" oninput="filterChatInput(this)" onkeydown="if(event.key==='Enter')sendMessage()"/>
         <div style="position: relative; flex-shrink: 0;">
             <div id="sticker-bubble" style="display: none; position: absolute; bottom: 0; right: 0; background-image: url('sticker-bubble.png'); background-size: contain; background-repeat: no-repeat; width: 40vh; height: 40vh; padding: 2vh; gap: 1vh; flex-wrap: wrap; align-content: flex-start; overflow-y: auto;">
             </div>
@@ -158,7 +158,7 @@
     </div>
 </body>
 
-<img class="smooth-btn" src="../icon-profile-out.png" onclick="goToOwnProfile()" style="position:fixed;top:1rem;right:2rem;height:7vh;cursor:pointer;transition:transform 0.3s ease-out;z-index:101;" draggable="false"/>
+<img class="smooth-btn" id="profile-icon-btn" src="../icon-profile-out.png" onclick="goToOwnProfile()" style="position:fixed;top:1rem;right:2rem;height:7vh;cursor:pointer;transition:transform 0.3s ease-out;z-index:101;" draggable="false"/>
 
 <p class="footer-left" style="position: fixed; bottom: 1rem; left: 1rem; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.25rem; color: #666; z-index: 101;"></p>
 <p class="footer-right" style="position: fixed; bottom: 1rem; right: 1rem; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.25rem; color: #666; z-index: 101; text-align: right;"></p>
@@ -168,10 +168,22 @@
     // ── Current user ────────────────────────────────────────────────────────
     let currentUser = null;
     (async () => {
+        const profileButton = document.getElementById('profile-icon-btn');
         const token = localStorage.getItem('token');
         if (!token) return;
         const res = await fetch(`${API}/me`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({}) }).catch(() => null);
-        if (res?.ok) currentUser = await res.json();
+        if (res?.ok) {
+            currentUser = await res.json();
+            profileButton.src = `${API}/avatars/${currentUser.id}.png`;
+            profileButton.onload = () => {
+                profileButton.style.borderRadius = '50%';
+                profileButton.style.objectFit = 'cover';
+            };
+            profileButton.onerror = () => {
+                profileButton.onerror = null;
+                profileButton.src = '../icon-profile-out.png';
+            };
+        }
     })();
 
     // ── Caches ──────────────────────────────────────────────────────────────
@@ -429,6 +441,17 @@
         return blacklistPromise;
     }
 
+    const allowedChatChar = /[\x20-\x7E\p{Extended_Pictographic}\p{Emoji_Component}\p{Regional_Indicator}\u200D\uFE0E\uFE0F]/u;
+
+    function filterChatText(text) {
+        return [...String(text)].filter(char => allowedChatChar.test(char)).join('');
+    }
+
+    function filterChatInput(input) {
+        const filtered = filterChatText(input.value);
+        if (filtered !== input.value) input.value = filtered;
+    }
+
     async function isBlacklisted(text) {
         const words = await getBlacklist();
         const htmlRegex = /<\/?[a-z][\s\S]*>/i;
@@ -438,7 +461,9 @@
 
     // ── Send ────────────────────────────────────────────────────────────────
     async function sendMessage() {
-        const contents = document.getElementById('chat-bar').value.trim();
+        const input = document.getElementById('chat-bar');
+        filterChatInput(input);
+        const contents = input.value.trim();
         if (!contents) return;
         if (await isBlacklisted(contents)) { document.getElementById('chat-bar').value = ''; return; }
         const token = localStorage.getItem('token');
