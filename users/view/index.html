@@ -359,6 +359,88 @@
 		#logout-cancel { background: #22223a; color: #E1E1E1; }
 		#logout-cancel:hover { background: #2e2c4a; }
 
+		#follow-list-modal {
+			display: none;
+			position: fixed;
+			inset: 0;
+			background: rgba(0,0,0,0.7);
+			z-index: 100;
+			align-items: center;
+			justify-content: center;
+		}
+		#follow-list-modal.open { display: flex; }
+		#follow-list-box {
+			background: #1a1828;
+			border: 1px solid #333;
+			border-radius: 0.6rem;
+			padding: 1.5rem 1.8rem;
+			display: flex;
+			flex-direction: column;
+			gap: 1rem;
+			width: 420px;
+			max-height: 70vh;
+		}
+		#follow-list-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+		#follow-list-title {
+			font-family: 'FunkinLingLong', sans-serif;
+			font-size: 3vh;
+			color: #E1E1E1;
+			margin: 0;
+		}
+		#follow-list-close {
+			background: none;
+			border: none;
+			color: #aaa;
+			font-size: 2.5vh;
+			cursor: pointer;
+			line-height: 1;
+			padding: 0;
+		}
+		#follow-list-close:hover { color: #E1E1E1; }
+		#follow-list-scroll {
+			overflow-y: auto;
+			display: flex;
+			flex-direction: column;
+			gap: 0.75rem;
+		}
+		#follow-list-scroll::-webkit-scrollbar { width: 4px; }
+		#follow-list-scroll::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
+		.follow-list-entry {
+			display: flex;
+			align-items: center;
+			gap: 0.75rem;
+			cursor: pointer;
+			text-decoration: none;
+		}
+		.follow-list-entry:hover .follow-list-name { text-decoration: underline; }
+		.follow-list-avatar {
+			width: 4.5vh;
+			height: 4.5vh;
+			border-radius: 50%;
+			object-fit: cover;
+			background: #444;
+			flex-shrink: 0;
+			border: 0.5vh solid #E1E1E1;
+		}
+		.follow-list-name {
+			font-family: 'FunkinOptions', sans-serif;
+			font-size: 2.2vh;
+			color: #E1E1E1;
+		}
+		#follow-list-empty {
+			font-family: 'FunkinOptions', sans-serif;
+			font-size: 2vh;
+			color: #999;
+			text-align: center;
+			padding: 1rem 0;
+		}
+		.profile-stat { cursor: pointer; }
+		.profile-stat:hover .profile-stat-count { text-decoration: underline; }
+
 		#socials-edit-modal {
 			display: none;
 			position: fixed;
@@ -690,6 +772,16 @@
 		</div>
 	</div>
 
+	<div id="follow-list-modal">
+		<div id="follow-list-box">
+			<div id="follow-list-header">
+				<h2 id="follow-list-title">FOLLOWERS</h2>
+				<button id="follow-list-close" type="button">✕</button>
+			</div>
+			<div id="follow-list-scroll"></div>
+		</div>
+	</div>
+
 	<div id="socials-edit-modal">
 		<div id="socials-edit-box">
 			<h3>Edit Socials</h3>
@@ -788,6 +880,9 @@
 			const avatarEl = document.getElementById('profile-avatar');
 			document.getElementById('stat-followers').textContent = (user.followers ?? []).length;
 			document.getElementById('stat-following').textContent = (user.following ?? []).length;
+
+			document.querySelector('#stat-followers').closest('.profile-stat').onclick = () => openFollowList('FOLLOWERS', user.followers ?? []);
+			document.querySelector('#stat-following').closest('.profile-stat').onclick = () => openFollowList('FOLLOWING', user.following ?? []);
 
 			const avatarTs = localStorage.getItem(`avatarTs_${userId}`) || Date.now();
 			avatarEl.src = `${API}/avatars/${userId}.png?t=${avatarTs}`;
@@ -945,6 +1040,54 @@
 					}
 				};
 			}
+		}
+
+		const followListModal = document.getElementById('follow-list-modal');
+		document.getElementById('follow-list-close').onclick = () => followListModal.classList.remove('open');
+		followListModal.addEventListener('click', e => { if (e.target === followListModal) followListModal.classList.remove('open'); });
+
+		const _userNameCache = {};
+		async function _getUsername(id) {
+			if (_userNameCache[id]) return _userNameCache[id];
+			const u = await fetch(`${API}/users/${id}`).then(r => r.ok ? r.json() : null).catch(() => null);
+			_userNameCache[id] = u || null;
+			return _userNameCache[id];
+		}
+
+		async function openFollowList(title, ids) {
+			document.getElementById('follow-list-title').textContent = title;
+			const scroll = document.getElementById('follow-list-scroll');
+			scroll.innerHTML = '';
+			followListModal.classList.add('open');
+
+			if (!ids.length) {
+				const empty = document.createElement('p');
+				empty.id = 'follow-list-empty';
+				empty.textContent = 'Nobody here yet.';
+				scroll.appendChild(empty);
+				return;
+			}
+
+			await Promise.all(ids.map(async id => {
+				const u = await _getUsername(id);
+				if (!u) return;
+				const a = document.createElement('a');
+				a.className = 'follow-list-entry';
+				a.href = `https://funkinbackstage.com/users/${id}`;
+
+				const img = document.createElement('img');
+				img.className = 'follow-list-avatar';
+				img.src = `${API}/avatars/${id}.png`;
+				img.onerror = () => { img.src = 'https://funkinbackstage.com/icon-profile-out.png'; img.style.border = 'none'; };
+
+				const name = document.createElement('span');
+				name.className = 'follow-list-name';
+				name.textContent = u.username;
+
+				a.appendChild(img);
+				a.appendChild(name);
+				scroll.appendChild(a);
+			}));
 		}
 
 		async function loadMods(userId) {
