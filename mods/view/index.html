@@ -273,6 +273,23 @@
 					padding: 0 1vw;
 				}
 			}
+
+			.comment-username {
+				font-family: 'FunkinOptions', sans-serif;
+				font-size: 3vh;
+				margin-top: 1.5vh;
+				color: #BABABA;
+				text-decoration: none;
+				cursor: pointer;
+				background: none;
+				border: none;
+				padding: 0;
+			}
+			.comment-username:hover { text-decoration: underline; }
+
+			#comments-scroll::-webkit-scrollbar { width: 4px; }
+			#comments-scroll::-webkit-scrollbar-track { background: transparent; }
+			#comments-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
 		</style>
 		<script>
 			var modId = sessionStorage.getItem('modId');
@@ -327,6 +344,18 @@
 						<a id="engine-text" style="font-size: 2.8vh;"></a>
 					</div>
 				</div>
+
+				<div class="ui-box" style="width:100%;padding:2vh 2vw;">
+					<input id="comment-bar" type="text" maxlength="500" placeholder="Write a comment..." autocomplete="off"
+						style="background:transparent;border:none;outline:none;font-family:'FunkinOptions',sans-serif;font-size:3vh;color:#E1E1E1;width:100%;caret-color:#E1E1E1;"
+						onkeydown="if(event.key==='Enter')postComment()"/>
+					<img src="https://funkinbackstage.com/global-chat/icon-send.png" class="smooth-btn"
+						style="width:4vh;height:4vh;cursor:pointer;flex-shrink:0;margin-left:auto;" onclick="postComment()">
+				</div>
+				<div class="ui-box" style="width:100%;flex-direction:column;align-items:flex-start;padding:2vh 2vw;gap:1.5vh;">
+					<a style="font-size:3vh;color:#E1E1E1;font-family:'FunkinLingLong',sans-serif;">COMMENTS</a>
+					<div id="comments-scroll" style="display:flex;flex-direction:column;gap:1.5vh;max-height:45vh;overflow-y:auto;padding-right:0.5vw;width:100%;"></div>
+				</div>
 			</div>
 			<div id="right-panel" style="display: flex; flex-direction: column; gap: 1vh; width: 17.5vw;">
 				<div class="ui-box" style="width: 100%; font-size: 3.8vh; display: flex; flex-direction: column; padding: 2.6vh">
@@ -361,13 +390,20 @@
 
 			function setSlot(slotId, url) {
 				const slot = document.getElementById(slotId);
+				slot.innerHTML = '';
 				if (isVideo(url)) {
-					slot.innerHTML = `<video src="${url}" loop muted playsinline autoplay style="width:100%;height:100%;object-fit:contain;"></video>`;
-					const vid = slot.querySelector('video');
+					const vid = document.createElement('video');
+					vid.src = url;
+					vid.loop = true; vid.muted = true; vid.playsInline = true; vid.autoplay = true;
+					vid.style.cssText = 'width:100%;height:100%;object-fit:contain;';
+					slot.appendChild(vid);
 					vid.volume = 0.5;
-					vid.play().catch(() => { });
+					vid.play().catch(() => {});
 				} else {
-					slot.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:contain;">`;
+					const img = document.createElement('img');
+					img.src = url;
+					img.style.cssText = 'width:100%;height:100%;object-fit:contain;';
+					slot.appendChild(img);
 				}
 			}
 
@@ -413,7 +449,10 @@
 				setSlot('thumbnail-a', meta.thumbnails[0]);
 
 				if (meta.icon != "") {
-					document.getElementById('title-box').innerHTML = `<img src="${meta.icon}" style="height: 7vh; width: auto; margin-right: 2vh; margin-top: 0; margin-bottom: 0; padding: 0"/>` + document.getElementById('title-box').innerHTML;
+					const iconImg = document.createElement('img');
+					iconImg.src = meta.icon;
+					iconImg.style.cssText = 'height:7vh;width:auto;margin-right:2vh;margin-top:0;margin-bottom:0;padding:0';
+					document.getElementById('title-box').prepend(iconImg);
 				}
 
 				thumbnails = meta.thumbnails;
@@ -421,12 +460,21 @@
 					if (!isVideo(thumb)) { const i = new Image(); i.src = thumb; }
 				updateVideoControls();
 
+				const dlBox = document.getElementById('downloads-box');
 				for (const dlData of meta.dls) {
-					console.log(dlData);
-					document.getElementById("downloads-box").innerHTML += `<div style="display: flex; gap: 0.5vw; align-items: center;">
-									<img class="download-button" style="width: 5vh; height: 5vh" src="https://funkinbackstage.com/mods/view/icon-download.png" onclick="trackDownload('${dlData.url}')"/>
-									<a style="font-size: 6vh">v${dlData.version}</a>
-								</div>`;
+					const wrap = document.createElement('div');
+					wrap.style.cssText = 'display:flex;gap:0.5vw;align-items:center;';
+					const dlBtn = document.createElement('img');
+					dlBtn.className = 'download-button';
+					dlBtn.style.cssText = 'width:5vh;height:5vh;';
+					dlBtn.src = 'https://funkinbackstage.com/mods/view/icon-download.png';
+					dlBtn.onclick = () => trackDownload(dlData.url);
+					const verLabel = document.createElement('a');
+					verLabel.style.fontSize = '6vh';
+					verLabel.textContent = `v${dlData.version}`;
+					wrap.appendChild(dlBtn);
+					wrap.appendChild(verLabel);
+					dlBox.appendChild(wrap);
 				}
 
 				const token = localStorage.getItem('token');
@@ -504,19 +552,32 @@
 				document.getElementById('download-text').textContent = meta.downloads.toLocaleString('en-US');
 				document.getElementById('view-text').textContent = meta.views.toLocaleString('en-US');
 
+				const contribPanel = document.getElementById('contributors-panel');
 				for (const contributor of meta.contributors) {
 					const isDirector = `${contributor.role}`.toLowerCase().includes('director');
-					let nameEl;
 					const matchedUser = await fetch(`${API}/users/by-username/${encodeURIComponent(contributor.name)}`).then(r => r.ok ? r.json() : null).catch(() => null);
+					const wrap = document.createElement('div');
+					wrap.style.cssText = 'display:flex;flex-direction:column;width:100%;';
+					const nameEl = document.createElement('a');
+					nameEl.textContent = contributor.name;
+					nameEl.style.fontSize = '3vh';
 					if (matchedUser) {
-						nameEl = `<a href="https://funkinbackstage.com/users/${matchedUser.id}" target="_blank" rel="noopener" style="font-size:3vh;color:${isDirector ? '#fff596' : '#E1E1E1'};text-decoration:underline;text-underline-offset:2px;text-decoration-color:rgba(255,255,255,0.3);">${contributor.name}</a>`;
-					} else {
-						nameEl = `<a style="font-size:3vh;${isDirector ? 'color:#fff596;' : ''}">${contributor.name}</a>`;
+						nameEl.href = `https://funkinbackstage.com/users/${matchedUser.id}`;
+						nameEl.target = '_blank';
+						nameEl.rel = 'noopener';
+						nameEl.style.color = isDirector ? '#fff596' : '#E1E1E1';
+						nameEl.style.textDecoration = 'underline';
+						nameEl.style.textUnderlineOffset = '2px';
+						nameEl.style.textDecorationColor = 'rgba(255,255,255,0.3)';
+					} else if (isDirector) {
+						nameEl.style.color = '#fff596';
 					}
-					document.getElementById('contributors-panel').innerHTML += `<div style="display:flex;flex-direction:column;width:100%">
-						${nameEl}
-						<a style="font-size:2.5vh;color:#bababa">${contributor.role}</a>
-					</div>`;
+					const roleEl = document.createElement('a');
+					roleEl.textContent = contributor.role;
+					roleEl.style.cssText = 'font-size:2.5vh;color:#bababa;';
+					wrap.appendChild(nameEl);
+					wrap.appendChild(roleEl);
+					contribPanel.appendChild(wrap);
 				}
 
 				}
@@ -599,6 +660,156 @@
 				activeSlot = incoming;
 				updateVideoControls();
 			}
+
+			function escapeHTML(s) {
+				return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+			}
+
+			const _userCache = {};
+			async function _getUser(id) {
+				if (_userCache[id]) return _userCache[id];
+				const u = await fetch(`${API}/users/${id}`).then(r => r.ok ? r.json() : null).catch(() => null);
+				return (_userCache[id] = u || { id, username: 'Unknown' });
+			}
+
+			let _commentsMeta = null;
+			let _commentsCurrentUser = null;
+
+			async function buildCommentNode(comment, index) {
+				const user = await _getUser(comment.poster);
+				const wrap = document.createElement('div');
+				wrap.dataset.idx = index;
+				wrap.style.cssText = 'display:flex;flex-direction:column;align-items:flex-start;gap:0;';
+
+				const topRow = document.createElement('div');
+				topRow.style.cssText = 'display:flex;align-items:center;gap:0.5vw;width:100%;';
+
+				const avatarWrap = document.createElement('div');
+				avatarWrap.style.cssText = 'position:relative;height:4vh;width:4vh;flex-shrink:0;';
+				const av = document.createElement('img');
+				av.src = `${API}/avatars/${user.id}.png`;
+				av.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:3.5vh;width:3.5vh;border-radius:50%;object-fit:cover;';
+				av.onerror = () => av.style.display = 'none';
+				const ring = document.createElement('img');
+				ring.src = 'https://funkinbackstage.com/icon-profile-in.png';
+				ring.style.cssText = 'position:absolute;top:0;left:0;height:4vh;width:4vh;';
+				ring.draggable = false;
+				avatarWrap.appendChild(av); avatarWrap.appendChild(ring);
+
+				const nameBtn = document.createElement('button');
+				nameBtn.className = 'comment-username';
+				nameBtn.textContent = user.username;
+				nameBtn.onclick = () => window.open(`https://funkinbackstage.com/users/${user.id}`, '_blank');
+
+				topRow.appendChild(avatarWrap);
+				topRow.appendChild(nameBtn);
+
+				const badges = [];
+				if (user.id === 2) badges.push({ src: 'https://files.funkinbackstage.com/badges/owner-badge.png', tip: 'Site Owner' });
+				else if (user.isAdmin) badges.push({ src: 'https://files.funkinbackstage.com/badges/mod-badge.png', tip: 'Site Moderator' });
+				if (user.ogMember) badges.push({ src: 'https://files.funkinbackstage.com/badges/og-badge.png', tip: 'Pre-Release Member' });
+				if (user.verified) badges.push({ src: 'https://files.funkinbackstage.com/badges/verified-badge.png', tip: 'Verified' });
+				badges.forEach(b => {
+					const span = document.createElement('span');
+					span.className = 'badge-wrap'; span.dataset.tip = b.tip;
+					span.style.marginTop = '1vh';
+					const img = document.createElement('img');
+					img.src = b.src; img.style.cssText = 'height:2.5vh;display:block;'; img.draggable = false;
+					span.appendChild(img); topRow.appendChild(span);
+				});
+
+				if (comment.timestamp) {
+					const ts = document.createElement('a');
+					ts.style.cssText = "font-family:'FunkinOptions',sans-serif;font-size:2vh;color:#999;white-space:nowrap;margin-top:1.5vh;";
+					ts.textContent = '• ' + new Date(comment.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric' });
+					topRow.appendChild(ts);
+				}
+
+				const canDelete = _commentsCurrentUser && (_commentsCurrentUser.id === comment.poster || _commentsCurrentUser.isAdmin);
+				if (canDelete) {
+					const delBtn = document.createElement('button');
+					delBtn.textContent = '✕';
+					delBtn.title = 'Delete comment';
+					delBtn.style.cssText = "margin-left:auto;background:none;border:none;color:#888;font-size:2.5vh;cursor:pointer;padding:0;margin-top:1vh;font-family:'FunkinOptions',sans-serif;";
+					delBtn.onmouseenter = () => delBtn.style.color = '#ff6b6b';
+					delBtn.onmouseleave = () => delBtn.style.color = '#888';
+					delBtn.onclick = () => deleteComment(index);
+					topRow.appendChild(delBtn);
+				}
+
+				const text = document.createElement('a');
+				text.style.cssText = "font-family:'FunkinOptions',sans-serif;font-size:3.5vh;margin:0;word-break:break-word;";
+				text.textContent = comment.contents;
+
+				wrap.appendChild(topRow);
+				wrap.appendChild(text);
+				return wrap;
+			}
+
+			async function loadComments() {
+				const scroll = document.getElementById('comments-scroll');
+				const comments = await fetch(`${API}/submissions/${modId}/comments`).then(r => r.json()).catch(() => []);
+				scroll.innerHTML = '';
+				if (!comments.length) {
+					scroll.innerHTML = `<a style="font-family:'FunkinOptions',sans-serif;font-size:2.5vh;color:#999;">No comments yet. Be the first!</a>`;
+					return;
+				}
+				for (let i = 0; i < comments.length; i++) {
+					scroll.appendChild(await buildCommentNode(comments[i], i));
+				}
+			}
+
+			let _postingComment = false;
+			async function postComment() {
+				if (_postingComment) return;
+				const bar = document.getElementById('comment-bar');
+				const contents = bar.value.trim();
+				if (!contents) return;
+				const token = localStorage.getItem('token');
+				if (!token) { window.location.href = '/login'; return; }
+				_postingComment = true;
+				bar.value = '';
+				try {
+					const res = await fetch(`${API}/submissions/${modId}/comments`, {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+						body: JSON.stringify({ contents })
+					});
+					if (!res.ok) {
+						const d = await res.json().catch(() => ({}));
+						bar.value = contents;
+						alert(d.message || 'Failed to post comment');
+					} else {
+						await loadComments();
+						const scroll = document.getElementById('comments-scroll');
+						scroll.scrollTop = scroll.scrollHeight;
+					}
+				} finally { _postingComment = false; }
+			}
+
+			async function deleteComment(index) {
+				const token = localStorage.getItem('token');
+				if (!token) return;
+				const res = await fetch(`${API}/submissions/${modId}/comments/${index}`, {
+					method: 'DELETE',
+					headers: { 'Authorization': `Bearer ${token}` }
+				});
+				if (res.ok) loadComments();
+				else { const d = await res.json().catch(() => ({})); alert(d.message || 'Failed to delete comment'); }
+			}
+
+			async function initComments() {
+				const token = localStorage.getItem('token');
+				if (token) {
+					_commentsCurrentUser = await fetch(`${API}/me`, {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+						body: JSON.stringify({})
+					}).then(r => r.ok ? r.json() : null).catch(() => null);
+				}
+				await loadComments();
+			}
+			initComments();
 		</script>
 	</body>
 </html>
