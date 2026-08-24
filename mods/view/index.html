@@ -446,6 +446,9 @@
 								approveBtn.style.background = '#1a3a1a';
 								approveBtn.style.cursor = 'default';
 								approveBtn.onclick = null;
+							} else {
+								const d = await res.json().catch(() => ({}));
+								alert('Approve failed: ' + (d.message || res.status));
 							}
 						};
 						document.getElementById('contributors-panel').appendChild(approveBtn);
