@@ -195,13 +195,17 @@
         return avatarCache.get(userId) ? `${API}/avatars/${userId}.png` : '../icon-profile-out.png';
     }
 
-    let stickerListCache = null;
-    async function getStickers() {
-        if (!stickerListCache) {
-            const files = await fetch(`${API}/stickers`).then(r => r.json());
-            stickerListCache = files.map(f => `${f}`.replace('.png', ''));
+    let stickerListPromise = null;
+    function getStickers() {
+        if (!stickerListPromise) {
+            stickerListPromise = fetch(`${API}/stickers`).then(r => r.json()).then(files =>
+                files.map(f => `${f}`.replace('.png', ''))
+            ).catch(error => {
+                stickerListPromise = null;
+                throw error;
+            });
         }
-        return stickerListCache;
+        return stickerListPromise;
     }
 
     // ── Scroll bar ──────────────────────────────────────────────────────────
@@ -412,9 +416,21 @@
         }
     });
 
+    let blacklistPromise = null;
+    function getBlacklist() {
+        if (!blacklistPromise) {
+            blacklistPromise = fetch(`${API}/word-blacklist`).then(r => r.text()).then(raw =>
+                raw.split('\n').map(w => normalize(w.trim())).filter(Boolean)
+            ).catch(error => {
+                blacklistPromise = null;
+                throw error;
+            });
+        }
+        return blacklistPromise;
+    }
+
     async function isBlacklisted(text) {
-        const raw = await fetch(`${API}/word-blacklist`).then(r => r.text());
-        const words = raw.split('\n').map(w => normalize(w.trim())).filter(Boolean);
+        const words = await getBlacklist();
         const htmlRegex = /<\/?[a-z][\s\S]*>/i;
         if (htmlRegex.test(text)) return true;
         return words.some(w => normalize(text).includes(w));
@@ -460,7 +476,7 @@
     updateTheMessages(true);
     connectWS();
     populateStickerBubble();
-    setInterval(() => updateTheMessages(false), 30000);
+    setInterval(() => { if (!wsReady) updateTheMessages(false); }, 30000);
 </script>
 
 </html>
