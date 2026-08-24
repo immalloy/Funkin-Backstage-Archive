@@ -406,8 +406,9 @@
 				authorEl.textContent = `• ${user.username}`;
 				authorEl.style.cursor = 'pointer';
 				authorEl.onclick = () => window.open(`https://funkinbackstage.com/users/${user.id}`, '_blank');
-				document.getElementById('mod-description').innerHTML = meta.description
-					.replace(/https?:\/\/[^\s<>"']+[^\s<>"'.,:!?;)]/g, url => `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#a0c4ff;text-decoration:underline;">${url}</a>`)
+				const _esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+				document.getElementById('mod-description').innerHTML = _esc(meta.description)
+					.replace(/https?:\/\/[^\s&<>"']+[^\s&<>"'.,:!?;)]/g, url => `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#a0c4ff;text-decoration:underline;">${url}</a>`)
 					.replace(/\n/g, "<br>");
 				setSlot('thumbnail-a', meta.thumbnails[0]);
 
