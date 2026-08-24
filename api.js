@@ -33,4 +33,5 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('mouseleave', () => { btn.style.opacity = '0.25'; btn.style.transform = 'translateY(-50%)'; });
     document.body.appendChild(btn);
   }
+  document.addEventListener('dragstart', e => { if (e.target.tagName === 'IMG') e.preventDefault(); });
 });
