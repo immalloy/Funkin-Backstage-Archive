@@ -159,6 +159,17 @@
 				<h1 style="font-size: 2.5vh; color: #E1E1E1; margin-top: 0.3vh">UPLOAD</h1>
 				<img src="../icon-upload.png" style="height: 2.5vh; width: 2.5vh; margin-top: -0.4rem; margin-right: 0.6rem"/>
 			</div>
+			<div id="notif-wrap" style="display:none;position:relative;">
+				<img src="../icon-notification.png" style="height:5vh;cursor:pointer;opacity:0.85;transition:transform 0.3s ease-out,opacity 0.2s;" onclick="toggleNotifs()" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'" draggable="false"/>
+				<div id="notif-badge" style="display:none;position:absolute;top:-0.4vh;right:-0.4vh;background:#c94040;color:#fff;font-family:'FunkinLingLong',sans-serif;font-size:1.6vh;min-width:2.2vh;height:2.2vh;border-radius:999px;display:flex;align-items:center;justify-content:center;pointer-events:none;padding:0 0.4vh;box-sizing:border-box;"></div>
+				<div id="notif-dropdown" style="display:none;position:absolute;top:calc(100% + 1vh);right:0;width:clamp(360px,45vw,560px);height:auto;max-height:60vh;background:#1a1828;border:1px solid #333;border-radius:0.6rem;z-index:9999;overflow:hidden;flex-direction:column;">
+					<div style="padding:1.2vh 1.5vh;border-bottom:1px solid #2a2a3a;display:flex;align-items:center;justify-content:space-between;">
+						<span style="font-family:'FunkinLingLong',sans-serif;font-size:2.5vh;color:#E1E1E1;">NOTIFICATIONS</span>
+						<button onclick="markNotifsRead()" style="background:none;border:none;font-family:'FunkinOptions',sans-serif;font-size:1.8vh;color:#888;cursor:pointer;padding:0;" onmouseover="this.style.color='#ccc'" onmouseout="this.style.color='#888'">Mark all read</button>
+					</div>
+					<div id="notif-list" style="overflow-y:auto;max-height:50vh;display:flex;flex-direction:column;"></div>
+				</div>
+			</div>
 			<img class="smooth-btn" id="profile-icon-btn" src="../icon-profile-out.png" style="transition: transform 0.3s ease-out, height 0.3s ease; height: 7vh; cursor: pointer;" onclick="goToProfile()"/>
 		</div>
 
@@ -206,7 +217,9 @@
 						btn.style.border = '0.5vh solid #E1E1E1';
 					};
 					test.src = avatarUrl;
-				})();
+					document.getElementById('notif-wrap').style.display = 'block';
+					loadNotifs();
+					})();
 			}
 		function openUserSearch() {
 			const modal = document.getElementById('user-search-modal');
@@ -277,6 +290,81 @@
 			const first = document.getElementById('user-search-list').firstChild;
 			if (first) first.click();
 		}
+
+		let _notifs = [];
+
+		async function loadNotifs() {
+			const t = localStorage.getItem('token');
+			if (!t) return;
+			const data = await fetch(`${API}/notifications`, { headers: { 'Authorization': `Bearer ${t}` } }).then(r => r.ok ? r.json() : []).catch(() => []);
+			_notifs = data;
+			const unread = data.filter(n => !n.read).length;
+			const badge = document.getElementById('notif-badge');
+			if (unread > 0) {
+				badge.textContent = unread > 99 ? '99+' : unread;
+				badge.style.display = 'flex';
+			} else {
+				badge.style.display = 'none';
+			}
+		}
+
+		function renderNotifs() {
+			const list = document.getElementById('notif-list');
+			list.innerHTML = '';
+			if (!_notifs.length) {
+				const empty = document.createElement('p');
+				empty.style.cssText = "font-family:'FunkinOptions',sans-serif;font-size:2vh;color:#999;text-align:center;padding:2vh;margin:0;";
+				empty.textContent = 'No notifications yet.';
+				list.appendChild(empty);
+				return;
+			}
+			_notifs.forEach(n => {
+				const row = document.createElement('div');
+				row.style.cssText = `display:flex;align-items:center;gap:1.2vh;padding:1.2vh 1.5vh;cursor:pointer;border-bottom:1px solid #2a2a3a;background:${n.read ? 'transparent' : 'rgba(173,0,84,0.08)'};`;
+				row.onmouseover = () => row.style.background = n.read ? '#1f1d2e' : 'rgba(173,0,84,0.15)';
+				row.onmouseout = () => row.style.background = n.read ? 'transparent' : 'rgba(173,0,84,0.08)';
+
+				const img = document.createElement('img');
+				img.src = `${API}/avatars/${n.fromId}.png`;
+				img.onerror = () => { img.src = 'https://funkinbackstage.com/icon-profile-out.png'; };
+				img.style.cssText = 'height:4.5vh;width:4.5vh;border-radius:50%;object-fit:cover;border:0.4vh solid #E1E1E1;flex-shrink:0;';
+
+				const text = document.createElement('span');
+				text.style.cssText = "font-family:'FunkinOptions',sans-serif;font-size:1.9vh;color:#ccc;line-height:1.4;";
+				if (n.type === 'follow') {
+					text.innerHTML = `<strong style="color:#E1E1E1;">${n.fromUsername}</strong> followed you`;
+					row.onclick = () => { window.location.href = `https://funkinbackstage.com/users/${n.fromId}`; };
+				} else if (n.type === 'upload') {
+					text.innerHTML = `<strong style="color:#E1E1E1;">${n.fromUsername}</strong> uploaded <strong style="color:#E1E1E1;">${n.title}</strong>`;
+					row.onclick = () => { window.location.href = `https://funkinbackstage.com/mods/${n.submissionId}`; };
+				}
+
+				row.appendChild(img);
+				row.appendChild(text);
+				list.appendChild(row);
+			});
+		}
+
+		function toggleNotifs() {
+			const dd = document.getElementById('notif-dropdown');
+			const open = dd.style.display === 'flex';
+			dd.style.display = open ? 'none' : 'flex';
+			dd.style.flexDirection = 'column';
+			if (!open) { renderNotifs(); markNotifsRead(); }
+		}
+
+		async function markNotifsRead() {
+			const t = localStorage.getItem('token');
+			if (!t) return;
+			await fetch(`${API}/notifications/read`, { method: 'POST', headers: { 'Authorization': `Bearer ${t}` } }).catch(() => {});
+			_notifs = _notifs.map(n => ({ ...n, read: true }));
+			document.getElementById('notif-badge').style.display = 'none';
+		}
+
+		document.addEventListener('click', e => {
+			const wrap = document.getElementById('notif-wrap');
+			if (wrap && !wrap.contains(e.target)) document.getElementById('notif-dropdown').style.display = 'none';
+		});
 		</script>
 	</body>
 </html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" translate="no">
 <head>
 	<meta charset="UTF-8">
@@ -231,35 +231,63 @@
 			</div>
 		</div>
 		<div id="tab-media" class="mod-box tab-panel">
+			<div style="display:flex;flex-direction:column;gap:1.2vh;">
+				<h1 class="upload-label" style="font-size:2.8vh;">
+					SCREENSHOTS: <span id="ss-count">0</span>/5
+					<span style="font-family:'FunkinOptions',sans-serif;font-size:1.8vh;color:#aaa;font-weight:300;margin-left:1rem;">* 1 Required (Up To 5)</span>
+				</h1>
+				<div id="ss-strip" style="display:flex;gap:1.5vh;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;align-items:center;min-height:16.5vh;">
+					<div id="ss-upload-slot" onclick="document.getElementById('screenshots-input').click()" style="flex-shrink:0;cursor:pointer;height:16vh;">
+						<img src="../../upload/upload-screenshot.png" style="height:100%;display:block;">
+					</div>
+				</div>
+				<div id="ss-scrollbar" style="position:relative;height:1.4vh;display:none;">
+					<img src="../../upload/screenshot-scroll-bar.png" style="width:100%;height:100%;display:block;">
+					<img id="ss-knob" src="../../upload/screnshot-scroll-knob.png" style="position:absolute;top:50%;transform:translateY(-50%);height:220%;cursor:grab;left:0px;">
+				</div>
+				<input type="file" id="screenshots-input" accept="image/*,.mp4,video/mp4" multiple style="display:none;" onchange="handleScreenshots(this)">
+			</div>
+
+			<div style="display:flex;gap:4vh;align-items:flex-start;flex-wrap:wrap;">
+				<div style="display:flex;flex-direction:column;gap:0.8vh;align-items:flex-start;">
+					<div style="display:flex;align-items:baseline;gap:1vh;flex-wrap:wrap;">
+						<h1 class="upload-label" style="font-size:2.8vh;">FRONT PAGE PORTRAIT:</h1>
+						<span style="font-family:'FunkinOptions',sans-serif;font-size:1.6vh;color:#666;font-weight:300;">(Only shows when mod is featured)</span>
+					</div>
+					<div onclick="document.getElementById('portrait-input').click()" style="cursor:pointer;position:relative;">
+						<div id="portrait-placeholder" style="height:18vh;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;border:2px dashed #555;border-radius:4px;box-sizing:border-box;">
+							<img src="../../upload/upload-screenshot.png" style="height:50%;opacity:0.4;display:block;">
+						</div>
+						<img id="portrait-img" style="height:18vh;object-fit:cover;border-radius:4px;display:none;">
+					</div>
+					<span id="portrait-label" style="font-family:'FunkinOptions',sans-serif;font-size:1.6vh;color:#888;text-transform:uppercase;">* Optional</span>
+					<input type="file" id="portrait-input" accept="image/*" style="display:none;" onchange="handleImgPreview('portrait-input','portrait-img','portrait-placeholder','portrait-label')">
+				</div>
+			</div>
+
+			<div class="field-row" style="align-items:center;">
+				<h1 class="upload-label" style="font-size:2.8vh;">ICON:</h1>
+				<div onclick="document.getElementById('icon-input').click()" style="cursor:pointer;height:7vh;width:7vh;position:relative;flex-shrink:0;">
+					<div id="icon-placeholder" style="height:100%;width:100%;border:2px dashed #555;border-radius:4px;display:flex;align-items:center;justify-content:center;box-sizing:border-box;">
+						<span style="color:#888;font-size:2.5vh;font-family:sans-serif;line-height:1;">+</span>
+					</div>
+					<img id="icon-img" style="position:absolute;inset:0;height:100%;width:100%;object-fit:contain;border-radius:4px;display:none;">
+				</div>
+				<span style="font-family:'FunkinOptions',sans-serif;font-size:1.8vh;color:#aaa;">* Optional</span>
+				<input type="file" id="icon-input" accept="image/png" style="display:none;" onchange="handleIconPreview(this)">
+			</div>
+
+			<div style="height:6px;width:100%;background-color:#555;border-radius:10px;margin:0.5vh 0;"></div>
+			<h1 class="upload-label" style="font-size:2.5vh;color:#999;">Add New Download Version</h1>
 			<div class="field-row">
-				<h1 class="upload-label">Screenshots:</h1>
-				<div class="mod-box tab-btn png-fill active" style="opacity:1; padding: 0.6vh 2vh !important; font-size: 2.5vh; cursor:pointer;" onclick="document.getElementById('screenshots-input').click()">UPLOAD NEW</div>
-				<input type="file" id="screenshots-input" accept="image/*,.mp4,video/mp4" multiple style="display:none;" onchange="updateFileLabel('screenshots-label', this, true)">
-				<h1 id="screenshots-label" class="existing-label">keeping existing</h1>
+				<h1 class="upload-label" style="font-size:2.8vh;">FILE:</h1>
+				<div class="mod-box tab-btn png-fill active" style="opacity:1;padding:0.6vh 2vh !important;font-size:2.5vh;cursor:pointer;" onclick="document.getElementById('download-input').click()">UPLOAD</div>
+				<span id="download-label" style="font-family:'FunkinOptions',sans-serif;font-size:1.8vh;color:#aaa;">optional</span>
+				<input type="file" id="download-input" style="display:none;" onchange="updateDownloadLabel(this)">
 			</div>
 			<div class="field-row">
-				<h1 class="upload-label">Front Page Portrait:</h1>
-				<div class="mod-box tab-btn png-fill active" style="opacity:1; padding: 0.6vh 2vh !important; font-size: 2.5vh; cursor:pointer;" onclick="document.getElementById('portrait-input').click()">UPLOAD NEW</div>
-				<input type="file" id="portrait-input" accept="image/*" style="display:none;" onchange="updateFileLabel('portrait-label', this, false)">
-				<h1 id="portrait-label" class="existing-label">keeping existing</h1>
-			</div>
-			<div class="field-row">
-				<h1 class="upload-label">Icon:</h1>
-				<div class="mod-box tab-btn png-fill active" style="opacity:1; padding: 0.6vh 2vh !important; font-size: 2.5vh; cursor:pointer;" onclick="document.getElementById('icon-input').click()">UPLOAD NEW</div>
-				<input type="file" id="icon-input" accept="image/png" style="display:none;" onchange="updateFileLabel('icon-label', this, false)">
-				<h1 id="icon-label" class="existing-label">keeping existing</h1>
-			</div>
-			<div style="height: 6px; width: 100%; background-color: #555; border-radius: 10px; margin: 0.5vh 0;"></div>
-			<h1 class="upload-label" style="font-size: 2.5vh; color: #999;">Add New Download Version</h1>
-			<div class="field-row">
-				<h1 class="upload-label">File:</h1>
-				<div class="mod-box tab-btn png-fill active" style="opacity:1; padding: 0.6vh 2vh !important; font-size: 2.5vh; cursor:pointer;" onclick="document.getElementById('download-input').click()">UPLOAD</div>
-				<input type="file" id="download-input" style="display:none;" onchange="updateFileLabel('download-label', this, false)">
-				<h1 id="download-label" class="existing-label">optional</h1>
-			</div>
-			<div class="field-row">
-				<h1 class="upload-label">Version:</h1>
-				<div class="input-wrap" style="max-width: 18rem;"><input type="text" id="mod-version" placeholder="e.g. 1.1.0" /></div>
+				<h1 class="upload-label" style="font-size:2.8vh;">VERSION:</h1>
+				<div class="input-wrap" style="max-width:18rem;"><input type="text" id="mod-version" placeholder="e.g. 1.1.0" /></div>
 			</div>
 		</div>
 		<div id="tab-ownership" class="mod-box tab-panel" style="justify-content: space-between;">
@@ -290,6 +318,166 @@
 		const modId = sessionStorage.getItem('editModId');
 		if (!modId) window.location.replace('/mods/');
 
+		const ssSlots = [];
+
+		function getVideoThumbnail(file) {
+			return new Promise(resolve => {
+				const url = URL.createObjectURL(file);
+				const video = document.createElement('video');
+				video.muted = true;
+				video.playsInline = true;
+				video.preload = 'metadata';
+				const done = (src) => { URL.revokeObjectURL(url); resolve(src); };
+				video.addEventListener('seeked', () => {
+					const canvas = document.createElement('canvas');
+					canvas.width = video.videoWidth || 320;
+					canvas.height = video.videoHeight || 180;
+					canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+					done(canvas.toDataURL('image/jpeg', 0.85));
+				}, { once: true });
+				video.addEventListener('error', () => done(null), { once: true });
+				video.src = url;
+				video.load();
+				video.addEventListener('loadedmetadata', () => { video.currentTime = 0.1; }, { once: true });
+			});
+		}
+
+		async function handleScreenshots(input) {
+			const remaining = 5 - ssSlots.length;
+			const files = Array.from(input.files).slice(0, remaining);
+			input.value = '';
+			for (const file of files) await addNewSsSlot(file);
+		}
+
+		function addExistingSsSlot(url) {
+			if (ssSlots.length >= 5) return;
+			const strip = document.getElementById('ss-strip');
+			const wrapper = document.createElement('div');
+			wrapper.style.cssText = 'flex-shrink:0;position:relative;height:16vh;';
+			const img = document.createElement('img');
+			img.style.cssText = 'height:16vh;width:auto;display:block;border-radius:4px;object-fit:cover;';
+			img.onload = () => requestAnimationFrame(syncScrollbar);
+			img.src = url;
+			const rm = document.createElement('div');
+			rm.innerHTML = '✕';
+			rm.style.cssText = 'position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.75);color:#fff;width:2.5vh;height:2.5vh;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.4vh;line-height:1;user-select:none;';
+			const slot = { type: 'existing', url, el: wrapper };
+			ssSlots.push(slot);
+			rm.onclick = () => { ssSlots.splice(ssSlots.indexOf(slot), 1); wrapper.remove(); updateSsUI(); };
+			wrapper.append(img, rm);
+			strip.appendChild(wrapper);
+			updateSsUI();
+		}
+
+		async function addNewSsSlot(file) {
+			if (ssSlots.length >= 5) return;
+			const strip = document.getElementById('ss-strip');
+			const wrapper = document.createElement('div');
+			wrapper.style.cssText = 'flex-shrink:0;position:relative;height:16vh;';
+			const img = document.createElement('img');
+			img.style.cssText = 'height:16vh;width:auto;display:block;border-radius:4px;object-fit:cover;';
+			img.onload = () => requestAnimationFrame(syncScrollbar);
+			const isVideo = file.type.startsWith('video/');
+			if (isVideo) {
+				const thumb = await getVideoThumbnail(file);
+				img.src = thumb || '';
+				const badge = document.createElement('div');
+				badge.textContent = '▶';
+				badge.style.cssText = 'position:absolute;bottom:6px;left:8px;color:#fff;font-size:1.8vh;text-shadow:0 1px 3px rgba(0,0,0,0.8);pointer-events:none;';
+				wrapper.appendChild(badge);
+			} else {
+				img.src = URL.createObjectURL(file);
+			}
+			const rm = document.createElement('div');
+			rm.innerHTML = '✕';
+			rm.style.cssText = 'position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.75);color:#fff;width:2.5vh;height:2.5vh;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.4vh;line-height:1;user-select:none;';
+			const slot = { type: 'new', file, el: wrapper };
+			ssSlots.push(slot);
+			rm.onclick = () => { ssSlots.splice(ssSlots.indexOf(slot), 1); wrapper.remove(); updateSsUI(); };
+			wrapper.append(img, rm);
+			strip.appendChild(wrapper);
+			updateSsUI();
+		}
+
+		function updateSsUI() {
+			document.getElementById('ss-count').textContent = ssSlots.length;
+			document.getElementById('ss-upload-slot').style.display = ssSlots.length >= 5 ? 'none' : '';
+			requestAnimationFrame(syncScrollbar);
+		}
+
+		function syncScrollbar() {
+			const strip = document.getElementById('ss-strip');
+			const knob = document.getElementById('ss-knob');
+			const bar = document.getElementById('ss-scrollbar');
+			const scrollable = strip.scrollWidth - strip.clientWidth;
+			if (scrollable <= 0) { bar.style.display = 'none'; return; }
+			bar.style.display = '';
+			const maxL = bar.clientWidth - knob.offsetWidth;
+			if (maxL <= 0) return;
+			const pct = strip.scrollLeft / scrollable;
+			knob.style.left = (pct * maxL) + 'px';
+		}
+
+		document.getElementById('ss-strip').addEventListener('scroll', syncScrollbar);
+
+		document.getElementById('ss-scrollbar').addEventListener('click', e => {
+			const knob = document.getElementById('ss-knob');
+			if (e.target === knob) return;
+			const strip = document.getElementById('ss-strip');
+			const bar = document.getElementById('ss-scrollbar');
+			const maxL = bar.clientWidth - knob.offsetWidth;
+			if (maxL <= 0) return;
+			const pct = (e.clientX - bar.getBoundingClientRect().left - knob.offsetWidth / 2) / maxL;
+			strip.scrollLeft = Math.max(0, Math.min(1, pct)) * (strip.scrollWidth - strip.clientWidth);
+		});
+
+		(function() {
+			const knob = document.getElementById('ss-knob');
+			let startX = 0, startL = 0;
+			knob.addEventListener('mousedown', e => {
+				startX = e.clientX;
+				startL = parseFloat(knob.style.left) || 0;
+				e.preventDefault();
+				const onMove = e2 => {
+					const strip = document.getElementById('ss-strip');
+					const bar = document.getElementById('ss-scrollbar');
+					const maxL = bar.clientWidth - knob.offsetWidth;
+					if (maxL <= 0) return;
+					const newL = Math.max(0, Math.min(maxL, startL + (e2.clientX - startX)));
+					knob.style.left = newL + 'px';
+					strip.scrollLeft = (newL / maxL) * (strip.scrollWidth - strip.clientWidth);
+				};
+				document.addEventListener('mousemove', onMove);
+				document.addEventListener('mouseup', () => document.removeEventListener('mousemove', onMove), { once: true });
+			});
+		})();
+
+		function handleImgPreview(inputId, imgId, placeholderId, labelId) {
+			const input = document.getElementById(inputId);
+			if (!input.files[0]) return;
+			const img = document.getElementById(imgId);
+			img.src = URL.createObjectURL(input.files[0]);
+			img.style.display = 'block';
+			document.getElementById(placeholderId).style.display = 'none';
+			const lbl = document.getElementById(labelId);
+			lbl.textContent = input.files[0].name.toUpperCase();
+			lbl.style.color = '#E1E1E1';
+		}
+
+		function handleIconPreview(input) {
+			if (!input.files[0]) return;
+			document.getElementById('icon-img').src = URL.createObjectURL(input.files[0]);
+			document.getElementById('icon-img').style.display = 'block';
+			document.getElementById('icon-placeholder').style.display = 'none';
+		}
+
+		function updateDownloadLabel(input) {
+			if (!input.files[0]) return;
+			const lbl = document.getElementById('download-label');
+			lbl.textContent = input.files[0].name;
+			lbl.style.color = '#E1E1E1';
+		}
+
 		async function loadMeta() {
 			const token = localStorage.getItem('token');
 			if (!token) { window.location.replace('/login'); return; }
@@ -301,11 +489,7 @@
 
 			if (!meRes.ok) { window.location.replace('/login'); return; }
 			const me = await meRes.json();
-
-			if (me.id !== meta.submitter && !me.isAdmin) {
-				window.location.replace('/mods/');
-				return;
-			}
+			if (me.id !== meta.submitter && !me.isAdmin) { window.location.replace('/mods/'); return; }
 
 			currentMeta = meta;
 
@@ -313,30 +497,26 @@
 			document.getElementById('mod-desc').value = meta.description || '';
 			document.getElementById('mod-blurb').value = meta.blurb || '';
 
-			const engineMap = {
-				'base-game': 'Base Game',
-				'codename-engine': 'Codename Engine',
-				'psych-engine': 'Psych Engine',
-				'kade-engine': 'Kade Engine',
-				'fps-plus': 'FPS Plus',
-				'other': 'Other'
-			};
-			const categoryMap = {
-				'full-mods': 'Full Mods',
-				'ports': 'Ports',
-				'scripts': 'Scripts'
-			};
+			const engineMap = { 'base-game': 'Base Game', 'codename-engine': 'Codename Engine', 'psych-engine': 'Psych Engine', 'kade-engine': 'Kade Engine', 'fps-plus': 'FPS Plus', 'other': 'Other' };
+			const categoryMap = { 'full-mods': 'Full Mods', 'ports': 'Ports', 'scripts': 'Scripts' };
 			if (meta.parent) selectEngine(meta.parent, engineMap[meta.parent] || meta.parent);
 			if (meta.child) selectCategory(meta.child, categoryMap[meta.child] || meta.child);
 
-			if (meta.thumbnails && meta.thumbnails.length > 0) {
-				document.getElementById('screenshots-label').textContent = `${meta.thumbnails.length} existing`;
-			}
+			for (const url of (meta.thumbnails || [])) addExistingSsSlot(url);
+
 			if (meta.portrait) {
-				document.getElementById('portrait-label').textContent = 'existing';
+				const img = document.getElementById('portrait-img');
+				img.src = meta.portrait;
+				img.style.display = 'block';
+				document.getElementById('portrait-placeholder').style.display = 'none';
+				document.getElementById('portrait-label').textContent = 'EXISTING';
 			}
+
 			if (meta.icon) {
-				document.getElementById('icon-label').textContent = 'existing';
+				const img = document.getElementById('icon-img');
+				img.src = meta.icon;
+				img.style.display = 'block';
+				document.getElementById('icon-placeholder').style.display = 'none';
 			}
 
 			if (meta.dls && meta.dls.length > 0) {
@@ -346,8 +526,7 @@
 			const container = document.getElementById('ownership-rows');
 			container.innerHTML = '';
 			const contributors = meta.contributors && meta.contributors.length > 0 ? meta.contributors : [{ name: '', role: '' }];
-			for (let i = 0; i < contributors.length; i++) {
-				const c = contributors[i];
+			for (const c of contributors) {
 				const row = document.createElement('div');
 				row.className = 'field-row ownership-row';
 				row.innerHTML = `
@@ -414,7 +593,6 @@
 			const token = localStorage.getItem('token');
 			const body = { filename: file.name, contentType: file.type || 'application/octet-stream', purpose, submissionId: modId };
 			if (purpose === 'screenshot') body.index = index;
-
 			const presignRes = await fetch(`${API}/upload/presign`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -425,12 +603,7 @@
 				throw new Error(err.message || 'Failed to get upload URL');
 			}
 			const { url, publicUrl } = await presignRes.json();
-
-			const uploadRes = await fetch(url, {
-				method: 'PUT',
-				headers: { 'Content-Type': file.type || 'application/octet-stream' },
-				body: file
-			});
+			const uploadRes = await fetch(url, { method: 'PUT', headers: { 'Content-Type': file.type || 'application/octet-stream' }, body: file });
 			if (!uploadRes.ok) throw new Error('Upload to storage failed');
 			return publicUrl;
 		}
@@ -456,19 +629,6 @@
 			container.scrollTop = container.scrollHeight;
 		}
 
-		function updateFileLabel(labelId, input, isMultiple) {
-			const label = document.getElementById(labelId);
-			if (!input.files.length) return;
-			label.style.color = '#E1E1E1';
-			label.style.fontStyle = 'normal';
-			if (isMultiple) {
-				const n = input.files.length;
-				label.textContent = n === 1 ? input.files[0].name : `${n} files selected`;
-			} else {
-				label.textContent = input.files[0].name;
-			}
-		}
-
 		async function saveMod() {
 			if (!currentMeta) { alert('Still loading mod data.'); return; }
 			const token = localStorage.getItem('token');
@@ -477,7 +637,6 @@
 			const title = document.getElementById('mod-title').value.trim();
 			const description = document.getElementById('mod-desc').value.trim();
 			const blurb = document.getElementById('mod-blurb').value.trim();
-			const screenshotFiles = document.getElementById('screenshots-input').files;
 			const portraitFile = document.getElementById('portrait-input').files[0] || null;
 			const iconFile = document.getElementById('icon-input').files[0] || null;
 			const downloadFile = document.getElementById('download-input').files[0] || null;
@@ -489,43 +648,32 @@
 			})).filter(o => o.name);
 
 			if (!title) { alert('Mod title is required.'); return; }
+			if (ssSlots.length === 0) { alert('At least one screenshot is required.'); return; }
 
-			const saveBtn = document.querySelector('[onclick="saveMod()"]');
-			const saveLabel = saveBtn ? saveBtn.querySelector('h1') : null;
-			const originalText = saveLabel ? saveLabel.textContent : 'Save';
-			if (saveLabel) saveLabel.textContent = 'Saving...';
-			if (saveBtn) saveBtn.style.pointerEvents = 'none';
+			const saveBtns = document.querySelectorAll('[onclick="saveMod()"]');
+			saveBtns.forEach(b => b.style.pointerEvents = 'none');
 
 			try {
-				let screenshotUrls = currentMeta.thumbnails || [];
+				const screenshotUrls = [];
+				let newIdx = 0;
+				for (const slot of ssSlots) {
+					if (slot.type === 'existing') {
+						screenshotUrls.push(slot.url);
+					} else {
+						screenshotUrls.push(await presignAndUpload(slot.file, 'screenshot', newIdx++));
+					}
+				}
+
 				let portraitUrl = currentMeta.portrait || null;
 				let iconUrl = currentMeta.icon || null;
 				let newDownloadUrl = null;
-
-				if (screenshotFiles.length > 0) {
-					screenshotUrls = [];
-					for (let i = 0; i < Math.min(screenshotFiles.length, 5); i++) {
-						screenshotUrls.push(await presignAndUpload(screenshotFiles[i], 'screenshot', i));
-					}
-				}
 
 				if (portraitFile) portraitUrl = await presignAndUpload(portraitFile, 'portrait');
 				if (iconFile) iconUrl = await presignAndUpload(iconFile, 'icon');
 				if (downloadFile) newDownloadUrl = await presignAndUpload(downloadFile, 'download');
 
-				const body = {
-					title, description, blurb,
-					engine: engineValue,
-					category: categoryValue,
-					screenshots: screenshotUrls,
-					portrait: portraitUrl,
-					icon: iconUrl,
-					ownership: ownershipData
-				};
-				if (newDownloadUrl) {
-					body.newDownload = newDownloadUrl;
-					body.newVersion = version || '?.?.?';
-				}
+				const body = { title, description, blurb, engine: engineValue, category: categoryValue, screenshots: screenshotUrls, portrait: portraitUrl, icon: iconUrl, ownership: ownershipData };
+				if (newDownloadUrl) { body.newDownload = newDownloadUrl; body.newVersion = version || '?.?.?'; }
 
 				const res = await fetch(`${API}/submissions/${modId}`, {
 					method: 'PATCH',
@@ -542,8 +690,7 @@
 				window.location.href = '/mods/view/';
 			} catch (e) {
 				alert('Save failed: ' + e.message);
-				if (saveLabel) saveLabel.textContent = originalText;
-				if (saveBtn) saveBtn.style.pointerEvents = '';
+				saveBtns.forEach(b => b.style.pointerEvents = '');
 			}
 		}
 	</script>

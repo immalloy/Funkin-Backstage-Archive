@@ -264,7 +264,7 @@ async function reloadModList() {
                         </div>
                     </div>
                 </a>
-                ${isAdmin ? `<div class="mod-admin-btns">${!meta.approved ? `<div class="mod-approve-btn" onclick="event.stopPropagation();approveSubmission('${id}',this)"><img draggable="false" src="assets/approve-button.png" style="width:100%;height:100%;object-fit:contain;"></div>` : ''}<div class="mod-star-btn" data-stars="${meta.stars ?? 0}" onclick="setStars('${id}',${meta.stars ?? 0},this)"><img draggable="false" src="assets/feature-button.png" style="width:100%;height:100%;object-fit:contain;"></div><div class="mod-delete-btn" onclick="deleteSubmission('${id}',this.parentElement.parentElement)"><img draggable="false" src="assets/trash-button.png" style="width:100%;height:100%;object-fit:contain;"></div></div>` : ''}
+                ${isAdmin ? `<div class="mod-admin-btns">${!meta.approved ? `<div class="mod-approve-btn" onclick="event.stopPropagation();approveSubmission('${id}',this)"><img draggable="false" src="assets/approve-button.png" style="width:100%;height:100%;object-fit:contain;"></div>` : `<div class="mod-approve-btn" onclick="event.stopPropagation();unapproveSubmission('${id}',this)"><img draggable="false" src="assets/unappove-button.png" style="width:100%;height:100%;object-fit:contain;"></div>`}<div class="mod-star-btn" data-stars="${meta.stars ?? 0}" onclick="setStars('${id}',${meta.stars ?? 0},this)"><img draggable="false" src="assets/feature-button.png" style="width:100%;height:100%;object-fit:contain;"></div><div class="mod-delete-btn" onclick="deleteSubmission('${id}',this.parentElement.parentElement)"><img draggable="false" src="assets/trash-button.png" style="width:100%;height:100%;object-fit:contain;"></div></div>` : ''}
             </div>
         `;
     }
@@ -351,6 +351,26 @@ async function approveSubmission(id, btn) {
         const d = await res.json().catch(() => ({}));
         adminDialog({ title: 'Approve failed: ' + (d.message || 'Unknown error'), confirmOnly: true, onConfirm: () => {} });
     }
+}
+
+async function unapproveSubmission(id, btn) {
+    adminDialog({
+        title: `Unapprove mod #${id}?`,
+        confirmOnly: true,
+        onConfirm: async () => {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API}/submissions/${id}/unapprove`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                reloadModList();
+            } else {
+                const d = await res.json().catch(() => ({}));
+                adminDialog({ title: 'Unapprove failed: ' + (d.message || 'Unknown error'), confirmOnly: true, onConfirm: () => {} });
+            }
+        }
+    });
 }
 
 async function setStars(id, current, btn) {
