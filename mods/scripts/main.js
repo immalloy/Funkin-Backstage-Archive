@@ -61,8 +61,8 @@ function escapeHTML(str) {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-function firstImageThumb(thumbnails) {
-    return thumbnails.find(t => !/\.(mp4|webm|mov|ogg)(\?.*)?$/i.test(t)) || thumbnails[0];
+function firstImageThumb(thumbnails = []) {
+    return thumbnails.find(t => !/\.(mp4|webm|mov|ogg)(\?.*)?$/i.test(t)) || thumbnails[0] || '';
 }
 
 function fmtNum(n) {
@@ -138,14 +138,16 @@ async function reloadModList() {
 
     const files = await fetch(`${API}/submissions`).then(r => r.json()).catch(() => []);
     if (!files.length) return;
-    var filesArray = Array.from(files);
-    var modDatas = [];
-    for (const id of files) {
-        const meta = await fetch(`${API}/submissions/${id}/meta.json`, { cache: 'no-store' }).then(r => r.json());
-        if (!meta.live) continue;
-        meta.storageID = id;
-        modDatas.push(meta);
-    }
+    let modDatas = (await Promise.all(files.map(async id => {
+        try {
+            const meta = await fetch(`${API}/submissions/${id}/meta.json`).then(r => r.ok ? r.json() : null);
+            if (!meta?.live) return null;
+            meta.storageID = id;
+            return meta;
+        } catch {
+            return null;
+        }
+    }))).filter(Boolean);
 
     if (engineFilter != "any") {
         modDatas = modDatas.filter(_ => { return _.parent == engineFilter });
@@ -223,8 +225,8 @@ async function reloadModList() {
         htmlOut += `
             <div style="position:relative;" data-search="${escapeHTML(meta.title)} ${escapeHTML(meta.blurb)}">
                 <a class="mod-card" onclick="sessionStorage.setItem('modId','${id}');window.location.href='/mods/view/';" tabindex="-1" onkeydown="return false;" style="cursor:pointer;display:block;text-decoration:none;color:#E1E1E1;">
-                    <img draggable="false" src="${firstImageThumb(meta.thumbnails)}" class="mod-thumbnail" style="display:block;">
-                    <img draggable="false" src="${API}/avatars/${meta.submitter}.png" class="mod-topleft">
+                    <img draggable="false" loading="lazy" decoding="async" src="${firstImageThumb(meta.thumbnails)}" class="mod-thumbnail" style="display:block;">
+                    <img draggable="false" loading="lazy" decoding="async" src="${API}/avatars/${meta.submitter}.png" class="mod-topleft">
                     <img draggable="false" src="assets/mod capsule.png" class="mod-capsule">
                     <div class="mod-label" style="margin-top:0;padding-top:0.3rem;">
                         <h1 style="font-size: 3vh; margin:0; line-height:1.1; color:#E1E1E1;">${escapeHTML(meta.title)}</h1>
