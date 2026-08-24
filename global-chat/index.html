@@ -161,11 +161,14 @@
       #chat-scroll h1 {
         font-size: 2.8vh !important;
       }
+      body {
+        padding-bottom: max(8vh, env(safe-area-inset-bottom)) !important;
+      }
       #chat-scroll h1:last-child {
         font-size: 3.2vh !important;
       }
       .footer-left, .footer-right {
-        font-size: 0.75rem !important;
+        display: none !important;
       }
     }
     #chat-scroll h1 {
@@ -334,7 +337,7 @@
         let content = escapeHTML(`${message.contents}`.trim());
         const stickerOnly = content.startsWith(':') && content.endsWith(':');
         for (const sticker of stickerList) {
-            content = content.replaceAll(`:${sticker}:`, `<img src="${API}/stickers/${sticker}.png" style="height:${stickerOnly ? '13' : '5'}vh;${stickerOnly ? '' : 'margin:1vh;margin-top:0.5vh;'}"/>`);
+            content = content.replaceAll(`:${sticker}:`, `<img src="${API}/stickers/${sticker}.png" style="height:${stickerOnly ? '13' : '5'}vh;vertical-align:middle;${stickerOnly ? '' : 'margin:1vh;margin-top:0.5vh;'}"/>`);
         }
         content = content.replace(/@([A-Za-z0-9_]{1,32})/gi, (match, username) => {
             const uid = getUserIdByName(username);
@@ -346,7 +349,7 @@
 
         if (grouped) {
             return `<div data-poster="${message.poster}" style="display:flex;flex-direction:column;align-items:flex-start;justify-content:start;margin-top:calc(-2vh + 0.2vh);${highlightStyle}">
-                <h1 style="font-family:'FunkinOptions',sans-serif;font-size:4vh;margin:0;display:flex;align-items:center;font-weight:normal">${content}</h1>
+                <h1 style="font-family:'FunkinOptions',sans-serif;font-size:4vh;margin:0;font-weight:normal">${content}</h1>
             </div>`;
         }
 
@@ -368,7 +371,7 @@
                     ${message.timestamp ? `<h1 style="font-family:'FunkinOptions',sans-serif;font-size:2vh;margin:0;color:#999;white-space:nowrap;">• ${new Date(message.timestamp).toLocaleTimeString([],{hour:'numeric',minute:'2-digit',hour12:true}).toLowerCase()}</h1>` : ''}
                 </div>
             </div>
-            <h1 style="font-family:'FunkinOptions',sans-serif;font-size:4vh;margin:0;display:flex;align-items:center;font-weight:normal">${content}</h1>
+            <h1 style="font-family:'FunkinOptions',sans-serif;font-size:4vh;margin:0;font-weight:normal">${content}</h1>
         </div>`;
     }
 
