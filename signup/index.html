@@ -140,10 +140,10 @@
 			<h1 class="page-subtitle">Create an account here</h1>
 			<a href="../login" class="login-link">Already have one?</a>
 			<div class="mod-box field" id="username-box">
-				<input type="text" placeholder="USERNAME" autocomplete="username" oninput="filterUsernameInput(this)" />
+				<input type="text" placeholder="USERNAME" autocomplete="off" oninput="filterUsernameInput(this)" />
 			</div>
 			<div class="mod-box field" id="password-box">
-				<input id="password-input" type="password" placeholder="PASSWORD" />
+				<input id="password-input" type="password" placeholder="PASSWORD" autocomplete="new-password" />
 			</div>
 			<div class="show-row">
 				<img draggable="false" class="check-box" src="../mods/assets/checkbox-empty.png" style="height: 2.5vh; cursor: pointer;" onclick="toggleShowPassword(this)">
@@ -195,6 +195,23 @@
 					const data = await res.json();
 					if (!res.ok) {
 						errorMsg.textContent = data.message;
+						errorMsg.style.display = 'block';
+						return;
+					}
+					if (!data.token) {
+						errorMsg.textContent = 'Registration did not return a valid session.';
+						errorMsg.style.display = 'block';
+						return;
+					}
+					const sessionRes = await fetch(`${API}/me`, {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${data.token}` },
+						body: JSON.stringify({})
+					});
+					const sessionUser = sessionRes.ok ? await sessionRes.json() : null;
+					if (!sessionUser?.username || sessionUser.username.toLowerCase() !== username.toLowerCase()) {
+						localStorage.removeItem('token');
+						errorMsg.textContent = 'Registration returned the wrong account session. Please try again.';
 						errorMsg.style.display = 'block';
 						return;
 					}
