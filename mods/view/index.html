@@ -403,9 +403,9 @@
 				document.title = "Funkin' Backstage | " + meta.title;
 				document.getElementById('title-text').textContent = meta.title;
 				const authorEl = document.getElementById('author-text');
-				authorEl.textContent = user.username;
-				authorEl.href = '/users/view/';
-				authorEl.onclick = () => sessionStorage.setItem('userId', user.id);
+				authorEl.textContent = `• ${user.username}`;
+				authorEl.style.cursor = 'pointer';
+				authorEl.onclick = () => window.open(`https://funkinbackstage.com/users/${user.id}`, '_blank');
 				document.getElementById('mod-description').innerHTML = meta.description
 					.replace(/https?:\/\/[^\s<>"']+[^\s<>"'.,:!?;)]/g, url => `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#a0c4ff;text-decoration:underline;">${url}</a>`)
 					.replace(/\n/g, "<br>");
