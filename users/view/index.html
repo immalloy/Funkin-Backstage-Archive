@@ -716,10 +716,10 @@
 				<img class="social-icon" src="icon-newgrounds.png" draggable="false">
 				<div class="social-text"><span class="social-name">NEWGROUNDS</span><span class="social-handle" id="handle-newgrounds"></span></div>
 			</a>
-			<div class="social-row" id="social-discord" style="cursor:default;">
+			<a class="social-row" id="social-discord" href="#" target="_blank" rel="noopener">
 				<img class="social-icon" src="icon-discord.png" draggable="false">
 				<div class="social-text"><span class="social-name">DISCORD</span><span class="social-handle" id="handle-discord"></span></div>
-			</div>
+			</a>
 			<a class="social-row" id="social-kofi" href="#" target="_blank" rel="noopener">
 				<img class="social-icon" src="icon-kofi.png" draggable="false">
 				<div class="social-text"><span class="social-name">KO-FI</span><span class="social-handle" id="handle-kofi"></span></div>
@@ -820,11 +820,11 @@
 			}
 
 			const SOCIALS = [
-				{ key: 'youtube',     label: 'YOUTUBE',     prefix: 'https://' },
-				{ key: 'twitter',     label: 'TWITTER',     prefix: 'https://' },
-				{ key: 'newgrounds',  label: 'NEWGROUNDS',  prefix: 'https://' },
+				{ key: 'youtube',     label: 'YOUTUBE',     prefix: 'https://youtube.com/@' },
+				{ key: 'twitter',     label: 'TWITTER',     prefix: 'https://x.com/' },
+				{ key: 'newgrounds',  label: 'NEWGROUNDS',  prefix: 'https://{user}.newgrounds.com/' },
 				{ key: 'discord',     label: 'DISCORD',     prefix: null },
-				{ key: 'kofi',        label: 'KO-FI',       prefix: 'https://' },
+				{ key: 'kofi',        label: 'KO-FI',       prefix: 'https://ko-fi.com/' },
 			];
 			const socials = user.socials || {};
 			function applySocials(data) {
@@ -835,7 +835,20 @@
 					const val = (data[key] || '').trim();
 					if (val) {
 						handle.textContent = val;
-						if (row.tagName === 'A') row.href = val.startsWith('http') ? val : `https://${val}`;
+						if (row.tagName === 'A') {
+							const isUrl = /^https?:\/\//i.test(val) || /[./]/.test(val);
+							if (key === 'discord' && !isUrl) {
+								row.removeAttribute('href');
+								row.style.pointerEvents = 'none';
+								row.style.cursor = 'default';
+							} else {
+								const handleValue = val.replace(/^@/, '');
+								const prefix = SOCIALS.find(s => s.key === key).prefix;
+								row.href = /^https?:\/\//i.test(val) ? val : isUrl ? `https://${val}` : prefix.includes('{user}') ? prefix.replace('{user}', handleValue) : prefix + handleValue;
+								row.style.pointerEvents = '';
+								row.style.cursor = '';
+							}
+						}
 						row.style.display = '';
 						anyVisible = true;
 					} else {
