@@ -1,0 +1,23 @@
+﻿.chat-body {
+    display: flex; flex-direction: column; align-items: center; gap: 3vh; justify-content: center; padding: 4vh 0; box-sizing: border-box; height: 100vh; height: 100dvh; overflow: hidden; background-image: url('../assets/bg.png'); background-size: cover; background-position: center; background-attachment: fixed; margin: 0;
+}
+
+#chat-scroll {
+    scrollbar-width: none;
+}
+#chat-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.footer-left {
+    position: fixed; bottom: 0.5vh; left: 1vw; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.5vh; color: #666; z-index: 101;
+}
+.footer-right {
+    position: fixed; bottom: 0.5vh; right: 1vw; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.5vh; color: #666; z-index: 101; text-align: right;
+}
+
+#chat-scroll h1 {
+    word-break: break-word;
+    white-space: pre-wrap;
+    max-width: 100%;
+}

@@ -13,49 +13,49 @@
   <link rel="icon" type="image/png" href="../favicon.png">
   <link rel="stylesheet" href="../style.css" type="text/css">
   <link rel="stylesheet" href="style.css" type="text/css">
-  <link rel="stylesheet" href="chat.css">
+  <link rel="stylesheet" href="css/index.css">
 </head>
-<body style="display: flex; flex-direction: column; align-items: center; gap: 3vh; justify-content: center; padding: 4vh 0; box-sizing: border-box; height: 100vh; height: 100dvh; overflow: hidden; background-image: url('assets/bg.png'); background-size: cover; background-position: center; background-attachment: fixed; margin: 0;">
-    <div id="header-container" style="display: flex; align-items: center; gap: 2vh; width: 90vw; max-width: 100rem; flex-shrink: 0;">
-        <h1 style="font-family: 'FunkinLingLong', sans-serif; font-size: 10vh;">Global Chat</h1>
-        <span id="active-count" style="font-family: 'FunkinOptions', sans-serif; font-size: 2.5vh; align-self: center; margin-bottom: 0.5rem; color: #BABABA">• 0 active</span>
+<body class="chat-body">
+    <div id="header-container">
+        <h1 class="chat-title">Global Chat</h1>
+        <span id="active-count">• 0 active</span>
     </div>
-    <div class="ui-box" id="chat-box" style="width: 90vw; max-width: 100rem; flex: 1; min-height: 0; padding-top: 0.9rem; padding-bottom: 0.8rem; display: flex; flex-direction: row; align-items: flex-start; gap: 0;">
-        <div id="chat-scroll" style="flex: 1; height: 100%; overflow-y: scroll; display: flex; flex-direction: column; gap: 2vh; padding: 1vh;">
+    <div class="ui-box" id="chat-box">
+        <div id="chat-scroll">
         </div>
         <div id="scroll-track">
             <div id="scroll-thumb"></div>
         </div>
     </div>
-    <div class="ui-box" style="width: 90vw; max-width: 100rem; height: auto; min-height: 6vh; padding: 2vh 3vh; display: flex; align-items: center; gap: 3vh; position: relative; flex-shrink: 0;">
+    <div class="ui-box chat-input-box">
         <div id="mention-suggestions" role="listbox"></div>
-        <input type="text" id="chat-bar" placeholder="Type something to send..." autocomplete="off" aria-autocomplete="list" style="background: transparent; border: none; outline: none; font-family: 'FunkinOptions', sans-serif; font-size: 4vh; color: #E1E1E1; width: 100%; caret-color: #E1E1E1;" oninput="filterChatInput(this); updateMentionSuggestions()" onkeydown="handleChatKeydown(event)"/>
-        <div style="position: relative; flex-shrink: 0; display: flex; align-items: center;">
-            <div id="sticker-bubble" style="display: none; position: absolute; bottom: 100%; right: 0; background-image: url('assets/sticker-bubble.png'); background-size: contain; background-repeat: no-repeat; width: 45vh; max-width: 90vw; aspect-ratio: 1 / 1; padding: 3vh; gap: 1vh; grid-template-columns: repeat(4, 1fr); grid-auto-rows: max-content; align-content: flex-start; overflow-y: auto; margin-bottom: -7.5vh;">
+        <input type="text" id="chat-bar" placeholder="Type something to send..." autocomplete="off" aria-autocomplete="list" oninput="filterChatInput(this); updateMentionSuggestions()" onkeydown="handleChatKeydown(event)"/>
+        <div class="chat-icon-wrap">
+            <div id="sticker-bubble">
             </div>
-            <img id="sticker-icon" src="assets/icon-sticker.png" class="smooth-btn" style="width: 4vh; height: 4.5vh; margin-left: auto; cursor: pointer;" onclick="toggleStickerBubble()"/>
+            <img id="sticker-icon" src="assets/icon-sticker.png" class="smooth-btn" onclick="toggleStickerBubble()"/>
         </div>
-        <img id="send-icon" src="assets/icon-send.png" class="smooth-btn" style="width: 4.5vh; height: 4.5vh; flex-shrink: 0; cursor: pointer;" onclick="sendMessage()"/>
+        <img id="send-icon" src="assets/icon-send.png" class="smooth-btn" onclick="sendMessage()"/>
     </div>
 </body>
 
-<div style="position:fixed;top:1rem;right:2rem;display:flex;align-items:center;gap:1.5rem;z-index:101;">
-	<div id="notif-wrap" style="display:none;position:relative;">
-		<img src="../icon-notification.png" style="height:5vh;cursor:pointer;opacity:0.85;transition:transform 0.3s ease-out,opacity 0.2s;" onclick="toggleNotifs()" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'" draggable="false"/>
-		<div id="notif-badge" style="display:none;position:absolute;top:-0.4vh;right:-0.4vh;background:#c94040;color:#fff;font-family:'FunkinLingLong',sans-serif;font-size:1.6vh;min-width:2.2vh;height:2.2vh;border-radius:999px;display:flex;align-items:center;justify-content:center;pointer-events:none;padding:0 0.4vh;box-sizing:border-box;"></div>
-		<div id="notif-dropdown" style="display:none;position:absolute;top:calc(100% + 1vh);right:0;width:clamp(360px,45vw,560px);height:auto;max-height:60vh;background:#1a1828;border:1px solid #333;border-radius:0.6rem;z-index:9999;overflow:hidden;flex-direction:column;">
-			<div style="padding:1.2vh 1.5vh;border-bottom:1px solid #2a2a3a;display:flex;align-items:center;justify-content:space-between;">
-				<span style="font-family:'FunkinLingLong',sans-serif;font-size:2.5vh;color:#E1E1E1;">NOTIFICATIONS</span>
-				<button onclick="markNotifsRead()" style="background:none;border:none;font-family:'FunkinOptions',sans-serif;font-size:1.8vh;color:#888;cursor:pointer;padding:0;" onmouseover="this.style.color='#ccc'" onmouseout="this.style.color='#888'">Mark all read</button>
+<div class="top-right-wrap">
+	<div id="notif-wrap">
+		<img src="../icon-notification.png" class="notif-icon" onclick="toggleNotifs()" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'" draggable="false"/>
+		<div id="notif-badge"></div>
+		<div id="notif-dropdown">
+			<div class="notif-header">
+				<span class="notif-title">NOTIFICATIONS</span>
+				<button onclick="markNotifsRead()" class="notif-mark-read" onmouseover="this.style.color='#ccc'" onmouseout="this.style.color='#888'">Mark all read</button>
 			</div>
-			<div id="notif-list" style="overflow-y:auto;max-height:50vh;display:flex;flex-direction:column;"></div>
+			<div id="notif-list"></div>
 		</div>
 	</div>
-	<img class="smooth-btn" id="profile-icon-btn" src="../icon-profile-out.png" onclick="goToOwnProfile()" style="height:7vh;cursor:pointer;transition:transform 0.3s ease-out;" draggable="false"/>
+	<img class="smooth-btn" id="profile-icon-btn" src="../icon-profile-out.png" onclick="goToOwnProfile()" draggable="false"/>
 </div>
 
-<p class="footer-left" style="position: fixed; bottom: 0.5vh; left: 1vw; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.5vh; color: #666; z-index: 101;"></p>
-<p class="footer-right" style="position: fixed; bottom: 0.5vh; right: 1vw; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.5vh; color: #666; z-index: 101; text-align: right;"></p>
+<p class="footer-left"></p>
+<p class="footer-right"></p>
 
 <script src="../api.js"></script>
 <script src="chat.js"></script>

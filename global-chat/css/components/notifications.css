@@ -1,0 +1,30 @@
+﻿.top-right-wrap {
+    position:fixed;top:1rem;right:2rem;display:flex;align-items:center;gap:1.5rem;z-index:101;
+}
+#notif-wrap {
+    display:none;position:relative;
+}
+.notif-icon {
+    height:5vh;cursor:pointer;opacity:0.85;transition:transform 0.3s ease-out,opacity 0.2s;
+}
+#notif-badge {
+    display:none;position:absolute;top:-0.4vh;right:-0.4vh;background:#c94040;color:#fff;font-family:'FunkinLingLong',sans-serif;font-size:1.6vh;min-width:2.2vh;height:2.2vh;border-radius:999px;display:flex;align-items:center;justify-content:center;pointer-events:none;padding:0 0.4vh;box-sizing:border-box;
+}
+#notif-dropdown {
+    display:none;position:absolute;top:calc(100% + 1vh);right:0;width:clamp(360px,45vw,560px);height:auto;max-height:60vh;background:#1a1828;border:1px solid #333;border-radius:0.6rem;z-index:9999;overflow:hidden;flex-direction:column;
+}
+.notif-header {
+    padding:1.2vh 1.5vh;border-bottom:1px solid #2a2a3a;display:flex;align-items:center;justify-content:space-between;
+}
+.notif-title {
+    font-family:'FunkinLingLong',sans-serif;font-size:2.5vh;color:#E1E1E1;
+}
+.notif-mark-read {
+    background:none;border:none;font-family:'FunkinOptions',sans-serif;font-size:1.8vh;color:#888;cursor:pointer;padding:0;
+}
+#notif-list {
+    overflow-y:auto;max-height:50vh;display:flex;flex-direction:column;
+}
+#profile-icon-btn {
+    height:7vh;cursor:pointer;transition:transform 0.3s ease-out;
+}
