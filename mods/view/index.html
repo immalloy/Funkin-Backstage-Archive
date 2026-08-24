@@ -429,30 +429,6 @@
 						titleBox.appendChild(editBtn);
 					}
 
-					if (me && me.isAdmin && !meta.approved) {
-						const approveBtn = document.createElement('button');
-						approveBtn.id = 'approve-btn';
-						approveBtn.textContent = 'APPROVE';
-						approveBtn.style.cssText = 'font-family:"FunkinLingLong",sans-serif;font-size:2.5vh;background:#2a5c2a;border:1px solid #4a9a4a;color:#E1E1E1;border-radius:0.4rem;padding:0.5rem 1.2rem;cursor:pointer;margin-top:0.5rem;width:100%;';
-						approveBtn.onmouseover = () => approveBtn.style.background = '#3a7a3a';
-						approveBtn.onmouseout = () => approveBtn.style.background = '#2a5c2a';
-						approveBtn.onclick = async () => {
-							const res = await fetch(`${API}/submissions/${modId}/approve`, {
-								method: 'POST',
-								headers: { 'Authorization': `Bearer ${token}` }
-							});
-							if (res.ok) {
-								approveBtn.textContent = 'APPROVED';
-								approveBtn.style.background = '#1a3a1a';
-								approveBtn.style.cursor = 'default';
-								approveBtn.onclick = null;
-							} else {
-								const d = await res.json().catch(() => ({}));
-								alert('Approve failed: ' + (d.message || res.status));
-							}
-						};
-						document.getElementById('contributors-panel').appendChild(approveBtn);
-					}
 
 				const viewedKey = `viewed_${modId}`;
 				if (!sessionStorage.getItem(viewedKey)) {
