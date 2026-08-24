@@ -30,6 +30,7 @@
       background-size: auto 100%;
       background-position: center;
       cursor: pointer;
+      touch-action: none;
     }
     #scroll-thumb {
       position: absolute;
@@ -42,6 +43,7 @@
       background-size: contain;
       background-position: center;
       cursor: grab;
+      touch-action: none;
     }
     #scroll-thumb:active {
       cursor: grabbing;
@@ -278,51 +280,61 @@
     const track = document.getElementById('scroll-track');
     const thumb = document.getElementById('scroll-thumb');
 
+    let thumbFrame = 0;
     function updateThumb() {
-        const trackH = track.clientHeight;
-        const thumbH = thumb.offsetHeight;
-        const scrollRange = scrollEl.scrollHeight - scrollEl.clientHeight;
-        const thumbTop = scrollRange > 0 ? (scrollEl.scrollTop / scrollRange) * (trackH - thumbH) : 0;
-        thumb.style.top = thumbTop + 'px';
+        if (thumbFrame) return;
+        thumbFrame = requestAnimationFrame(() => {
+            thumbFrame = 0;
+            const trackH = track.clientHeight;
+            const thumbH = thumb.offsetHeight;
+            const scrollRange = Math.max(scrollEl.scrollHeight - scrollEl.clientHeight, 0);
+            const thumbRange = Math.max(trackH - thumbH, 0);
+            const thumbTop = scrollRange ? (scrollEl.scrollTop / scrollRange) * thumbRange : 0;
+            thumb.style.top = Math.min(thumbRange, Math.max(0, thumbTop)) + 'px';
+        });
     }
 
     scrollEl.addEventListener('scroll', updateThumb);
+    window.addEventListener('resize', updateThumb);
 
     let dragging = false, startY = 0, startScrollTop = 0;
-    
+
     function startDrag(e) {
+        if (e.button !== undefined && e.button !== 0) return;
         dragging = true;
-        startY = e.touches ? e.touches[0].clientY : e.clientY;
+        startY = e.clientY;
         startScrollTop = scrollEl.scrollTop;
-        if (!e.touches) e.preventDefault();
+        thumb.setPointerCapture(e.pointerId);
+        e.preventDefault();
     }
-    
+
     function moveDrag(e) {
         if (!dragging) return;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        const dy = clientY - startY;
-        const trackH = track.clientHeight;
-        const thumbH = thumb.offsetHeight;
-        const scrollRange = scrollEl.scrollHeight - scrollEl.clientHeight;
-        scrollEl.scrollTop = startScrollTop + (dy / (trackH - thumbH)) * scrollRange;
+        const thumbRange = Math.max(track.clientHeight - thumb.offsetHeight, 1);
+        const scrollRange = Math.max(scrollEl.scrollHeight - scrollEl.clientHeight, 0);
+        const nextScrollTop = startScrollTop + ((e.clientY - startY) / thumbRange) * scrollRange;
+        scrollEl.scrollTop = Math.max(0, Math.min(scrollRange, nextScrollTop));
+        e.preventDefault();
     }
-    
-    function endDrag() { dragging = false; }
 
-    thumb.addEventListener('mousedown', startDrag);
-    thumb.addEventListener('touchstart', startDrag, { passive: true });
-    
-    document.addEventListener('mousemove', moveDrag);
-    document.addEventListener('touchmove', moveDrag, { passive: true });
-    
-    document.addEventListener('mouseup', endDrag);
-    document.addEventListener('touchend', endDrag);
+    function endDrag(e) {
+        if (!dragging) return;
+        dragging = false;
+        if (thumb.hasPointerCapture(e.pointerId)) thumb.releasePointerCapture(e.pointerId);
+    }
+
+    thumb.addEventListener('pointerdown', startDrag);
+    thumb.addEventListener('pointermove', moveDrag);
+    thumb.addEventListener('pointerup', endDrag);
+    thumb.addEventListener('pointercancel', endDrag);
 
     track.addEventListener('click', e => {
         if (e.target === thumb) return;
         const rect = track.getBoundingClientRect();
-        const ratio = (e.clientY - rect.top) / track.clientHeight;
-        scrollEl.scrollTop = ratio * scrollEl.scrollHeight;
+        const thumbRange = Math.max(track.clientHeight - thumb.offsetHeight, 1);
+        const scrollRange = Math.max(scrollEl.scrollHeight - scrollEl.clientHeight, 0);
+        const ratio = (e.clientY - rect.top - thumb.offsetHeight / 2) / thumbRange;
+        scrollEl.scrollTop = Math.max(0, Math.min(1, ratio)) * scrollRange;
     });
 
     function escapeHTML(text) {
