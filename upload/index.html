@@ -364,6 +364,15 @@
 			</div>
 		</div>
 		<div class="mod-box tab-btn png-fill active submit-btn-bottom" style="display:none; opacity:1; margin-top:0.75rem; justify-content:center; font-size:3vh;" onclick="submitMod()">Submit</div>
+		<div id="upload-progress-wrap" style="display:none;width:100%;margin-top:1.2rem;flex-direction:column;gap:0.6rem;">
+			<div style="display:flex;justify-content:space-between;align-items:center;">
+				<span id="upload-progress-label" style="font-family:'FunkinOptions',sans-serif;font-size:2vh;color:#aaa;">Uploading...</span>
+				<span id="upload-progress-pct" style="font-family:'FunkinOptions',sans-serif;font-size:2vh;color:#E1E1E1;">0%</span>
+			</div>
+			<div style="width:100%;height:1.2vh;background:#2a2a3a;border-radius:999px;overflow:hidden;">
+				<div id="upload-progress-bar" style="height:100%;width:0%;background:#ad0054;border-radius:999px;transition:width 0.15s ease;"></div>
+			</div>
+		</div>
 	</div>
 	<p class="footer-left" style="position: fixed; bottom: 1rem; left: 1rem; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.25rem; color: #666;"></p>
 	<p class="footer-right" style="position: fixed; bottom: 1rem; right: 1rem; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.25rem; color: #666; text-align: right;"></p>
@@ -415,7 +424,7 @@
 			box.querySelector('.dropdown-arrow').classList.remove('flipped');
 		}
 
-		async function presignAndUpload(file, purpose, submissionId, index) {
+		async function presignAndUpload(file, purpose, submissionId, index, onProgress) {
 			const token = localStorage.getItem('token');
 			const body = { filename: file.name, contentType: file.type || 'application/octet-stream', purpose, submissionId };
 			if (purpose === 'screenshot') body.index = index;
@@ -431,13 +440,24 @@
 			}
 			const { url, publicUrl } = await presignRes.json();
 
-			const uploadRes = await fetch(url, {
-				method: 'PUT',
-				headers: { 'Content-Type': file.type || 'application/octet-stream' },
-				body: file
+			await new Promise((resolve, reject) => {
+				const xhr = new XMLHttpRequest();
+				xhr.open('PUT', url);
+				xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+				xhr.upload.onprogress = e => { if (e.lengthComputable && onProgress) onProgress(e.loaded, e.total); };
+				xhr.onload = () => xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error('Upload to storage failed'));
+				xhr.onerror = () => reject(new Error('Upload to storage failed'));
+				xhr.send(file);
 			});
-			if (!uploadRes.ok) throw new Error('Upload to storage failed');
+
 			return publicUrl;
+		}
+
+		function setUploadProgress(loaded, total, label) {
+			const pct = total ? Math.round((loaded / total) * 100) : 0;
+			document.getElementById('upload-progress-bar').style.width = pct + '%';
+			document.getElementById('upload-progress-pct').textContent = pct + '%';
+			if (label) document.getElementById('upload-progress-label').textContent = label;
 		}
 
 		function removeOwnerRow(btn) {
@@ -503,6 +523,25 @@
 			const originalText = submitLabel ? submitLabel.textContent : 'Submit';
 			if (submitLabel) submitLabel.textContent = 'Uploading...';
 
+			const progressWrap = document.getElementById('upload-progress-wrap');
+			progressWrap.style.display = 'flex';
+			setUploadProgress(0, 1, 'Preparing...');
+
+			const allFiles = [
+				...Array.from(screenshotFiles).slice(0, 5),
+				portraitFile, iconFile, downloadFile
+			].filter(Boolean);
+			const totalBytes = allFiles.reduce((s, f) => s + f.size, 0);
+			let globalLoaded = 0;
+			const fileLoaded = new Map();
+
+			function onFileProgress(file, loaded) {
+				const prev = fileLoaded.get(file) || 0;
+				globalLoaded += loaded - prev;
+				fileLoaded.set(file, loaded);
+				setUploadProgress(globalLoaded, totalBytes);
+			}
+
 			let screenshotUrls = [];
 			let portraitUrl = null;
 			let iconUrl = null;
@@ -516,18 +555,24 @@
 				const { id: submissionId } = await idRes.json();
 
 				for (let i = 0; i < Math.min(screenshotFiles.length, 5); i++) {
-					screenshotUrls.push(await presignAndUpload(screenshotFiles[i], 'screenshot', submissionId, i));
+					const f = screenshotFiles[i];
+					setUploadProgress(globalLoaded, totalBytes, `Uploading screenshot ${i + 1}…`);
+					screenshotUrls.push(await presignAndUpload(f, 'screenshot', submissionId, i, (l) => onFileProgress(f, l)));
 				}
 
 				if (portraitFile) {
-					portraitUrl = await presignAndUpload(portraitFile, 'portrait', submissionId);
+					setUploadProgress(globalLoaded, totalBytes, 'Uploading portrait…');
+					portraitUrl = await presignAndUpload(portraitFile, 'portrait', submissionId, undefined, (l) => onFileProgress(portraitFile, l));
 				}
 
 				if (iconFile) {
-					iconUrl = await presignAndUpload(iconFile, 'icon', submissionId);
+					setUploadProgress(globalLoaded, totalBytes, 'Uploading icon…');
+					iconUrl = await presignAndUpload(iconFile, 'icon', submissionId, undefined, (l) => onFileProgress(iconFile, l));
 				}
 
-				downloadUrl = await presignAndUpload(downloadFile, 'download', submissionId);
+				setUploadProgress(globalLoaded, totalBytes, 'Uploading download file…');
+				downloadUrl = await presignAndUpload(downloadFile, 'download', submissionId, undefined, (l) => onFileProgress(downloadFile, l));
+				setUploadProgress(totalBytes, totalBytes, 'Finalizing…');
 
 				const res = await fetch(`${API}/submissions/create`, {
 					method: 'POST',
@@ -545,6 +590,7 @@
 				alert('Upload failed: ' + e.message);
 				if (submitLabel) submitLabel.textContent = originalText;
 				submitBtns.forEach(b => { b.style.pointerEvents = ''; });
+				progressWrap.style.display = 'none';
 			}
 		}
 	</script>
