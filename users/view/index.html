@@ -885,7 +885,10 @@
 
 			const avatarTs = localStorage.getItem(`avatarTs_${userId}`) || Date.now();
 			avatarEl.src = `${API}/avatars/${userId}.png?t=${avatarTs}`;
-			avatarEl.onerror = () => { avatarEl.src = ''; avatarEl.style.background = '#444'; };
+			avatarEl.onerror = () => {
+				avatarEl.onerror = null;
+				avatarEl.src = '../../icon-profile-out.png';
+			};
 
 			const bioEl = document.getElementById('profile-bio');
 			if (user.bio) {
