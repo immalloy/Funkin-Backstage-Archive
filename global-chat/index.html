@@ -70,6 +70,34 @@
     }
     .chat-username:hover { text-decoration: underline; }
 
+    #mention-suggestions {
+      display: none;
+      position: absolute;
+      left: 1rem;
+      bottom: calc(100% + 0.5rem);
+      z-index: 20;
+      width: min(24rem, 80vw);
+      max-height: 14rem;
+      overflow-y: auto;
+      padding: 0.5rem;
+      flex-direction: column;
+      gap: 0.2rem;
+      border-image: url('box-base.png') 18 fill / 10px stretch;
+      border-image-outset: 0;
+      font-family: 'FunkinLingLong', sans-serif;
+    }
+    #mention-suggestions.open { display: flex; }
+    .mention-option {
+      padding: 0.45rem 0.65rem;
+      color: #E1E1E1;
+      background: transparent;
+      border: 0;
+      text-align: left;
+      font: 2.5vh 'FunkinOptions', sans-serif;
+      cursor: pointer;
+    }
+    .mention-option:hover, .mention-option.selected { background: rgba(255, 255, 255, 0.12); }
+
     @media (max-width: 768px) {
       html, body {
         overflow-x: hidden;
@@ -148,7 +176,8 @@
         </div>
     </div>
     <div class="ui-box" style="width: 100rem; height: 1rem; gap: 3vh; position: relative;">
-        <input type="text" id="chat-bar" placeholder="Type something to send..." style="background: transparent; border: none; outline: none; font-family: 'FunkinOptions', sans-serif; font-size: 4vh; color: #E1E1E1; width: 100%; caret-color: #E1E1E1; margin-top: 1vh;" oninput="filterChatInput(this)" onkeydown="if(event.key==='Enter')sendMessage()"/>
+        <div id="mention-suggestions" role="listbox"></div>
+        <input type="text" id="chat-bar" placeholder="Type something to send..." autocomplete="off" aria-autocomplete="list" style="background: transparent; border: none; outline: none; font-family: 'FunkinOptions', sans-serif; font-size: 4vh; color: #E1E1E1; width: 100%; caret-color: #E1E1E1; margin-top: 1vh;" oninput="filterChatInput(this); updateMentionSuggestions()" onkeydown="handleChatKeydown(event)"/>
         <div style="position: relative; flex-shrink: 0;">
             <div id="sticker-bubble" style="display: none; position: absolute; bottom: 0; right: 0; background-image: url('sticker-bubble.png'); background-size: contain; background-repeat: no-repeat; width: 40vh; height: 40vh; padding: 2vh; gap: 1vh; flex-wrap: wrap; align-content: flex-start; overflow-y: auto;">
             </div>
@@ -452,6 +481,109 @@
         if (filtered !== input.value) input.value = filtered;
     }
 
+    const chatInput = document.getElementById('chat-bar');
+    const mentionSuggestions = document.getElementById('mention-suggestions');
+    let mentionCandidates = [];
+    let mentionIndex = 0;
+    let mentionQuery = null;
+
+    function getMentionContext() {
+        const cursor = chatInput.selectionStart ?? chatInput.value.length;
+        const beforeCursor = chatInput.value.slice(0, cursor);
+        const match = beforeCursor.match(/(^|\s)@([A-Za-z0-9_]{0,32})$/);
+        if (!match) return null;
+        return {
+            start: cursor - match[0].length + match[1].length,
+            end: cursor,
+            query: match[2].toLowerCase()
+        };
+    }
+
+    function hideMentionSuggestions() {
+        mentionCandidates = [];
+        mentionIndex = 0;
+        mentionQuery = null;
+        mentionSuggestions.replaceChildren();
+        mentionSuggestions.classList.remove('open');
+    }
+
+    function insertMention(username) {
+        const context = getMentionContext();
+        if (!context || !username) return;
+        const replacement = `@${username} `;
+        chatInput.value = chatInput.value.slice(0, context.start) + replacement + chatInput.value.slice(context.end);
+        const cursor = context.start + replacement.length;
+        chatInput.focus();
+        chatInput.setSelectionRange(cursor, cursor);
+        hideMentionSuggestions();
+    }
+
+    function updateMentionSuggestions() {
+        const context = getMentionContext();
+        if (!context) { hideMentionSuggestions(); return; }
+        if (context.query !== mentionQuery) {
+            mentionQuery = context.query;
+            mentionIndex = 0;
+        }
+
+        const users = new Map();
+        for (const user of userCache.values()) {
+            if (user?.id && user.username) users.set(user.id, user);
+        }
+        if (currentUser?.id && currentUser.username) users.set(currentUser.id, currentUser);
+
+        mentionCandidates = [...users.values()]
+            .filter(user => user.username.toLowerCase().startsWith(context.query))
+            .sort((a, b) => a.username.localeCompare(b.username))
+            .slice(0, 8);
+        if (!mentionCandidates.length) { hideMentionSuggestions(); return; }
+        mentionIndex = Math.min(mentionIndex, mentionCandidates.length - 1);
+
+        mentionSuggestions.replaceChildren();
+        mentionCandidates.forEach((user, index) => {
+            const option = document.createElement('button');
+            option.type = 'button';
+            option.className = `mention-option${index === mentionIndex ? ' selected' : ''}`;
+            option.setAttribute('role', 'option');
+            option.textContent = `@${user.username}`;
+            option.onmousedown = event => { event.preventDefault(); insertMention(user.username); };
+            mentionSuggestions.append(option);
+        });
+        mentionSuggestions.classList.add('open');
+    }
+
+    function handleChatKeydown(event) {
+        if (mentionSuggestions.classList.contains('open')) {
+            if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                mentionIndex = (mentionIndex + 1) % mentionCandidates.length;
+                updateMentionSuggestions();
+                return;
+            }
+            if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                mentionIndex = (mentionIndex - 1 + mentionCandidates.length) % mentionCandidates.length;
+                updateMentionSuggestions();
+                return;
+            }
+            if (event.key === 'Enter' || event.key === 'Tab') {
+                event.preventDefault();
+                insertMention(mentionCandidates[mentionIndex]?.username);
+                return;
+            }
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                hideMentionSuggestions();
+                return;
+            }
+        }
+        if (event.key === 'Enter') sendMessage();
+    }
+
+    document.addEventListener('mousedown', event => {
+        if (event.target !== chatInput && !mentionSuggestions.contains(event.target)) hideMentionSuggestions();
+    });
+
     async function isBlacklisted(text) {
         const words = await getBlacklist();
         const htmlRegex = /<\/?[a-z][\s\S]*>/i;
@@ -463,6 +595,7 @@
     async function sendMessage() {
         const input = document.getElementById('chat-bar');
         filterChatInput(input);
+        hideMentionSuggestions();
         const contents = input.value.trim();
         if (!contents) return;
         if (await isBlacklisted(contents)) { document.getElementById('chat-bar').value = ''; return; }
