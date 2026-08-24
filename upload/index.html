@@ -496,11 +496,12 @@
 			if (screenshotFiles.length === 0) { alert('At least one screenshot is required.'); return; }
 			if (!downloadFile) { alert('A download file is required.'); return; }
 
-			const submitBtn = document.querySelector('[onclick="submitMod()"]');
-			const submitLabel = submitBtn.querySelector('h1');
+			const submitBtns = document.querySelectorAll('[onclick="submitMod()"]');
+			submitBtns.forEach(b => { b.style.pointerEvents = 'none'; });
+			const submitBtn = submitBtns[0];
+			const submitLabel = submitBtn ? submitBtn.querySelector('h1') : null;
 			const originalText = submitLabel ? submitLabel.textContent : 'Submit';
 			if (submitLabel) submitLabel.textContent = 'Uploading...';
-			submitBtn.style.pointerEvents = 'none';
 
 			let screenshotUrls = [];
 			let portraitUrl = null;
@@ -543,7 +544,7 @@
 			} catch (e) {
 				alert('Upload failed: ' + e.message);
 				if (submitLabel) submitLabel.textContent = originalText;
-				submitBtn.style.pointerEvents = '';
+				submitBtns.forEach(b => { b.style.pointerEvents = ''; });
 			}
 		}
 	</script>

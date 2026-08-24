@@ -619,36 +619,42 @@
     }
 
     // ── Send ────────────────────────────────────────────────────────────────
+    let _sending = false;
     async function sendMessage() {
+        if (_sending) return;
         const input = document.getElementById('chat-bar');
         filterChatInput(input);
         hideMentionSuggestions();
         const contents = input.value.trim();
         if (!contents) return;
-        if (await isBlacklisted(contents)) { document.getElementById('chat-bar').value = ''; return; }
+        _sending = true;
+        input.value = '';
+        if (await isBlacklisted(contents)) { _sending = false; return; }
         const token = localStorage.getItem('token');
-        if (!token) { window.location.href = '../login'; return; }
+        if (!token) { _sending = false; window.location.href = '../login'; return; }
 
-        document.getElementById('chat-bar').value = '';
-
-        if (wsReady && ws && ws.readyState === WebSocket.OPEN) {
-            // Fast path: send over WebSocket — server will broadcast back to everyone
-            ws.send(JSON.stringify({ type: 'send', contents }));
-        } else {
-            // Fallback: HTTP POST
-            await fetch(`${API}/chat/send`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({ contents })
-            });
-            await updateTheMessages(true);
+        try {
+            if (wsReady && ws && ws.readyState === WebSocket.OPEN) {
+                // Fast path: send over WebSocket — server will broadcast back to everyone
+                ws.send(JSON.stringify({ type: 'send', contents }));
+            } else {
+                // Fallback: HTTP POST
+                await fetch(`${API}/chat/send`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ contents })
+                });
+                await updateTheMessages(true);
+            }
+        } finally {
+            _sending = false;
         }
     }
 
     async function populateStickerBubble() {
         const stickers = await getStickers();
         const bubble = document.getElementById('sticker-bubble');
-        stickers.filter(name => name !== 'true' && name !== 'trey').forEach(name => {
+        stickers.filter(name => name !== 'true' && name !== 'trey' && name !== 'krue').forEach(name => {
             const img = document.createElement('img');
             img.id = name;
             img.className = 'sticker-in-bubble smooth-btn';
