@@ -1,7 +1,7 @@
 
 var sortMethod = "activity";
 var engineFilter = "any";
-var categoryFilter = "any";
+var categoryFilter = "full-mods";
 
 var featuredFilter = false;
 var unapprovedFilter = false;
