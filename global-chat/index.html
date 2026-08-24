@@ -311,7 +311,12 @@
             content = content.replaceAll(`:${sticker}:`, `<img src="${API}/stickers/${sticker}.png" style="height:${stickerOnly ? '13' : '5'}vh;${stickerOnly ? '' : 'margin:1vh;margin-top:0.5vh;'}"/>`);
         }
         const isMentioned = currentUser && new RegExp(`@${currentUser.username}`, 'i').test(message.contents);
-        const highlightStyle = isMentioned ? 'background:rgba(80,130,255,0.15);border-left:3px solid #5082ff;border-radius:0.4rem;padding:0.3rem 0.6rem;margin:-0.3rem -0.6rem;' : '';
+        const hasMention = /@[A-Za-z0-9_]+/.test(message.contents);
+        const highlightStyle = isMentioned
+            ? 'background:rgba(80,130,255,0.15);border-left:3px solid #5082ff;border-radius:0.4rem;padding:0.3rem 0.6rem;margin:-0.3rem -0.6rem;'
+            : hasMention
+                ? 'background:rgba(150,150,150,0.18);border-left:3px solid #999;border-radius:0.4rem;padding:0.3rem 0.6rem;margin:-0.3rem -0.6rem;'
+                : '';
 
         if (grouped) {
             return `<div data-poster="${message.poster}" style="display:flex;flex-direction:column;align-items:flex-start;justify-content:start;margin-top:calc(-2vh + 0.2vh);${highlightStyle}">
