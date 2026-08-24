@@ -107,7 +107,44 @@
 			white-space: normal;
 			word-break: break-word;
 			text-align: center;
+			width: fit-content;
+			max-width: 100%;
+			box-sizing: border-box;
 		}
+
+		#profile-bio-editor {
+			display: block;
+			width: fit-content;
+			max-width: 100%;
+			box-sizing: border-box;
+		}
+
+		#profile-bio-editor.editable #profile-bio,
+		#profile-bio-input {
+			box-sizing: border-box;
+			padding: 0.2rem 0.8rem;
+			border-radius: 0.3rem;
+			text-align: center;
+			line-height: 1.1;
+			overflow-wrap: anywhere;
+		}
+
+		#profile-bio-editor.editable #profile-bio {
+			cursor: text;
+			border: 1px solid transparent;
+			transition: border-color 120ms ease, background-color 120ms ease;
+		}
+
+		#profile-bio.empty { color: #777; }
+
+		#profile-bio-editor.editable #profile-bio:hover,
+		#profile-bio-editor.editable #profile-bio:focus-visible {
+			background: rgba(0, 0, 0, 0.2);
+			border-color: rgba(225, 225, 225, 0.45);
+			outline: none;
+		}
+
+		#profile-bio-editor.editing #profile-bio { display: none; }
 
 		#profile-stats {
 			display: flex;
@@ -183,35 +220,33 @@
 			flex: 1;
 		}
 
-		#profile-bio-edit {
-			display: none;
-			gap: 0.5rem;
-			align-items: center;
-		}
-
 		#profile-bio-input {
+			display: none;
 			background: transparent;
-			border: none;
-			border-bottom: 1px solid #777;
+			border: 1px solid #777;
 			outline: none;
 			font-family: 'FunkinOptions', sans-serif;
-			font-size: 1.8vh;
+			font-size: 4vh;
 			color: #E1E1E1;
 			font-style: italic;
-			width: 30ch;
+			width: 100%;
+			max-width: 100%;
+			resize: none;
+			overflow-y: hidden;
 			caret-color: #E1E1E1;
 		}
 
-		#profile-bio-save {
-			font-family: 'FunkinOptions', sans-serif;
-			font-size: 1.6vh;
-			color: #999;
-			cursor: pointer;
-			background: none;
-			border: none;
-			padding: 0;
+		#profile-bio-editor.editing #profile-bio-input {
+			display: block;
+			background: rgba(0, 0, 0, 0.2);
 		}
-		#profile-bio-save:hover { color: #E1E1E1; }
+
+		#profile-bio-input:focus-visible {
+			outline: 2px solid #E1E1E1;
+			outline-offset: -2px;
+		}
+
+		#profile-bio-editor.save-error #profile-bio-input { border-color: #c94040; }
 
 		#btn-logout {
 			display: none;
@@ -676,7 +711,7 @@
 
 			#profile-info { align-items: center; }
 			#profile-username { font-size: 7vw; text-align: center; }
-			#profile-bio { font-size: 3.5vw; }
+			#profile-bio, #profile-bio-input { font-size: 3.5vw; }
 
 			#profile-badge-mobile {
 				display: flex;
@@ -735,10 +770,9 @@
 		</div>
 		<div id="profile-info">
 			<h1 id="profile-username">...</h1>
-			<p id="profile-bio"></p>
-			<div id="profile-bio-edit">
-				<input id="profile-bio-input" type="text" maxlength="30" placeholder="add a bio...">
-				<button id="profile-bio-save" type="button">save</button>
+			<div id="profile-bio-editor">
+				<p id="profile-bio"></p>
+				<textarea id="profile-bio-input" rows="1" maxlength="30" placeholder="add a bio..." aria-label="Bio" spellcheck="false"></textarea>
 			</div>
 			<button id="btn-logout" type="button"><img src="icon-logout.png" draggable="false" alt=""><span>Log Out</span></button>
 			<div id="profile-badge-mobile"></div>
@@ -891,12 +925,47 @@
 			setTimeout(() => loadMods(userId), 0);
 
 			const bioEl = document.getElementById('profile-bio');
-			if (user.bio) {
-				bioEl.textContent = `"${user.bio}"`;
-				bioEl.style.maxWidth = usernameEl.offsetWidth + 'px';
-			} else {
-				bioEl.style.display = 'none';
-			}
+			const bioEditor = document.getElementById('profile-bio-editor');
+			const normalizeBio = value => {
+				let text = String(value ?? '').trim().replace(/\r?\n/g, ' ');
+				text = text.replace(/^"+/, '').replace(/"+$/, '');
+				return text.trim();
+			};
+			let bioEditLines = [];
+			const renderBio = value => {
+				bioEl.replaceChildren();
+				const text = value ? `"${value}"` : 'add a bio...';
+				bioEditLines = value ? [text] : [];
+				if (!value || text.length <= 22) {
+					bioEl.textContent = text;
+				} else {
+					const words = text.split(/\s+/);
+					const measure = document.createElement('span');
+					measure.style.cssText = `position:absolute;visibility:hidden;white-space:nowrap;font:${getComputedStyle(bioEl).font};`;
+					document.body.appendChild(measure);
+					let best = null;
+					for (let i = 1; i < words.length; i++) {
+						const left = words.slice(0, i).join(' ');
+						const right = words.slice(i).join(' ');
+						measure.textContent = left;
+						const leftWidth = measure.offsetWidth;
+						measure.textContent = right;
+						const rightWidth = measure.offsetWidth;
+						const score = Math.max(leftWidth, rightWidth) + Math.abs(leftWidth - rightWidth) * 0.1;
+						if (!best || score < best.score) best = { left, right, score };
+					}
+					measure.remove();
+					if (best) {
+						bioEditLines = [best.left, best.right];
+						bioEl.append(document.createTextNode(best.left), document.createElement('br'), document.createTextNode(best.right));
+					} else {
+						bioEl.textContent = text;
+					}
+				}
+				bioEl.classList.toggle('empty', !value);
+				bioEl.style.display = value || (me && me.id === userId) ? '' : 'none';
+			};
+			renderBio(normalizeBio(user.bio));
 
 			if (me && me.id !== userId) {
 				const actions = document.getElementById('profile-actions');
@@ -1011,11 +1080,82 @@
 					avatarInput.value = '';
 				};
 
-				const editRow = document.getElementById('profile-bio-edit');
-				editRow.style.display = 'flex';
 				const input = document.getElementById('profile-bio-input');
-				input.value = user.bio || '';
+				const getBioEditorValue = () => {
+					return bioEditLines.join('\n');
+				};
+				user.bio = normalizeBio(user.bio);
+				input.value = getBioEditorValue();
 				input.placeholder = user.bio ? 'edit bio...' : 'add a bio...';
+				const resizeBioInput = () => {
+					input.style.height = 'auto';
+					input.style.height = `${input.scrollHeight}px`;
+				};
+				input.oninput = resizeBioInput;
+				bioEditor.classList.add('editable');
+				bioEl.tabIndex = 0;
+				bioEl.setAttribute('role', 'button');
+				bioEl.setAttribute('aria-label', 'Edit bio');
+
+				let bioSaving = false;
+				const stopBioEdit = () => {
+					bioEditor.classList.remove('editing', 'save-error');
+					bioEditor.style.removeProperty('width');
+				};
+				const startBioEdit = () => {
+					if (bioSaving || bioEditor.classList.contains('editing')) return;
+					const displayWidth = bioEl.getBoundingClientRect().width;
+					input.value = getBioEditorValue();
+					bioEditor.style.width = `${displayWidth}px`;
+					bioEditor.classList.remove('save-error');
+					bioEditor.classList.add('editing');
+					resizeBioInput();
+					input.focus();
+					input.select();
+				};
+				const finishBioEdit = async () => {
+					if (bioSaving || !bioEditor.classList.contains('editing')) return;
+					const enteredBio = input.value.trim().replace(/\r?\n/g, ' ');
+					const newBio = normalizeBio(enteredBio);
+					if (newBio === (user.bio || '')) {
+						stopBioEdit();
+						return;
+					}
+					bioSaving = true;
+					const res = await fetch(`${API}/users/me`, {
+						method: 'PATCH',
+						headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+						body: JSON.stringify({ bio: newBio })
+					}).catch(() => null);
+					bioSaving = false;
+					if (!res?.ok) {
+						bioEditor.classList.add('save-error');
+						input.focus();
+						return;
+					}
+					user.bio = newBio;
+					renderBio(newBio);
+					stopBioEdit();
+				};
+				bioEl.onclick = startBioEdit;
+				bioEl.onkeydown = event => {
+					if (event.key === 'Enter' || event.key === ' ') {
+						event.preventDefault();
+						startBioEdit();
+					}
+				};
+				input.onkeydown = event => {
+					if (event.key === 'Enter') {
+						event.preventDefault();
+						input.blur();
+					} else if (event.key === 'Escape') {
+						event.preventDefault();
+						input.value = getBioEditorValue();
+						stopBioEdit();
+						input.blur();
+					}
+				};
+				input.onblur = finishBioEdit;
 
 				const logoutBtn = document.getElementById('btn-logout');
 				logoutBtn.style.display = 'flex';
@@ -1028,19 +1168,6 @@
 				};
 				logoutModal.addEventListener('click', e => { if (e.target === logoutModal) logoutModal.classList.remove('open'); });
 
-				document.getElementById('profile-bio-save').onclick = async () => {
-					const newBio = input.value.trim();
-					const res = await fetch(`${API}/users/me`, {
-						method: 'PATCH',
-						headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-						body: JSON.stringify({ bio: newBio })
-					});
-					if (res.ok) {
-						bioEl.textContent = newBio ? `"${newBio}"` : '';
-						bioEl.style.display = newBio ? '' : 'none';
-						input.value = newBio;
-					}
-				};
 			}
 		}
 
