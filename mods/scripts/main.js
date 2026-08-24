@@ -9,6 +9,7 @@ var likedFilter = false;
 var filterCount = 0;
 var sortBackwards = false;
 var isAdmin = false;
+const META_BATCH_SIZE = 24;
 
 function toggleLikedFilter() {
     likedFilter = !likedFilter;
@@ -25,8 +26,6 @@ function toggleFeaturedFilter() {
     else filterCount --;
     document.getElementById("filter-text").textContent = 'FILTERS - ' + filterCount;
 }
-
-toggleFeaturedFilter();
 
 function toggleUnapprovedFilter() {
     unapprovedFilter = !unapprovedFilter;
@@ -140,16 +139,20 @@ async function reloadModList() {
 
     const files = await fetch(`${API}/submissions`).then(r => r.json()).catch(() => []);
     if (!files.length) return;
-    let modDatas = (await Promise.all(files.map(async id => {
-        try {
-            const meta = await fetch(`${API}/submissions/${id}/meta.json`).then(r => r.ok ? r.json() : null);
-            if (!meta?.live) return null;
-            meta.storageID = id;
-            return meta;
-        } catch {
-            return null;
-        }
-    }))).filter(Boolean);
+    let modDatas = [];
+    for (let i = 0; i < files.length; i += META_BATCH_SIZE) {
+        const batch = await Promise.all(files.slice(i, i + META_BATCH_SIZE).map(async id => {
+            try {
+                const meta = await fetch(`${API}/submissions/${id}/meta.json`).then(r => r.ok ? r.json() : null);
+                if (!meta?.live) return null;
+                meta.storageID = id;
+                return meta;
+            } catch {
+                return null;
+            }
+        }));
+        modDatas.push(...batch.filter(Boolean));
+    }
 
     if (engineFilter != "any") {
         modDatas = modDatas.filter(_ => { return _.parent == engineFilter });
