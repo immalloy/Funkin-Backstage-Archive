@@ -184,6 +184,7 @@
     </div>
     <div class="ui-box" id="chat-box" style="width: 90vw; max-width: 100rem; flex: 1; min-height: 0; padding-top: 0.9rem; padding-bottom: 0.8rem; display: flex; flex-direction: row; align-items: flex-start; gap: 0;">
         <div id="chat-scroll" style="flex: 1; height: 100%; overflow-y: scroll; display: flex; flex-direction: column; gap: 2vh; padding: 1vh;">
+            <div id="chat-loading" role="status" aria-live="polite" style="display:flex;align-items:center;justify-content:center;height:100%;font-family:'FunkinOptions',sans-serif;font-size:4vh;color:#888;">Loading chat…</div>
         </div>
         <div id="scroll-track">
             <div id="scroll-thumb"></div>
@@ -249,12 +250,11 @@
 
     async function getUser(userId) {
         if (!userCache.has(userId)) {
-            const u = await fetch(`${API}/users/${userId}`).then(r => r.json()).catch(() => ({ id: userId, username: '?' }));
+            const userRequest = fetch(`${API}/users/${userId}`).then(r => r.json()).catch(() => ({ id: userId, username: '?' }));
+            const avatarRequest = fetch(`${API}/avatars/${userId}.png`, { method: 'HEAD' }).catch(() => ({ ok: false }));
+            const [u, avatar] = await Promise.all([userRequest, avatarRequest]);
             userCache.set(userId, u);
-            if (!avatarCache.has(userId)) {
-                const res = await fetch(`${API}/avatars/${userId}.png`, { method: 'HEAD' }).catch(() => ({ ok: false }));
-                avatarCache.set(userId, res.ok);
-            }
+            avatarCache.set(userId, avatar.ok);
         }
         return userCache.get(userId);
     }
@@ -416,6 +416,8 @@
         try {
             const all = await fetch(`${API}/chat/read`).then(r => r.json());
             const messages = all.slice(-25);
+            const posterIds = [...new Set(messages.map(msg => msg.poster))];
+            await Promise.all([getStickers(), ...posterIds.map(getUser)]);
             let out = '';
             let prevPoster = null;
             for (const msg of messages) {
