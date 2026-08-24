@@ -69,6 +69,7 @@
 
 	<body>
 		<h1 style="font-family: 'FunkinLingLong', sans-serif; position: fixed; left: 2rem; top: 0rem; font-size: 8vh;">Mods</h1>
+		<a href="../rules" style="position:fixed;top:1rem;left:50%;transform:translateX(-50%);font-family:'FunkinLingLong',sans-serif;font-size:clamp(2rem,7vh,5rem);color:#888;text-decoration:none;z-index:200;white-space:nowrap;" onmouseover="this.style.color='#bbb'" onmouseout="this.style.color='#888'">MOD UPLOAD RULES</a>
 		<div style="display: flex; flex-direction: column; row-gap: 15px; position: fixed; top: 9rem; left: 2rem;">
 			<div class="mod-box" id="mod-box-1" style="width: 25vw;">
 				<div class="mod-box-header">
@@ -153,12 +154,26 @@
 		<p class="footer-left" style="position: fixed; bottom: 1rem; left: 1rem; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.25rem; color: #666;"></p>
 		<p class="footer-right" style="position: fixed; bottom: 1rem; right: 1rem; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.25rem; color: #666; text-align: right;"></p>
 		<div id="top-bar" style="position: fixed; top: 1rem; right: 2rem; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.25rem; color: #666; text-align: right; display: flex; align-items: center; gap: 2rem;">
+			<img class="smooth-btn" src="assets/icon-search.png" style="height:3.5vh;cursor:pointer;opacity:0.8;transition:transform 0.3s ease-out,opacity 0.2s;" onclick="openUserSearch()" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'" draggable="false"/>
 			<div class="mod-box smooth-btn" id="upload-button" onclick="window.location.href='../upload'" style="display: flex; flex-direction: row; align-items: center; gap: 1rem; height: 5vh; transition: transform 0.3s ease-out, height 0.3s ease; cursor: pointer;">
 				<h1 style="font-size: 2.5vh; color: #E1E1E1; margin-top: 0.3vh">UPLOAD</h1>
 				<img src="../icon-upload.png" style="height: 2.5vh; width: 2.5vh; margin-top: -0.4rem; margin-right: 0.6rem"/>
 			</div>
 			<img class="smooth-btn" id="profile-icon-btn" src="../icon-profile-out.png" style="transition: transform 0.3s ease-out, height 0.3s ease; height: 7vh; cursor: pointer;" onclick="goToProfile()"/>
 		</div>
+
+		<div id="user-search-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9000;align-items:center;justify-content:center;">
+			<div class="mod-box" style="width:clamp(400px,65vw,800px);height:auto;box-sizing:border-box;padding:3vh 4vh;display:flex;flex-direction:column;gap:2vh;">
+				<div style="display:flex;align-items:center;justify-content:space-between;">
+					<h1 style="font-family:'FunkinLingLong',sans-serif;font-size:4vh;color:#E1E1E1;margin:0;">FIND USER</h1>
+					<button onclick="closeUserSearch()" style="background:none;border:none;color:#aaa;font-size:3vh;cursor:pointer;line-height:1;padding:0;">✕</button>
+				</div>
+				<input id="user-search-input" type="text" placeholder="USERNAME" maxlength="20" oninput="searchUser()" onkeydown="if(event.key==='Enter')goToSearchResult()" style="background:transparent;border:none;border-bottom:2px solid #555;outline:none;font-family:'FunkinOptions',sans-serif;font-size:3vh;color:#E1E1E1;caret-color:#E1E1E1;padding:0.6vh 0;width:100%;">
+				<div id="user-search-list" style="display:flex;flex-direction:column;gap:1vh;max-height:40vh;overflow-y:auto;"></div>
+				<p id="user-search-none" style="display:none;font-family:'FunkinOptions',sans-serif;font-size:2.2vh;color:#999;margin:0;">No users found.</p>
+			</div>
+		</div>
+
 		<script>
 			async function goToProfile() {
 				const t = localStorage.getItem('token');
@@ -171,6 +186,7 @@
 			if (!_token) {
 				const bar = document.getElementById('top-bar');
 				bar.innerHTML = `
+					<img class="smooth-btn" src="assets/icon-search.png" style="height:3.5vh;cursor:pointer;opacity:0.8;transition:transform 0.3s ease-out,opacity 0.2s;" onclick="openUserSearch()" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'" draggable="false"/>
 					<div class="mod-box smooth-btn" onclick="window.location.href='../signup'" style="display:flex;flex-direction:row;align-items:center;gap:1rem;height:5vh;transition:transform 0.3s ease-out;cursor:pointer;">
 						<h1 style="font-size:2.5vh;color:#E1E1E1;margin:0;padding:0 1rem;line-height:1;">SIGN UP</h1>
 					</div>
@@ -192,6 +208,75 @@
 					test.src = avatarUrl;
 				})();
 			}
+		function openUserSearch() {
+			const modal = document.getElementById('user-search-modal');
+			modal.style.display = 'flex';
+			document.getElementById('user-search-input').value = '';
+			document.getElementById('user-search-list').innerHTML = '';
+			document.getElementById('user-search-none').style.display = 'none';
+			setTimeout(() => document.getElementById('user-search-input').focus(), 50);
+		}
+
+		function closeUserSearch() {
+			document.getElementById('user-search-modal').style.display = 'none';
+		}
+
+		document.getElementById('user-search-modal').addEventListener('click', e => {
+			if (e.target === document.getElementById('user-search-modal')) closeUserSearch();
+		});
+
+		let _searchTimeout = null;
+		async function searchUser() {
+			const q = document.getElementById('user-search-input').value.trim();
+			const list = document.getElementById('user-search-list');
+			const none = document.getElementById('user-search-none');
+			list.innerHTML = '';
+			none.style.display = 'none';
+			clearTimeout(_searchTimeout);
+			if (!q) return;
+			_searchTimeout = setTimeout(async () => {
+				const results = await fetch(`${API}/users/search?q=${encodeURIComponent(q)}`).then(r => r.ok ? r.json() : []).catch(() => []);
+				if (document.getElementById('user-search-input').value.trim() !== q) return;
+				list.innerHTML = '';
+				if (!results.length) { none.style.display = ''; return; }
+				results.forEach(user => {
+					const row = document.createElement('div');
+					row.style.cssText = 'display:flex;align-items:center;gap:1.2vh;cursor:pointer;padding:0.8vh 0;';
+					row.onmouseover = () => row.style.opacity = '0.75';
+					row.onmouseout = () => row.style.opacity = '1';
+					row.onclick = () => { window.location.href = `https://funkinbackstage.com/users/${user.id}`; };
+
+					const img = document.createElement('img');
+					img.src = `${API}/avatars/${user.id}.png`;
+					img.onerror = () => { img.src = 'https://funkinbackstage.com/icon-profile-out.png'; };
+					img.style.cssText = 'height:5vh;width:5vh;border-radius:50%;object-fit:cover;border:0.4vh solid #E1E1E1;flex-shrink:0;';
+
+					const nameWrap = document.createElement('div');
+					nameWrap.style.cssText = 'display:flex;align-items:center;gap:0.6vh;';
+
+					const name = document.createElement('span');
+					name.textContent = user.username;
+					name.style.cssText = "font-family:'FunkinOptions',sans-serif;font-size:2.5vh;color:#E1E1E1;";
+					nameWrap.appendChild(name);
+
+					if (user.verified) {
+						const badge = document.createElement('img');
+						badge.src = 'https://files.funkinbackstage.com/badges/verified-badge.png';
+						badge.style.cssText = 'height:2.2vh;flex-shrink:0;';
+						nameWrap.appendChild(badge);
+					}
+
+					row.appendChild(img);
+					row.appendChild(nameWrap);
+					list.appendChild(row);
+				});
+			}, 250);
+		}
+
+		function goToSearchResult() {
+			const first = document.getElementById('user-search-list').firstChild;
+			if (first) first.click();
+		}
 		</script>
 	</body>
 </html>
