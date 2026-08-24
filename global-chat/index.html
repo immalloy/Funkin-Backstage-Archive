@@ -545,11 +545,13 @@
             option.type = 'button';
             option.className = `mention-option${index === mentionIndex ? ' selected' : ''}`;
             option.setAttribute('role', 'option');
+            option.setAttribute('aria-selected', index === mentionIndex ? 'true' : 'false');
             option.textContent = `@${user.username}`;
-            option.onmousedown = event => { event.preventDefault(); insertMention(user.username); };
+            option.onpointerdown = event => { event.preventDefault(); insertMention(user.username); };
             mentionSuggestions.append(option);
         });
         mentionSuggestions.classList.add('open');
+        mentionSuggestions.children[mentionIndex]?.scrollIntoView({ block: 'nearest' });
     }
 
     function handleChatKeydown(event) {
