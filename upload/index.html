@@ -320,33 +320,67 @@
 			</div>
 		</div>
 		<div id="tab-media" class="mod-box tab-panel">
-			<div class="field-row">
-				<h1 class="upload-label">Screenshots:</h1>
-				<div class="mod-box tab-btn png-fill active" style="opacity:1; padding: 0.6vh 2vh !important; font-size: 2.5vh; cursor:pointer;" onclick="document.getElementById('screenshots-input').click()">UPLOAD</div>
-				<input type="file" id="screenshots-input" accept="image/*,.mp4,video/mp4" multiple style="display:none;" onchange="updateFileLabel('screenshots-label', this, true)">
-				<h1 id="screenshots-label" style="font-size: 2vh; color: #C7C7C7; margin: 0; font-weight: normal;">* 1 Required (Up To 5)</h1>
+			<!-- Screenshots strip -->
+			<div style="display:flex;flex-direction:column;gap:1.2vh;">
+				<h1 class="upload-label" style="font-size:2.8vh;">
+					SCREENSHOTS: <span id="ss-count">0</span>/5
+					<span style="font-family:'FunkinOptions',sans-serif;font-size:1.8vh;color:#aaa;font-weight:300;margin-left:1rem;">* 1 Required (Up To 5)</span>
+				</h1>
+				<div id="ss-strip" style="display:flex;gap:1.5vh;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;align-items:center;min-height:16.5vh;">
+					<div id="ss-upload-slot" onclick="document.getElementById('screenshots-input').click()" style="flex-shrink:0;cursor:pointer;height:16vh;">
+						<img src="upload-screenshot.png" style="height:100%;display:block;">
+					</div>
+				</div>
+				<div id="ss-scrollbar" style="position:relative;height:1.4vh;display:none;">
+					<img src="screenshot-scroll-bar.png" style="width:100%;height:100%;display:block;">
+					<img id="ss-knob" src="screnshot-scroll-knob.png" style="position:absolute;top:50%;transform:translateY(-50%);height:220%;cursor:grab;left:0px;">
+				</div>
+				<input type="file" id="screenshots-input" accept="image/*,.mp4,video/mp4" multiple style="display:none;" onchange="handleScreenshots(this)">
 			</div>
-			<div class="field-row">
-				<h1 class="upload-label">Front Page Portrait:</h1>
-				<div class="mod-box tab-btn png-fill active" style="opacity:1; padding: 0.6vh 2vh !important; font-size: 2.5vh; cursor:pointer;" onclick="document.getElementById('portrait-input').click()">UPLOAD</div>
-				<input type="file" id="portrait-input" accept="image/*" style="display:none;" onchange="updateFileLabel('portrait-label', this, false)">
-				<h1 id="portrait-label" style="font-size: 2vh; color: #C7C7C7; margin: 0; font-weight: normal;">* Optional</h1>
+
+			<!-- Portrait preview -->
+			<div style="display:flex;gap:4vh;align-items:flex-start;flex-wrap:wrap;">
+				<div style="display:flex;flex-direction:column;gap:0.8vh;align-items:flex-start;">
+					<div style="display:flex;align-items:baseline;gap:1vh;flex-wrap:wrap;">
+					<h1 class="upload-label" style="font-size:2.8vh;">FRONT PAGE PORTRAIT:</h1>
+					<span style="font-family:'FunkinOptions',sans-serif;font-size:1.6vh;color:#666;font-weight:300;">(Only shows when mod is featured)</span>
+				</div>
+					<div onclick="document.getElementById('portrait-input').click()" style="cursor:pointer;position:relative;">
+						<div id="portrait-placeholder" style="height:18vh;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;border:2px dashed #555;border-radius:4px;box-sizing:border-box;">
+							<img src="upload-screenshot.png" style="height:50%;opacity:0.4;display:block;">
+						</div>
+						<img id="portrait-img" style="height:18vh;object-fit:cover;border-radius:4px;display:none;">
+					</div>
+					<span id="portrait-label" style="font-family:'FunkinOptions',sans-serif;font-size:1.6vh;color:#888;text-transform:uppercase;">* Optional</span>
+					<input type="file" id="portrait-input" accept="image/*" style="display:none;" onchange="handleImgPreview('portrait-input','portrait-img','portrait-placeholder','portrait-label')">
+				</div>
 			</div>
-			<div class="field-row">
-				<h1 class="upload-label">Icon:</h1>
-				<div class="mod-box tab-btn png-fill active" style="opacity:1; padding: 0.6vh 2vh !important; font-size: 2.5vh; cursor:pointer;" onclick="document.getElementById('icon-input').click()">UPLOAD</div>
-				<input type="file" id="icon-input" accept="image/png" style="display:none;" onchange="updateFileLabel('icon-label', this, false)">
-				<h1 id="icon-label" style="font-size: 2vh; color: #C7C7C7; margin: 0; font-weight: normal;">* Optional</h1>
+
+			<!-- Icon -->
+			<div class="field-row" style="align-items:center;">
+				<h1 class="upload-label" style="font-size:2.8vh;">ICON:</h1>
+				<div onclick="document.getElementById('icon-input').click()" style="cursor:pointer;height:7vh;width:7vh;position:relative;flex-shrink:0;">
+					<div id="icon-placeholder" style="height:100%;width:100%;border:2px dashed #555;border-radius:4px;display:flex;align-items:center;justify-content:center;box-sizing:border-box;">
+						<span style="color:#888;font-size:2.5vh;font-family:sans-serif;line-height:1;">+</span>
+					</div>
+					<img id="icon-img" style="position:absolute;inset:0;height:100%;width:100%;object-fit:contain;border-radius:4px;display:none;">
+				</div>
+				<span style="font-family:'FunkinOptions',sans-serif;font-size:1.8vh;color:#aaa;">* Optional</span>
+				<input type="file" id="icon-input" accept="image/png" style="display:none;" onchange="handleIconPreview(this)">
 			</div>
+
+			<!-- Download -->
 			<div class="field-row">
-				<h1 class="upload-label">Download:</h1>
-				<div class="mod-box tab-btn png-fill active" style="opacity:1; padding: 0.6vh 2vh !important; font-size: 2.5vh; cursor:pointer;" onclick="document.getElementById('download-input').click()">UPLOAD</div>
+				<h1 class="upload-label" style="font-size:2.8vh;">DOWNLOAD:</h1>
+				<div class="mod-box tab-btn png-fill active" style="opacity:1;padding:0.6vh 2vh !important;font-size:2.5vh;cursor:pointer;" onclick="document.getElementById('download-input').click()">UPLOAD</div>
+				<span id="download-label" style="font-family:'FunkinOptions',sans-serif;font-size:1.8vh;color:#aaa;">* Required</span>
 				<input type="file" id="download-input" style="display:none;" onchange="updateFileLabel('download-label', this, false)">
-				<h1 id="download-label" style="font-size: 2vh; color: #C7C7C7; margin: 0; font-weight: normal;">* Required</h1>
 			</div>
+
+			<!-- Version -->
 			<div class="field-row">
-				<h1 class="upload-label">Version:</h1>
-				<div class="input-wrap" style="max-width: 18rem;"><input type="text" id="mod-version" placeholder="e.g. 1.0.0" /></div>
+				<h1 class="upload-label" style="font-size:2.8vh;">VERSION:</h1>
+				<div class="input-wrap" style="max-width:18rem;"><input type="text" id="mod-version" placeholder="EG 1.0.0" /></div>
 			</div>
 		</div>
 		<div id="tab-ownership" class="mod-box tab-panel" style="justify-content: space-between;">
@@ -379,6 +413,142 @@
 	<script src="../api.js"></script>
 	<script>
 		const TABS = ['overview', 'media', 'ownership'];
+
+		// ── Screenshot strip ──────────────────────────────────────────────
+		const ssSlots = [];
+
+		function getVideoThumbnail(file) {
+			return new Promise(resolve => {
+				const url = URL.createObjectURL(file);
+				const video = document.createElement('video');
+				video.muted = true;
+				video.playsInline = true;
+				video.preload = 'metadata';
+				const done = (src) => { URL.revokeObjectURL(url); resolve(src); };
+				video.addEventListener('seeked', () => {
+					const canvas = document.createElement('canvas');
+					canvas.width = video.videoWidth || 320;
+					canvas.height = video.videoHeight || 180;
+					canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+					done(canvas.toDataURL('image/jpeg', 0.85));
+				}, { once: true });
+				video.addEventListener('error', () => done(null), { once: true });
+				video.src = url;
+				video.load();
+				video.addEventListener('loadedmetadata', () => { video.currentTime = 0.1; }, { once: true });
+			});
+		}
+
+		async function handleScreenshots(input) {
+			const remaining = 5 - ssSlots.length;
+			const files = Array.from(input.files).slice(0, remaining);
+			input.value = '';
+			for (const file of files) await addSsSlot(file);
+		}
+
+		async function addSsSlot(file) {
+			if (ssSlots.length >= 5) return;
+			const strip = document.getElementById('ss-strip');
+			const wrapper = document.createElement('div');
+			wrapper.style.cssText = 'flex-shrink:0;position:relative;height:16vh;';
+			const img = document.createElement('img');
+			img.style.cssText = 'height:16vh;width:auto;display:block;border-radius:4px;object-fit:cover;';
+			const isVideo = file.type.startsWith('video/');
+			img.onload = () => requestAnimationFrame(syncScrollbar);
+			if (isVideo) {
+				const thumb = await getVideoThumbnail(file);
+				img.src = thumb || '';
+				const badge = document.createElement('div');
+				badge.textContent = '▶';
+				badge.style.cssText = 'position:absolute;bottom:6px;left:8px;color:#fff;font-size:1.8vh;text-shadow:0 1px 3px rgba(0,0,0,0.8);pointer-events:none;';
+				wrapper.appendChild(badge);
+			} else {
+				img.src = URL.createObjectURL(file);
+			}
+			const rm = document.createElement('div');
+			rm.innerHTML = '✕';
+			rm.style.cssText = 'position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.75);color:#fff;width:2.5vh;height:2.5vh;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.4vh;line-height:1;user-select:none;';
+			const slot = { file, el: wrapper };
+			ssSlots.push(slot);
+			rm.onclick = () => { ssSlots.splice(ssSlots.indexOf(slot), 1); wrapper.remove(); updateSsUI(); };
+			wrapper.append(img, rm);
+			strip.appendChild(wrapper);
+			updateSsUI();
+		}
+
+		function updateSsUI() {
+			document.getElementById('ss-count').textContent = ssSlots.length;
+			document.getElementById('ss-upload-slot').style.display = ssSlots.length >= 5 ? 'none' : '';
+			requestAnimationFrame(syncScrollbar);
+		}
+
+		function syncScrollbar() {
+			const strip = document.getElementById('ss-strip');
+			const knob = document.getElementById('ss-knob');
+			const bar = document.getElementById('ss-scrollbar');
+			const scrollable = strip.scrollWidth - strip.clientWidth;
+			if (scrollable <= 0) { bar.style.display = 'none'; return; }
+			bar.style.display = '';
+			const maxL = bar.clientWidth - knob.offsetWidth;
+			if (maxL <= 0) return;
+			const pct = strip.scrollLeft / scrollable;
+			knob.style.left = (pct * maxL) + 'px';
+		}
+
+		document.getElementById('ss-strip').addEventListener('scroll', syncScrollbar);
+
+		// Click on track to jump
+		document.getElementById('ss-scrollbar').addEventListener('click', e => {
+			const knob = document.getElementById('ss-knob');
+			if (e.target === knob || e.target.tagName === 'IMG' && e.target === knob) return;
+			const strip = document.getElementById('ss-strip');
+			const bar = document.getElementById('ss-scrollbar');
+			const maxL = bar.clientWidth - knob.offsetWidth;
+			if (maxL <= 0) return;
+			const pct = (e.clientX - bar.getBoundingClientRect().left - knob.offsetWidth / 2) / maxL;
+			strip.scrollLeft = Math.max(0, Math.min(1, pct)) * (strip.scrollWidth - strip.clientWidth);
+		});
+
+		(function() {
+			const knob = document.getElementById('ss-knob');
+			let startX = 0, startL = 0;
+			knob.addEventListener('mousedown', e => {
+				startX = e.clientX;
+				startL = parseFloat(knob.style.left) || 0;
+				e.preventDefault();
+				const onMove = e2 => {
+					const strip = document.getElementById('ss-strip');
+					const bar = document.getElementById('ss-scrollbar');
+					const maxL = bar.clientWidth - knob.offsetWidth;
+					if (maxL <= 0) return;
+					const newL = Math.max(0, Math.min(maxL, startL + (e2.clientX - startX)));
+					knob.style.left = newL + 'px';
+					strip.scrollLeft = (newL / maxL) * (strip.scrollWidth - strip.clientWidth);
+				};
+				document.addEventListener('mousemove', onMove);
+				document.addEventListener('mouseup', () => document.removeEventListener('mousemove', onMove), { once: true });
+			});
+		})();
+
+		// ── Image preview helpers ─────────────────────────────────────────
+		function handleImgPreview(inputId, imgId, placeholderId, labelId) {
+			const input = document.getElementById(inputId);
+			if (!input.files[0]) return;
+			const img = document.getElementById(imgId);
+			img.src = URL.createObjectURL(input.files[0]);
+			img.style.display = 'block';
+			document.getElementById(placeholderId).style.display = 'none';
+			const lbl = document.getElementById(labelId);
+			lbl.textContent = input.files[0].name.toUpperCase();
+			lbl.style.color = '#E1E1E1';
+		}
+
+		function handleIconPreview(input) {
+			if (!input.files[0]) return;
+			document.getElementById('icon-img').src = URL.createObjectURL(input.files[0]);
+			document.getElementById('icon-img').style.display = 'block';
+			document.getElementById('icon-placeholder').style.display = 'none';
+		}
 		let engineValue = 'base-game';
 		let categoryValue = 'full-mods';
 
@@ -500,7 +670,7 @@
 			const title = document.getElementById('mod-title').value.trim();
 			const description = document.getElementById('mod-desc').value.trim();
 			const blurb = document.getElementById('mod-blurb').value.trim();
-			const screenshotFiles = document.getElementById('screenshots-input').files;
+			const screenshotFiles = ssSlots.map(s => s.file);
 			const portraitFile = document.getElementById('portrait-input').files[0] || null;
 			const iconFile = document.getElementById('icon-input').files[0] || null;
 			const downloadFile = document.getElementById('download-input').files[0] || null;
@@ -528,7 +698,7 @@
 			setUploadProgress(0, 1, 'Preparing...');
 
 			const allFiles = [
-				...Array.from(screenshotFiles).slice(0, 5),
+				...screenshotFiles.slice(0, 5),
 				portraitFile, iconFile, downloadFile
 			].filter(Boolean);
 			const totalBytes = allFiles.reduce((s, f) => s + f.size, 0);
