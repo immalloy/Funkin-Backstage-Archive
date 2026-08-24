@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" translate="no">
 <head>
 	<meta charset="UTF-8">
@@ -231,7 +231,6 @@
 			</div>
 		</div>
 		<div id="tab-media" class="mod-box tab-panel">
-			<!-- Screenshots strip -->
 			<div style="display:flex;flex-direction:column;gap:1.2vh;">
 				<h1 class="upload-label" style="font-size:2.8vh;">
 					SCREENSHOTS: <span id="ss-count">0</span>/5
@@ -249,7 +248,6 @@
 				<input type="file" id="screenshots-input" accept="image/*,.mp4,video/mp4" multiple style="display:none;" onchange="handleScreenshots(this)">
 			</div>
 
-			<!-- Portrait preview -->
 			<div style="display:flex;gap:4vh;align-items:flex-start;flex-wrap:wrap;">
 				<div style="display:flex;flex-direction:column;gap:0.8vh;align-items:flex-start;">
 					<div style="display:flex;align-items:baseline;gap:1vh;flex-wrap:wrap;">
@@ -267,7 +265,6 @@
 				</div>
 			</div>
 
-			<!-- Icon -->
 			<div class="field-row" style="align-items:center;">
 				<h1 class="upload-label" style="font-size:2.8vh;">ICON:</h1>
 				<div onclick="document.getElementById('icon-input').click()" style="cursor:pointer;height:7vh;width:7vh;position:relative;flex-shrink:0;">
@@ -280,7 +277,6 @@
 				<input type="file" id="icon-input" accept="image/png" style="display:none;" onchange="handleIconPreview(this)">
 			</div>
 
-			<!-- Divider + new download -->
 			<div style="height:6px;width:100%;background-color:#555;border-radius:10px;margin:0.5vh 0;"></div>
 			<h1 class="upload-label" style="font-size:2.5vh;color:#999;">Add New Download Version</h1>
 			<div class="field-row">
@@ -322,8 +318,6 @@
 		const modId = sessionStorage.getItem('editModId');
 		if (!modId) window.location.replace('/mods/');
 
-		// ── Screenshot strip ──────────────────────────────────────────────
-		// Each slot: { type: 'existing', url } | { type: 'new', file }
 		const ssSlots = [];
 
 		function getVideoThumbnail(file) {
@@ -458,7 +452,6 @@
 			});
 		})();
 
-		// ── Image preview helpers ─────────────────────────────────────────
 		function handleImgPreview(inputId, imgId, placeholderId, labelId) {
 			const input = document.getElementById(inputId);
 			if (!input.files[0]) return;
@@ -485,7 +478,6 @@
 			lbl.style.color = '#E1E1E1';
 		}
 
-		// ── Meta load ────────────────────────────────────────────────────
 		async function loadMeta() {
 			const token = localStorage.getItem('token');
 			if (!token) { window.location.replace('/login'); return; }
@@ -510,10 +502,8 @@
 			if (meta.parent) selectEngine(meta.parent, engineMap[meta.parent] || meta.parent);
 			if (meta.child) selectCategory(meta.child, categoryMap[meta.child] || meta.child);
 
-			// Populate screenshot strip with existing thumbnails
 			for (const url of (meta.thumbnails || [])) addExistingSsSlot(url);
 
-			// Populate portrait preview
 			if (meta.portrait) {
 				const img = document.getElementById('portrait-img');
 				img.src = meta.portrait;
@@ -522,7 +512,6 @@
 				document.getElementById('portrait-label').textContent = 'EXISTING';
 			}
 
-			// Populate icon preview
 			if (meta.icon) {
 				const img = document.getElementById('icon-img');
 				img.src = meta.icon;
@@ -665,7 +654,6 @@
 			saveBtns.forEach(b => b.style.pointerEvents = 'none');
 
 			try {
-				// Build screenshot URL list: upload new ones, keep existing URLs
 				const screenshotUrls = [];
 				let newIdx = 0;
 				for (const slot of ssSlots) {
