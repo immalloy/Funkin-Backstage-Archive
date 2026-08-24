@@ -858,7 +858,6 @@
 
 			document.title = `${user.username} — Funkin' Backstage`;
 			try { history.replaceState(null, '', '/users/' + userId); } catch (e) {}
-			loadMods(userId);
 
 			const badgeEl = document.getElementById('profile-badge');
 			const badges = [];
@@ -889,6 +888,7 @@
 				avatarEl.onerror = null;
 				avatarEl.src = '../../icon-profile-out.png';
 			};
+			setTimeout(() => loadMods(userId), 0);
 
 			const bioEl = document.getElementById('profile-bio');
 			if (user.bio) {
