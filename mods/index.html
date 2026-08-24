@@ -172,9 +172,24 @@
 				const bar = document.getElementById('top-bar');
 				bar.innerHTML = `
 					<div class="mod-box smooth-btn" onclick="window.location.href='../signup'" style="display:flex;flex-direction:row;align-items:center;gap:1rem;height:5vh;transition:transform 0.3s ease-out;cursor:pointer;">
-						<h1 style="font-size:2.5vh;color:#E1E1E1;margin-top:0.3vh;padding:0 1rem;">SIGN UP</h1>
+						<h1 style="font-size:2.5vh;color:#E1E1E1;margin:0;padding:0 1rem;line-height:1;">SIGN UP</h1>
 					</div>
 				`;
+			} else {
+				(async () => {
+					const me = await fetch(`${API}/me`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${_token}` }, body: JSON.stringify({}) }).then(r => r.ok ? r.json() : null).catch(() => null);
+					if (!me?.id) return;
+					const btn = document.getElementById('profile-icon-btn');
+					const avatarUrl = `${API}/avatars/${me.id}.png`;
+					const test = new Image();
+					test.onload = () => {
+						btn.src = avatarUrl;
+						btn.style.borderRadius = '50%';
+						btn.style.objectFit = 'cover';
+						btn.style.width = '7vh';
+					};
+					test.src = avatarUrl;
+				})();
 			}
 		</script>
 	</body>
