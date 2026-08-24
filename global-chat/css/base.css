@@ -23,6 +23,16 @@
   display: none;
 }
 
+#chat-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-family: "FunkinOptions", sans-serif;
+  font-size: 4vh;
+  color: #888;
+}
+
 .footer-left {
   position: fixed;
   bottom: 0.5vh;

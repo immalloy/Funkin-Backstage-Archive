@@ -55,7 +55,7 @@ img {
 
 #mod-grid-container {
   scrollbar-gutter: stable;
-
+  min-width: 0;
 }
 
 #mod-grid-container::-webkit-scrollbar {
@@ -74,10 +74,15 @@ img {
 #mod-grid {
   font-family: 'FunkinLingLong', sans-serif;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   padding-bottom: 1rem;
   gap: 1rem;
   overflow-x: visible;
+  min-width: 0;
+}
+
+#mod-grid > div {
+  min-width: 0;
 }
 
 #search-box input::placeholder {
@@ -105,17 +110,27 @@ img {
   z-index: 1;
   margin-top: 0.4rem;
   margin-left: 2rem;
+  min-width: 0;
+  max-width: calc(100% - 3.2rem);
+  overflow: hidden;
 }
 
 .mod-label h1 {
   margin: 0;
   line-height: 1.1;
   font-weight: normal;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .mod-card, .mod-card:visited, .mod-card:hover {
   position: relative;
+  display: block;
   aspect-ratio: 1241 / 1065;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  box-sizing: border-box;
   touch-action: manipulation;
   color: #E1E1E1;
 }
@@ -150,18 +165,24 @@ img {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .mod-footer-left {
   display: flex;
   align-items: center;
   gap: 1rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .mod-footer-right {
   display: flex;
   align-items: center;
   gap: 1rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .mod-topleft {
@@ -170,15 +191,20 @@ img {
   right: 0.75rem;
   z-index: 2;
   height: 5.5vh;
+  max-width: 20%;
+  aspect-ratio: 1;
   border-radius: 5px;
+  object-fit: cover;
 }
 
 .mod-thumbnail {
-  width: 98%;
+  width: calc(100% - 0.7rem);
+  max-width: 100%;
   height: 65%;
   object-fit: cover;
   margin-top: 0.2rem;
   margin-left: 0.7rem;
+  box-sizing: border-box;
 }
 
 .footer-piece {
@@ -197,11 +223,21 @@ img {
   margin: 0;
   line-height: 1;
   font-weight: normal;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 1100px) {
+  #mod-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 768px) {
   #mod-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .mod-thumbnail {
@@ -210,10 +246,6 @@ img {
     object-fit: cover;
     margin-top: 1%;
     margin-left: 0;
-  }
-
-  .mod-card {
-    overflow: hidden;
   }
 
   .mod-box {

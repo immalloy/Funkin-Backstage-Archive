@@ -9,29 +9,40 @@ var likedFilter = false;
 var filterCount = 0;
 var sortBackwards = false;
 var isAdmin = false;
+const META_BATCH_SIZE = 24;
+
+function updateFilterUI() {
+    const filters = [
+        ['featured-filter', featuredFilter],
+        ['liked-filter', likedFilter],
+        ['unapproved-filter', unapprovedFilter]
+    ];
+    filterCount = filters.filter(([, enabled]) => enabled).length;
+    document.getElementById("filter-text").textContent = 'FILTERS - ' + filterCount;
+    filters.forEach(([id, enabled]) => {
+        const checkbox = document.getElementById(id);
+        if (!checkbox) return;
+        checkbox.classList.toggle('selected', enabled);
+        checkbox.src = enabled ? 'assets/checkbox-filled.png' : 'assets/checkbox-empty.png';
+    });
+}
 
 function toggleLikedFilter() {
     likedFilter = !likedFilter;
+    updateFilterUI();
     reloadModList();
-    if (likedFilter) filterCount ++;
-    else filterCount --;
-    document.getElementById("filter-text").textContent = 'FILTERS - ' + filterCount;
 }
 
 function toggleFeaturedFilter() {
     featuredFilter = !featuredFilter;
+    updateFilterUI();
     reloadModList();
-    if (featuredFilter) filterCount ++;
-    else filterCount --;
-    document.getElementById("filter-text").textContent = 'FILTERS - ' + filterCount;
 }
 
 function toggleUnapprovedFilter() {
     unapprovedFilter = !unapprovedFilter;
+    updateFilterUI();
     reloadModList();
-    if (unapprovedFilter) filterCount ++;
-    else filterCount --;
-    document.getElementById("filter-text").textContent = 'FILTERS - ' + filterCount;
 }
 
 function changeSort(element) {
@@ -138,16 +149,20 @@ async function reloadModList() {
 
     const files = await fetch(`${API}/submissions`).then(r => r.json()).catch(() => []);
     if (!files.length) return;
-    let modDatas = (await Promise.all(files.map(async id => {
-        try {
-            const meta = await fetch(`${API}/submissions/${id}/meta.json`).then(r => r.ok ? r.json() : null);
-            if (!meta?.live) return null;
-            meta.storageID = id;
-            return meta;
-        } catch {
-            return null;
-        }
-    }))).filter(Boolean);
+    let modDatas = [];
+    for (let i = 0; i < files.length; i += META_BATCH_SIZE) {
+        const batch = await Promise.all(files.slice(i, i + META_BATCH_SIZE).map(async id => {
+            try {
+                const meta = await fetch(`${API}/submissions/${id}/meta.json`).then(r => r.ok ? r.json() : null);
+                if (!meta?.live) return null;
+                meta.storageID = id;
+                return meta;
+            } catch {
+                return null;
+            }
+        }));
+        modDatas.push(...batch.filter(Boolean));
+    }
 
     if (engineFilter != "any") {
         modDatas = modDatas.filter(_ => { return _.parent == engineFilter });
@@ -271,6 +286,7 @@ async function reloadModList() {
     parentElement.innerHTML = htmlOut;
     applySearch(document.getElementById('search-input')?.value || '');
 }
+updateFilterUI();
 reloadModList();
 
 const modUpdateStream = new EventSource(`${API}/mods/update-stream`);

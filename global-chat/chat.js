@@ -27,12 +27,11 @@
 
     async function getUser(userId) {
         if (!userCache.has(userId)) {
-            const u = await fetch(`${API}/users/${userId}`).then(r => r.json()).catch(() => ({ id: userId, username: '?' }));
+            const userRequest = fetch(`${API}/users/${userId}`).then(r => r.json()).catch(() => ({ id: userId, username: '?' }));
+            const avatarRequest = fetch(`${API}/avatars/${userId}.png`, { method: 'HEAD' }).catch(() => ({ ok: false }));
+            const [u, avatar] = await Promise.all([userRequest, avatarRequest]);
             userCache.set(userId, u);
-            if (!avatarCache.has(userId)) {
-                const res = await fetch(`${API}/avatars/${userId}.png`, { method: 'HEAD' }).catch(() => ({ ok: false }));
-                avatarCache.set(userId, res.ok);
-            }
+            avatarCache.set(userId, avatar.ok);
         }
         return userCache.get(userId);
     }
@@ -58,51 +57,61 @@
     const track = document.getElementById('scroll-track');
     const thumb = document.getElementById('scroll-thumb');
 
+    let thumbFrame = 0;
     function updateThumb() {
-        const trackH = track.clientHeight;
-        const thumbH = thumb.offsetHeight;
-        const scrollRange = scrollEl.scrollHeight - scrollEl.clientHeight;
-        const thumbTop = scrollRange > 0 ? (scrollEl.scrollTop / scrollRange) * (trackH - thumbH) : 0;
-        thumb.style.top = thumbTop + 'px';
+        if (thumbFrame) return;
+        thumbFrame = requestAnimationFrame(() => {
+            thumbFrame = 0;
+            const trackH = track.clientHeight;
+            const thumbH = thumb.offsetHeight;
+            const scrollRange = Math.max(scrollEl.scrollHeight - scrollEl.clientHeight, 0);
+            const thumbRange = Math.max(trackH - thumbH, 0);
+            const thumbTop = scrollRange ? (scrollEl.scrollTop / scrollRange) * thumbRange : 0;
+            thumb.style.top = Math.min(thumbRange, Math.max(0, thumbTop)) + 'px';
+        });
     }
 
     scrollEl.addEventListener('scroll', updateThumb);
+    window.addEventListener('resize', updateThumb);
 
     let dragging = false, startY = 0, startScrollTop = 0;
-    
+
     function startDrag(e) {
+        if (e.button !== undefined && e.button !== 0) return;
         dragging = true;
-        startY = e.touches ? e.touches[0].clientY : e.clientY;
+        startY = e.clientY;
         startScrollTop = scrollEl.scrollTop;
-        if (!e.touches) e.preventDefault();
+        thumb.setPointerCapture(e.pointerId);
+        e.preventDefault();
     }
-    
+
     function moveDrag(e) {
         if (!dragging) return;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        const dy = clientY - startY;
-        const trackH = track.clientHeight;
-        const thumbH = thumb.offsetHeight;
-        const scrollRange = scrollEl.scrollHeight - scrollEl.clientHeight;
-        scrollEl.scrollTop = startScrollTop + (dy / (trackH - thumbH)) * scrollRange;
+        const thumbRange = Math.max(track.clientHeight - thumb.offsetHeight, 1);
+        const scrollRange = Math.max(scrollEl.scrollHeight - scrollEl.clientHeight, 0);
+        const nextScrollTop = startScrollTop + ((e.clientY - startY) / thumbRange) * scrollRange;
+        scrollEl.scrollTop = Math.max(0, Math.min(scrollRange, nextScrollTop));
+        e.preventDefault();
     }
-    
-    function endDrag() { dragging = false; }
 
-    thumb.addEventListener('mousedown', startDrag);
-    thumb.addEventListener('touchstart', startDrag, { passive: true });
-    
-    document.addEventListener('mousemove', moveDrag);
-    document.addEventListener('touchmove', moveDrag, { passive: true });
-    
-    document.addEventListener('mouseup', endDrag);
-    document.addEventListener('touchend', endDrag);
+    function endDrag(e) {
+        if (!dragging) return;
+        dragging = false;
+        if (thumb.hasPointerCapture(e.pointerId)) thumb.releasePointerCapture(e.pointerId);
+    }
+
+    thumb.addEventListener('pointerdown', startDrag);
+    thumb.addEventListener('pointermove', moveDrag);
+    thumb.addEventListener('pointerup', endDrag);
+    thumb.addEventListener('pointercancel', endDrag);
 
     track.addEventListener('click', e => {
         if (e.target === thumb) return;
         const rect = track.getBoundingClientRect();
-        const ratio = (e.clientY - rect.top) / track.clientHeight;
-        scrollEl.scrollTop = ratio * scrollEl.scrollHeight;
+        const thumbRange = Math.max(track.clientHeight - thumb.offsetHeight, 1);
+        const scrollRange = Math.max(scrollEl.scrollHeight - scrollEl.clientHeight, 0);
+        const ratio = (e.clientY - rect.top - thumb.offsetHeight / 2) / thumbRange;
+        scrollEl.scrollTop = Math.max(0, Math.min(1, ratio)) * scrollRange;
     });
 
     function escapeHTML(text) {
@@ -141,7 +150,7 @@
 
         if (grouped) {
             return `<div data-poster="${message.poster}" style="display:flex;flex-direction:column;align-items:flex-start;justify-content:start;margin-top:calc(-2vh + 0.2vh);${highlightStyle}">
-                <h1 style="font-family:'FunkinOptions',sans-serif;font-size:4vh;margin:0;font-weight:normal">${content}</h1>
+                <h1 style="font-family:'FunkinOptions',sans-serif;font-size:4vh;margin:0;display:flex;align-items:center;font-weight:normal">${content}</h1>
             </div>`;
         }
 
@@ -163,7 +172,7 @@
                     ${message.timestamp ? `<h1 style="font-family:'FunkinOptions',sans-serif;font-size:2vh;margin:0;color:#999;white-space:nowrap;">• ${new Date(message.timestamp).toLocaleTimeString([],{hour:'numeric',minute:'2-digit',hour12:true}).toLowerCase()}</h1>` : ''}
                 </div>
             </div>
-            <h1 style="font-family:'FunkinOptions',sans-serif;font-size:4vh;margin:0;font-weight:normal">${content}</h1>
+            <h1 style="font-family:'FunkinOptions',sans-serif;font-size:4vh;margin:0;display:flex;align-items:center;font-weight:normal">${content}</h1>
         </div>`;
     }
 
@@ -184,6 +193,8 @@
         try {
             const all = await fetch(`${API}/chat/read`).then(r => r.json());
             const messages = all.slice(-25);
+            const posterIds = [...new Set(messages.map(msg => msg.poster))];
+            await Promise.all([getStickers(), ...posterIds.map(getUser)]);
             let out = '';
             let prevPoster = null;
             for (const msg of messages) {

@@ -111,15 +111,15 @@
 				<div class="mod-box-content" style="padding-left: 5%">
 					<div style="height: 6px; width: 90%; background-color: #E1E1E1; border-radius: 10px; margin-bottom: 1vh;"></div>
 					<div style="display: flex; flex-direction: row; align-items: center; gap: 0.75rem; width: 100%">
-						<img draggable="false" class="check-box" src="assets/checkbox-empty.png" style="height: 2.5vh; cursor: pointer;" onclick="toggleTick(this); toggleFeaturedFilter()">
+						<img id="featured-filter" draggable="false" class="check-box" src="assets/checkbox-empty.png" style="height: 2.5vh; cursor: pointer;" onclick="toggleTick(this); toggleFeaturedFilter()">
 						<h1 style="font-size: 3vh; line-height: 1; margin-top: 0.6rem;">Featured</h1>
 					</div>
 					<div style="display: flex; flex-direction: row; align-items: center; gap: 0.75rem; width: 100%">
-						<img draggable="false" class="check-box" src="assets/checkbox-empty.png" style="height: 2.5vh; cursor: pointer;" onclick="toggleTick(this); toggleLikedFilter()">
+						<img id="liked-filter" draggable="false" class="check-box" src="assets/checkbox-empty.png" style="height: 2.5vh; cursor: pointer;" onclick="toggleTick(this); toggleLikedFilter()">
 						<h1 style="font-size: 3vh; line-height: 1; margin-top: 0.6rem;">Liked</h1>
 					</div>
 					<div style="display: flex; flex-direction: row; align-items: center; gap: 0.75rem; width: 100%">
-						<img draggable="false" class="check-box" src="assets/checkbox-empty.png" style="height: 2.5vh; cursor: pointer;" onclick="toggleTick(this); toggleUnapprovedFilter()">
+						<img id="unapproved-filter" draggable="false" class="check-box" src="assets/checkbox-empty.png" style="height: 2.5vh; cursor: pointer;" onclick="toggleTick(this); toggleUnapprovedFilter()">
 						<h1 style="font-size: 3vh; line-height: 1; margin-top: 0.6rem;">Unapproved</h1>
 					</div>
 				</div>
@@ -155,9 +155,9 @@
 		<p class="footer-right" style="position: fixed; bottom: 1rem; right: 1rem; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.25rem; color: #666; text-align: right;"></p>
 		<div id="top-bar" style="position: fixed; top: 1rem; right: 2rem; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.25rem; color: #666; text-align: right; display: flex; align-items: center; gap: 2rem;">
 			<img class="smooth-btn" src="assets/icon-search.png" style="height:3.5vh;cursor:pointer;opacity:0.8;transition:transform 0.3s ease-out,opacity 0.2s;" onclick="openUserSearch()" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'" draggable="false"/>
-			<div class="mod-box smooth-btn" id="upload-button" onclick="window.location.href='../upload'" style="display: flex; flex-direction: row; align-items: center; gap: 1rem; height: 5vh; transition: transform 0.3s ease-out, height 0.3s ease; cursor: pointer;">
-				<h1 style="font-size: 2.5vh; color: #E1E1E1; margin-top: 0.3vh">UPLOAD</h1>
-				<img src="../icon-upload.png" style="height: 2.5vh; width: 2.5vh; margin-top: -0.4rem; margin-right: 0.6rem"/>
+			<div class="mod-box smooth-btn" id="upload-button" onclick="window.location.href='../upload'" style="display: flex; flex-direction: row; align-items: center; gap: 1rem; height: 5vh; transition: transform 0.3s ease-out, height 0.3s ease; cursor: pointer; box-sizing: border-box;">
+				<h1 style="font-size: 2.5vh; color: #E1E1E1; margin: 0; line-height: 1;">UPLOAD</h1>
+				<img src="../icon-upload.png" style="height: 2.5vh; width: 2.5vh; display: block; flex-shrink: 0; margin: 0;"/>
 			</div>
 			<div id="notif-wrap" style="display:none;position:relative;">
 				<img src="../icon-notification.png" style="height:5vh;cursor:pointer;opacity:0.85;transition:transform 0.3s ease-out,opacity 0.2s;" onclick="toggleNotifs()" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'" draggable="false"/>
