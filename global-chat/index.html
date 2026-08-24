@@ -404,6 +404,14 @@
         bubble.style.display = bubble.style.display === 'none' ? 'flex' : 'none';
     }
 
+    document.addEventListener('click', e => {
+        const bubble = document.getElementById('sticker-bubble');
+        if (bubble.style.display === 'none') return;
+        if (!bubble.contains(e.target) && !e.target.closest('[onclick="toggleStickerBubble()"]')) {
+            bubble.style.display = 'none';
+        }
+    });
+
     async function isBlacklisted(text) {
         const raw = await fetch(`${API}/word-blacklist`).then(r => r.text());
         const words = raw.split('\n').map(w => normalize(w.trim())).filter(Boolean);
