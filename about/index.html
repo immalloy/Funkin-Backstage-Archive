@@ -176,5 +176,25 @@
 
 	<script src="../api.js"></script>
 	<script src="../script.js"></script>
+	<script>
+		(async () => {
+			const nameEls = document.querySelectorAll('.crew-name, .supporter-name');
+			await Promise.all([...nameEls].map(async el => {
+				const username = el.textContent.trim();
+				const user = await fetch(`${API}/users/by-username/${encodeURIComponent(username)}`).then(r => r.ok ? r.json() : null).catch(() => null);
+				if (!user) return;
+				const a = document.createElement('a');
+				a.href = `https://funkinbackstage.com/users/${user.id}`;
+				a.target = '_blank';
+				a.rel = 'noopener';
+				a.textContent = el.textContent;
+				a.style.cssText = 'color:inherit;text-decoration:none;';
+				a.onmouseover = () => a.style.textDecoration = 'underline';
+				a.onmouseout = () => a.style.textDecoration = 'none';
+				el.textContent = '';
+				el.appendChild(a);
+			}));
+		})();
+	</script>
 </body>
 </html>
