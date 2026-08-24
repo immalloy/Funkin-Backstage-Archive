@@ -68,9 +68,9 @@
 	</head>
 
 	<body>
-		<h1 style="font-family: 'FunkinLingLong', sans-serif; position: fixed; left: 2rem; top: 0rem; font-size: 8vh;">Mods</h1>
-		<div style="display: flex; flex-direction: column; row-gap: 15px; position: fixed; top: 9rem; left: 2rem;">
-			<div class="mod-box" id="mod-box-1" style="width: 25vw;">
+		<h1 style="font-family: 'FunkinLingLong', sans-serif; position: fixed; left: 2rem; top: 1rem; margin: 0; line-height: 1; font-size: 6vh;">Mods</h1>
+		<div id="filter-panel">
+			<div class="mod-box" id="mod-box-1">
 				<div class="mod-box-header">
 					<h1 id="category-text" style="font-size: 3vh;">CATEGORY - FULL MODS</h1>
 					<div style="flex: 1;"></div>
@@ -84,7 +84,7 @@
 					<h1 style="font-size: 3vh;" class="sort-item" onclick="changeCategoryFilter(this)">Scripts</h1>
 				</div>
 			</div>
-			<div class="mod-box" id="mod-box-2" style="width: 25vw;">
+			<div class="mod-box" id="mod-box-2">
 				<div class="mod-box-header">
 					<h1 id="engine-text" style="font-size: 3vh;">ENGINE - ANY</h1>
 					<div style="flex: 1;"></div>
@@ -101,7 +101,7 @@
 					<h1 style="font-size: 3vh;" class="sort-item" onclick="changeEngineFilter(this)">Other</h1>
 				</div>
 			</div>
-			<div class="mod-box" id="mod-box-3" style="width: 25vw;">
+			<div class="mod-box" id="mod-box-3">
 				<div class="mod-box-header">
 					<h1 id="filter-text" style="font-size: 3vh;">FILTERS - 0</h1>
 					<div style="flex: 1;"></div>
@@ -123,30 +123,33 @@
 					</div>
 				</div>
 			</div>
+			<div class="mod-box" id="mod-box-sort">
+				<div class="mod-box-header">
+					<h1 id="sort-text" style="font-size: 3vh;">SORT - ACTIVITY</h1>
+					<div style="flex: 1;"></div>
+					<img id="sort-arrow" draggable="false" src="assets/drop down arrow.png" class="smooth-btn dropdown-arrow" style="height: 2vh; margin-right: 1rem; cursor: pointer;" onclick="toggleBox(this, 'mod-box-sort')">
+					<img id="sort-arrow" draggable="false" src="assets/sort-direction.png" class="smooth-btn dropdown-arrow" style="height: 2vh; margin-right: 1rem; cursor: pointer;" onclick="toggleDirection(this)">
+				</div>
+				<div class="mod-box-content" style="padding-left: 5%">
+					<div style="height: 6px; width: 90%; background-color: #E1E1E1; border-radius: 10px; margin-bottom: 1vh;"></div>
+					<h1 style="font-size: 3vh;" class="sort-item" onclick="changeSort(this)">Activity</h1>
+					<h1 style="font-size: 3vh;" class="sort-item" onclick="changeSort(this)">Downloads</h1>
+					<h1 style="font-size: 3vh;" class="sort-item" onclick="changeSort(this)">Likes</h1>
+					<h1 style="font-size: 3vh;" class="sort-item" onclick="changeSort(this)">Views</h1>
+					<h1 style="font-size: 3vh;" class="sort-item" onclick="changeSort(this)">Date Added</h1>
+					<h1 style="font-size: 3vh;" class="sort-item" onclick="changeSort(this)">Stars</h1>
+				</div>
+			</div>
 		</div>
-		<div id="mod-grid-container" style="position: fixed; top: calc(9rem + 7vh + 1.5rem); left: calc(2rem + 25vw + 1.5rem); right: 1.2rem; bottom: 3rem; overflow-y: auto; overflow-x: hidden;">
+		<div id="mod-grid-container" style="position: fixed; top: calc(6rem + 7vh + 1.5rem); left: 2rem; right: 1.2rem; bottom: 3rem; overflow-y: auto; overflow-x: hidden;">
 			<div id="mod-grid"></div>
 		</div>
-		<div class="mod-box" id="search-box" style="position: fixed; top: 9rem; left: calc(2rem + 25vw + 1.5rem); right: calc(2rem + 18vw + 1.5rem); flex-direction: row; align-items: center; height: 7vh; padding: 0 1.5rem 0 3rem; gap: 0.75rem;">
+		<div class="mod-box" id="search-box" style="position: fixed; top: 6rem; left: 2rem; right: calc(2rem + 12vw + 1rem); flex-direction: row; align-items: center; height: 7vh; padding: 0 1.5rem 0 3rem; gap: 0.75rem;">
 			<img draggable="false" src="assets/icon-search.png" style="height: 2.5vh; opacity: 0.7; flex-shrink: 0;">
 			<input type="text" id="search-input" placeholder="SEARCH" oninput="applySearch(this.value)" style="background: transparent; border: none; outline: none; font-family: 'FunkinLingLong', sans-serif; font-size: 3vh; color: #E1E1E1; width: 100%; caret-color: #E1E1E1; margin-top: 0.2rem;" />
 		</div>
-		<div class="mod-box" id="mod-box-sort" style="position: fixed; top: 9rem; right: 2rem; width: 18vw;">
-			<div class="mod-box-header">
-				<h1 id="sort-text" style="font-size: 3vh;">SORT - ACTIVITY</h1>
-				<div style="flex: 1;"></div>
-				<img id="sort-arrow" draggable="false" src="assets/drop down arrow.png" class="smooth-btn dropdown-arrow" style="height: 2vh; margin-right: 1rem; cursor: pointer;" onclick="toggleBox(this, 'mod-box-sort')">
-				<img id="sort-arrow" draggable="false" src="assets/sort-direction.png" class="smooth-btn dropdown-arrow" style="height: 2vh; margin-right: 1rem; cursor: pointer;" onclick="toggleDirection(this)">
-			</div>
-			<div class="mod-box-content" style="padding-left: 5%">
-				<div style="height: 6px; width: 90%; background-color: #E1E1E1; border-radius: 10px; margin-bottom: 1vh;"></div>
-				<h1 style="font-size: 3vh;" class="sort-item" onclick="changeSort(this)">Activity</h1>
-				<h1 style="font-size: 3vh;" class="sort-item" onclick="changeSort(this)">Downloads</h1>
-				<h1 style="font-size: 3vh;" class="sort-item" onclick="changeSort(this)">Likes</h1>
-				<h1 style="font-size: 3vh;" class="sort-item" onclick="changeSort(this)">Views</h1>
-				<h1 style="font-size: 3vh;" class="sort-item" onclick="changeSort(this)">Date Added</h1>
-				<h1 style="font-size: 3vh;" class="sort-item" onclick="changeSort(this)">Stars</h1>
-			</div>
+		<div id="filter-toggle" class="mod-box smooth-btn" onclick="toggleFilters()" style="position: fixed; top: 6rem; right: 2rem; width: 12vw; flex-direction: row; align-items: center; justify-content: center; cursor: pointer;">
+			<h1 id="filter-toggle-text" style="font-size: 2.2vh; color: #E1E1E1;">FILTERS/SORTS</h1>
 		</div>
 		<script src="../api.js?v=3"></script>
 		<script src="scripts/main.js"></script>
@@ -160,11 +163,23 @@
 			<img class="smooth-btn" id="profile-icon-btn" src="../icon-profile-out.png" style="transition: transform 0.3s ease-out, height 0.3s ease; height: 7vh; cursor: pointer;" onclick="goToProfile()"/>
 		</div>
 		<script>
+			async function loadProfileIcon() {
+				const t = localStorage.getItem('token');
+				if (!t) return;
+				const me = await fetch(`${API}/me`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${t}` }, body: JSON.stringify({}) }).then(r => r.ok ? r.json() : null).catch(() => null);
+				if (!me?.id) return;
+				const icon = document.getElementById('profile-icon-btn');
+				const fallback = icon.src;
+				icon.onload = () => { if (icon.src.includes('/avatars/')) icon.classList.add('has-avatar'); };
+				icon.onerror = () => { icon.classList.remove('has-avatar'); icon.src = fallback; };
+				icon.src = `${API}/avatars/${me.id}.png?t=${Date.now()}`;
+			}
+
 			async function goToProfile() {
 				const t = localStorage.getItem('token');
 				if (!t) { window.location.href = '../login'; return; }
 				const me = await fetch(`${API}/me`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${t}` }, body: JSON.stringify({}) }).then(r => r.ok ? r.json() : null).catch(() => null);
-				if (me?.id) window.location.href = `https://funkinbackstage.com/users/${me.id}`;
+				if (me?.id) { sessionStorage.setItem('userId', me.id); window.location.href = '../users/view/'; }
 			}
 
 			const _token = localStorage.getItem('token');
@@ -176,6 +191,7 @@
 					</div>
 				`;
 			}
+			loadProfileIcon();
 		</script>
 	</body>
 </html>

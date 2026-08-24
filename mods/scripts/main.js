@@ -10,12 +10,35 @@ var filterCount = 0;
 var sortBackwards = false;
 var isAdmin = false;
 
+function updateFilterText() {
+    document.getElementById('filter-text').textContent = 'FILTERS - ' + filterCount;
+}
+
+function updateFilterLayout() {
+    const panel = document.getElementById('filter-panel');
+    const grid = document.getElementById('mod-grid-container');
+    if (!panel || !grid) return;
+    grid.style.top = panel.classList.contains('open')
+        ? `calc(6rem + 7vh + 3rem + ${panel.offsetHeight}px)`
+        : 'calc(6rem + 7vh + 1.5rem)';
+}
+
+function toggleFilters() {
+    const panel = document.getElementById('filter-panel');
+    const isOpen = panel.classList.toggle('open');
+    document.getElementById('filter-toggle').classList.toggle('active', isOpen);
+    updateFilterLayout();
+}
+
+const filterPanel = document.getElementById('filter-panel');
+if (filterPanel && window.ResizeObserver) new ResizeObserver(updateFilterLayout).observe(filterPanel);
+
 function toggleLikedFilter() {
     likedFilter = !likedFilter;
     reloadModList();
     if (likedFilter) filterCount ++;
     else filterCount --;
-    document.getElementById("filter-text").textContent = 'FILTERS - ' + filterCount;
+    updateFilterText();
 }
 
 function toggleFeaturedFilter() {
@@ -23,7 +46,7 @@ function toggleFeaturedFilter() {
     reloadModList();
     if (featuredFilter) filterCount ++;
     else filterCount --;
-    document.getElementById("filter-text").textContent = 'FILTERS - ' + filterCount;
+    updateFilterText();
 }
 
 function toggleUnapprovedFilter() {
@@ -31,7 +54,7 @@ function toggleUnapprovedFilter() {
     reloadModList();
     if (unapprovedFilter) filterCount ++;
     else filterCount --;
-    document.getElementById("filter-text").textContent = 'FILTERS - ' + filterCount;
+    updateFilterText();
 }
 
 function changeSort(element) {
@@ -417,6 +440,7 @@ function toggleBox(btn, boxId) {
         box.classList.add('expanded');
         btn.classList.add('flipped');
     }
+    updateFilterLayout();
 }
 
 function toggleDirection(btn) {
