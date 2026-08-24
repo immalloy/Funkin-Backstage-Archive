@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" translate="no">
 <head>
   <meta charset="UTF-8">
@@ -130,7 +130,6 @@
       #scroll-track {
         display: block !important;
         width: 15px !important;
-        margin-left: 2vw;
       }
       #scroll-thumb {
         width: 30px !important;
@@ -142,21 +141,35 @@
       #chat-scroll::-webkit-scrollbar {
         display: none !important;
       }
-      body > .ui-box:last-of-type {
+      #header-container, #chat-box, body > .ui-box:last-of-type {
         width: 100% !important;
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+      }
+      body > .ui-box:last-of-type {
         padding: 2.5vh 3vh !important;
       }
-      #sticker-bubble {
-        right: 0 !important;
-        width: 85vw !important;
-        height: 85vw !important;
-        max-width: 55vh !important;
-        max-height: 55vh !important;
-        margin-bottom: 0 !important;
-      }
+
       #sticker-icon, #send-icon {
         width: 5vh !important;
         height: 5.5vh !important;
+      }
+      #chat-scroll {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+      #header-container {
+        flex-direction: column !important;
+        gap: 0 !important;
+        align-items: flex-start !important;
+      }
+      #header-container h1 {
+        line-height: 1;
+      }
+      #active-count {
+        align-self: flex-start !important;
+        margin-bottom: 2vh !important;
       }
       #chat-scroll h1 {
         font-size: 2.8vh !important;
@@ -167,9 +180,6 @@
       #chat-scroll h1:last-child {
         font-size: 3.2vh !important;
       }
-      .footer-left, .footer-right {
-        display: none !important;
-      }
     }
     #chat-scroll h1 {
       word-break: break-word;
@@ -179,7 +189,7 @@
   </style>
 </head>
 <body style="display: flex; flex-direction: column; align-items: center; gap: 3vh; justify-content: center; padding: 4vh 0; box-sizing: border-box; height: 100vh; height: 100dvh; overflow: hidden; background-image: url('bg.png'); background-size: cover; background-position: center; background-attachment: fixed; margin: 0;">
-    <div style="display: flex; align-items: center; gap: 2vh; width: 90vw; max-width: 100rem; flex-shrink: 0;">
+    <div id="header-container" style="display: flex; align-items: center; gap: 2vh; width: 90vw; max-width: 100rem; flex-shrink: 0;">
         <h1 style="font-family: 'FunkinLingLong', sans-serif; font-size: 10vh;">Global Chat</h1>
         <span id="active-count" style="font-family: 'FunkinOptions', sans-serif; font-size: 2.5vh; align-self: center; margin-bottom: 0.5rem; color: #BABABA">• 0 active</span>
     </div>
@@ -194,7 +204,7 @@
         <div id="mention-suggestions" role="listbox"></div>
         <input type="text" id="chat-bar" placeholder="Type something to send..." autocomplete="off" aria-autocomplete="list" style="background: transparent; border: none; outline: none; font-family: 'FunkinOptions', sans-serif; font-size: 4vh; color: #E1E1E1; width: 100%; caret-color: #E1E1E1;" oninput="filterChatInput(this); updateMentionSuggestions()" onkeydown="handleChatKeydown(event)"/>
         <div style="position: relative; flex-shrink: 0; display: flex; align-items: center;">
-            <div id="sticker-bubble" style="display: none; position: absolute; bottom: 100%; right: 0; background-image: url('sticker-bubble.png'); background-size: contain; background-repeat: no-repeat; width: 55vh; height: 55vh; padding: 3vh; gap: 1vh; grid-template-columns: repeat(4, 1fr); grid-auto-rows: max-content; align-content: flex-start; overflow-y: auto; margin-bottom: 0;">
+            <div id="sticker-bubble" style="display: none; position: absolute; bottom: 100%; right: 0; background-image: url('sticker-bubble.png'); background-size: contain; background-repeat: no-repeat; width: 45vh; max-width: 90vw; aspect-ratio: 1 / 1; padding: 3vh; gap: 1vh; grid-template-columns: repeat(4, 1fr); grid-auto-rows: max-content; align-content: flex-start; overflow-y: auto; margin-bottom: -7.5vh;">
             </div>
             <img id="sticker-icon" src="icon-sticker.png" class="smooth-btn" style="width: 4vh; height: 4.5vh; margin-left: auto; cursor: pointer;" onclick="toggleStickerBubble()"/>
         </div>
@@ -217,8 +227,8 @@
 	<img class="smooth-btn" id="profile-icon-btn" src="../icon-profile-out.png" onclick="goToOwnProfile()" style="height:7vh;cursor:pointer;transition:transform 0.3s ease-out;" draggable="false"/>
 </div>
 
-<p class="footer-left" style="position: fixed; bottom: 1rem; left: 1rem; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.25rem; color: #666; z-index: 101;"></p>
-<p class="footer-right" style="position: fixed; bottom: 1rem; right: 1rem; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.25rem; color: #666; z-index: 101; text-align: right;"></p>
+<p class="footer-left" style="position: fixed; bottom: 0.5vh; left: 1vw; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.5vh; color: #666; z-index: 101;"></p>
+<p class="footer-right" style="position: fixed; bottom: 0.5vh; right: 1vw; font-family: 'Inconsolata ExtraBold', sans-serif; font-size: 1.5vh; color: #666; z-index: 101; text-align: right;"></p>
 
 <script src="../api.js"></script>
 <script>
