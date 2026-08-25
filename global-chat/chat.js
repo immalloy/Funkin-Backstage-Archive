@@ -27,7 +27,13 @@
 
     async function getUser(userId) {
         if (!userCache.has(userId)) {
-            const userRequest = fetch(`${API}/users/${userId}`).then(r => r.json()).catch(() => ({ id: userId, username: '?' }));
+            const userRequest = fetch(`${API}/users/${userId}`)
+                .then(r => {
+                    if (!r.ok) throw new Error(`User lookup failed: ${r.status}`);
+                    return r.json();
+                })
+                .then(user => user?.id != null && user.username ? user : { id: userId, username: '?' })
+                .catch(() => ({ id: userId, username: '?' }));
             const avatarRequest = fetch(`${API}/avatars/${userId}.png`, { method: 'HEAD' }).catch(() => ({ ok: false }));
             const [u, avatar] = await Promise.all([userRequest, avatarRequest]);
             userCache.set(userId, u);
@@ -43,11 +49,16 @@
     let stickerListPromise = null;
     function getStickers() {
         if (!stickerListPromise) {
-            stickerListPromise = fetch(`${API}/stickers`).then(r => r.json()).then(files =>
-                files.map(f => `${f}`.replace('.png', ''))
+            stickerListPromise = fetch(`${API}/stickers`)
+                .then(r => {
+                    if (!r.ok) throw new Error(`Sticker lookup failed: ${r.status}`);
+                    return r.json();
+                })
+                .then(files => (Array.isArray(files) ? files : []).map(f => `${f}`.replace('.png', ''))
             ).catch(error => {
                 stickerListPromise = null;
-                throw error;
+                console.warn('Stickers unavailable:', error);
+                return [];
             });
         }
         return stickerListPromise;
@@ -115,7 +126,7 @@
     });
 
     function escapeHTML(text) {
-        return text.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+        return String(text ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
     }
 
     function normalize(str) {
@@ -187,11 +198,25 @@
     }
 
     let updating = false;
+    let historyLoaded = false;
+    let historyRetryTimer = 0;
+
+    function retryHistory() {
+        if (historyLoaded || historyRetryTimer) return;
+        historyRetryTimer = setTimeout(() => {
+            historyRetryTimer = 0;
+            updateTheMessages(true);
+        }, 5000);
+    }
+
     async function updateTheMessages(doScroll = false) {
         if (updating) return;
         updating = true;
         try {
-            const all = await fetch(`${API}/chat/read`).then(r => r.json());
+            const response = await fetch(`${API}/chat/read`);
+            if (!response.ok) throw new Error(`Chat history failed: ${response.status}`);
+            const all = await response.json();
+            if (!Array.isArray(all)) throw new Error('Chat history was not an array');
             const messages = all.slice(-25);
             const posterIds = [...new Set(messages.map(msg => msg.poster))];
             await Promise.all([getStickers(), ...posterIds.map(getUser)]);
@@ -203,7 +228,13 @@
             }
             const box = document.getElementById('chat-scroll');
             box.innerHTML = out;
+            historyLoaded = true;
             if (doScroll) scrollToBottom(box, true); else updateThumb();
+        } catch (error) {
+            console.error('Could not load chat history:', error);
+            const loading = document.getElementById('chat-loading');
+            if (loading) loading.textContent = 'Unable to load chat history. Retrying…';
+            retryHistory();
         } finally { updating = false; }
     }
 
@@ -479,7 +510,7 @@
     updateTheMessages(true);
     connectWS();
     populateStickerBubble();
-    setInterval(() => { if (!wsReady) updateTheMessages(false); }, 30000);
+    setInterval(() => { if (!historyLoaded && !wsReady) updateTheMessages(true); else if (!wsReady) updateTheMessages(false); }, 30000);
 
     let _notifs = [];
 
