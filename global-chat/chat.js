@@ -217,7 +217,7 @@
             if (!response.ok) throw new Error(`Chat history failed: ${response.status}`);
             const all = await response.json();
             if (!Array.isArray(all)) throw new Error('Chat history was not an array');
-            const messages = all.slice(-25);
+            const messages = all;
             const posterIds = [...new Set(messages.map(msg => msg.poster))];
             await Promise.all([getStickers(), ...posterIds.map(getUser)]);
             let out = '';
@@ -247,7 +247,6 @@
         div.innerHTML = html;
         const node = div.firstElementChild;
         box.appendChild(node);
-        while (box.children.length > 25) box.removeChild(box.firstElementChild);
         if (atBottom) scrollToBottom(box, true); else updateThumb();
     }
 
