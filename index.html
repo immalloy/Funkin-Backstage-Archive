@@ -30,6 +30,8 @@
   </style>
 </head>
 <body>
+  <div class="irisEffect" style="z-index: 100000;"></div>
+  <script src="script.js"></script>
   <img draggable="false" src="right light.png" alt="Description" style="position: fixed; top: 0px; right: 0px; z-index: 1000; width: 25vw">
   <img draggable="false" src="left light.png" alt="Description" style="position: fixed; top: 0px; left: 0px; z-index: 1000; width: 25vw">
   <div class="container" style="position:relative;z-index:101;">
@@ -63,8 +65,6 @@
     <img id="profile-icon-btn" src="icon-profile-out.png" style="height:7vh;cursor:pointer;" onclick="goToProfile()" draggable="false"/>
   </div>
 
-  <div class="irisEffect" style="z-index: 5000;"></div>
-  <script src="script.js"></script>
   <script src="api.js"></script>
   <script>
     let _notifs = [];
