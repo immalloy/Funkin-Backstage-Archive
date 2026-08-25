@@ -47,6 +47,41 @@
     }
 
     let stickerListPromise = null;
+    const modMetaCache = new Map();
+
+    function getModMeta(id) {
+        if (!modMetaCache.has(id)) {
+            modMetaCache.set(id, fetch(`${API}/submissions/${id}/meta.json`)
+                .then(r => r.ok ? r.json() : null)
+                .catch(() => null));
+        }
+        return modMetaCache.get(id);
+    }
+
+    async function renderModLinks(content) {
+        const linkPattern = /https?:\/\/(?:www\.)?funkinbackstage\.com\/mods\/(\d+)/gi;
+        const matches = [...content.matchAll(linkPattern)];
+        if (!matches.length) return content;
+
+        const metas = await Promise.all(matches.map(match => getModMeta(match[1])));
+        let output = '';
+        let lastIndex = 0;
+        matches.forEach((match, index) => {
+            const meta = metas[index];
+            output += content.slice(lastIndex, match.index);
+            if (!meta) {
+                output += match[0];
+            } else {
+                const icon = /^https?:\/\//i.test(meta.icon || '')
+                    ? `<img class="chat-mod-link-icon" src="${escapeHTML(meta.icon)}" alt="">`
+                    : '';
+                output += `<a class="chat-mod-link" href="https://funkinbackstage.com/mods/${match[1]}" target="_blank" rel="noopener noreferrer" title="Open ${escapeHTML(meta.title || `Mod #${match[1]}`)}">${icon}<span>${escapeHTML(meta.title || `Mod #${match[1]}`)}</span></a>`;
+            }
+            lastIndex = match.index + match[0].length;
+        });
+        return output + content.slice(lastIndex);
+    }
+
     function getStickers() {
         if (!stickerListPromise) {
             stickerListPromise = fetch(`${API}/stickers`)
@@ -146,6 +181,7 @@
         for (const sticker of stickerList) {
             content = content.replaceAll(`:${sticker}:`, `<img src="${API}/stickers/${sticker}.png" style="height:${stickerOnly ? '13' : '5'}vh;vertical-align:middle;${stickerOnly ? '' : 'margin:1vh;margin-top:0.5vh;'}"/>`);
         }
+        content = await renderModLinks(content);
         content = content.replace(/@([A-Za-z0-9_]{1,32})/gi, (match, username) => {
             const uid = getUserIdByName(username);
             if (uid) return `<span style="color:#5082ff;cursor:pointer;" onclick="goToUserProfile(${uid})" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">@${username}</span>`;

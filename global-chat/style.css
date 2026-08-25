@@ -7,3 +7,33 @@
   flex-direction: row;
   align-items: center;
 }
+.chat-mod-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6vh;
+  padding: 0.35vh 0.9vh;
+  border: 8px solid transparent;
+  border-image: url('assets/box-base.png') 18 fill / 8px stretch;
+  color: #e1e1e1;
+  font-family: 'FunkinOptions', sans-serif;
+  font-size: 2.5vh;
+  line-height: 1.1;
+  text-decoration: none;
+  vertical-align: middle;
+  transition: filter 140ms ease, transform 140ms ease;
+}
+.chat-mod-link:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+}
+.chat-mod-link:focus-visible {
+  outline: 2px solid #e1e1e1;
+  outline-offset: 3px;
+}
+.chat-mod-link-icon {
+  width: 3.5vh;
+  height: 3.5vh;
+  object-fit: contain;
+  border-radius: 0.4vh;
+  flex-shrink: 0;
+}
