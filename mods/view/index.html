@@ -163,12 +163,30 @@
 					gap: 1.5vh !important;
 				}
 
+				#title-box {
+					flex-direction: column;
+					align-items: center;
+					text-align: center;
+				}
+
+				#title-box img {
+					height: 10vw !important;
+					margin-right: 0 !important;
+					margin-bottom: 1vh;
+				}
+
 				#title-text {
 					font-size: 4.5vh !important;
 				}
 
 				#author-text {
 					font-size: 3vh !important;
+					margin-left: 0 !important;
+					white-space: normal;
+				}
+
+				#author-text::before {
+					display: none;
 				}
 
 				#thumbnail-box-main {
@@ -439,7 +457,7 @@
 				document.title = "Funkin' Backstage | " + meta.title;
 				document.getElementById('title-text').textContent = meta.title;
 				const authorEl = document.getElementById('author-text');
-				authorEl.textContent = `• ${user.username}`;
+				authorEl.textContent = user.username;
 				authorEl.style.cursor = 'pointer';
 				authorEl.onclick = () => window.open(`https://funkinbackstage.com/users/${user.id}`, '_blank');
 				const _esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
